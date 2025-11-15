@@ -1,0 +1,43 @@
+edition = "2023";
+
+package proto;
+
+// План реализации:
+// 1. Определить сервисы и сообщения для gRPC.
+// 2. Определить методы для регистрации, аутентификации, и других действий.
+// 3. Сгенерировать код для клиента и сервера.
+
+option go_package = "gophKeeper/internal/proto";
+
+// KeeperService предоставляет методы для работы с хранилищем.
+service KeeperService {
+    // Register регистрирует нового пользователя и возвращает токен доступа.
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+}
+
+// RegisterRequest содержит данные для регистрации нового пользователя.
+message RegisterRequest {
+    string login = 1;
+    string password = 2;
+    string email = 3;
+    string phone = 4;
+}
+
+// RegisterResponse содержит токен доступа после успешной регистрации.
+message RegisterResponse {
+    string token = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string device_name = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+service User {
+    rpc Register (RegisterRequest) returns (RegisterResponse);
+    rpc Login (LoginRequest) returns (LoginResponse);
+}
