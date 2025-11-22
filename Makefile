@@ -2,17 +2,19 @@ SERVER_PORT=9090
 ADDRESS=localhost:${SERVER_PORT}
 TEMP_FILE=$(random tempfile)
 KEY=secretKey
-DATABASE_DSN=postgres://metric:metric@localhost:5432/metric?sslmode=disable
+DATABASE_URL=postgres://postgres:pwd@localhost:5432/gophkeeper?sslmode=disable
+COMPOSE_FILE=docker-compose.yml
 #export
 
 echo:
 	go version
 
 run_s:
-	KEY=$(KEY) DATABASE_DSN=$(DATABASE_DSN) go run cmd/server/main.go
+	KEY=$(KEY) DATABASE_URL=$(DATABASE_URL) go run cmd/server/main.go
 
 run_a:
 	KEY=$(KEY) go run cmd/agent/main.go
+	
 
 tests: vet
 	go test ./...
@@ -52,3 +54,8 @@ godoc:
 
 protoc:
 	protoc --go_out=. --go_opt=default_api_level=API_OPAQUE --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative internal/proto/keeper.proto
+
+# Docker
+
+start:
+	podman-compose -f $(COMPOSE_FILE) up --build

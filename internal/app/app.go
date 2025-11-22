@@ -25,6 +25,11 @@ type App struct {
 	Logger *zerolog.Logger
 }
 
+func (a *App) Stop() {
+	a.Server.Stop()
+	a.DB.Close()
+}
+
 func NewApp(ctx context.Context) *App {
 
 	cfg := config.NewConfig()
@@ -35,15 +40,14 @@ func NewApp(ctx context.Context) *App {
 	//var storage store.Storage
 	var err error
 
-	db, err := sqlx.ConnectContext(ctx, "pgx", cfg.DatabaseDSN)
-	if err != nil && cfg.DatabaseDSN != "" {
+	db, err := sqlx.ConnectContext(ctx, "pgx", cfg.DatabaseURL)
+	if err != nil && cfg.DatabaseURL != "" {
 		log.Fatal().Err(err).Msg("Failed to connect to the database")
 	}
-	defer db.Close() //на всякий случай
 
 	log.Info().Msg("Successfully create database storage.")
 
-	err = migrations.NewMigration(cfg.DatabaseDSN).Up("file://internal/storage/postgres/migrations")
+	err = migrations.NewMigration(cfg.DatabaseURL).Up(cfg.MigrationsPath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to run migrations")
 	}
@@ -55,7 +59,7 @@ func NewApp(ctx context.Context) *App {
 
 	// 1. Инициализируем gRPC сервер
 	// TODO: Заменить nil на реальную реализацию сервиса аутентификации
-	server, err := services.New(log, nil, cfg.ServerAddress)
+	server, err := services.New(log, nil, cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create gRPC server")
 	}

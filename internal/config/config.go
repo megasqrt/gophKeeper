@@ -17,11 +17,13 @@ type Config struct {
 	StoreInterval   time.Duration
 	FileStoragePath string
 	Restore         bool
-	DatabaseDSN     string
+	DatabaseURL     string
+	MigrationsPath  string
 	HashKey         string
 	CryptoKey       string
 	ConfigPath      string
 	TrustedSubnet   string
+	EnableReflection bool
 }
 
 var cfg Config
@@ -30,11 +32,13 @@ const (
 	defaultServerAddress   = "localhost:8080"
 	defaultFileStoragePath = "/tmp/metrics-db.json"
 	defaultRestore         = true
-	defaultDatabaseDSN     = ""
+	defaultDatabaseURL     = ""
+	MigrationsPath         = "file://internal/storage/postgres/migrations"
 	defaultHashKey         = ""
 	defaultCryptoKey       = ""
 	defaultTrustedSubnet   = ""
 	defaultConfigPath      = ""
+	defaultEnableReflection = false
 )
 
 func NewConfig() Config {
@@ -42,11 +46,13 @@ func NewConfig() Config {
 	flag.StringVar(&cfg.ServerAddress, "a", defaultServerAddress, "server address")
 	flag.StringVar(&cfg.FileStoragePath, "f", defaultFileStoragePath, "file storage path")
 	flag.BoolVar(&cfg.Restore, "r", defaultRestore, "restore from file on start")
-	flag.StringVar(&cfg.DatabaseDSN, "d", defaultDatabaseDSN, "database DSN")
+	flag.StringVar(&cfg.DatabaseURL, "d", defaultDatabaseURL, "database DSN")
+	flag.StringVar(&cfg.MigrationsPath, "m", MigrationsPath, "migrations path")
 	flag.StringVar(&cfg.HashKey, "k", defaultHashKey, "key for hashing")
 	flag.StringVar(&cfg.CryptoKey, "crypto-key", defaultCryptoKey, "path to private key file")
 	flag.StringVar(&cfg.TrustedSubnet, "t", defaultTrustedSubnet, "trusted subnet in CIDR format")
 	flag.StringVar(&cfg.ConfigPath, "c", defaultConfigPath, "path to config file")
+	flag.BoolVar(&cfg.EnableReflection, "reflection", defaultEnableReflection, "enable gRPC reflection")
 	flag.Parse()
 
 	// Сначала читаем конфиг из файла, если он указан
@@ -70,11 +76,13 @@ func NewConfig() Config {
 	helper.AssignFromViperIfSet(&cfg.ServerAddress, "ADDRESS", viper.GetString, defaultServerAddress)
 	helper.AssignFromViperIfSet(&cfg.FileStoragePath, "FILE_STORAGE_PATH", viper.GetString, defaultFileStoragePath)
 	helper.AssignFromViperIfSet(&cfg.Restore, "RESTORE", viper.GetBool, defaultRestore)
-	helper.AssignFromViperIfSet(&cfg.DatabaseDSN, "DATABASE_DSN", viper.GetString, defaultDatabaseDSN)
+	helper.AssignFromViperIfSet(&cfg.DatabaseURL, "DATABASE_URL", viper.GetString, defaultDatabaseURL)
+	helper.AssignFromViperIfSet(&cfg.MigrationsPath, "MIGRATIONS_PATH", viper.GetString, MigrationsPath)
 	helper.AssignFromViperIfSet(&cfg.HashKey, "KEY", viper.GetString, defaultHashKey)
 	helper.AssignFromViperIfSet(&cfg.CryptoKey, "CRYPTO_KEY", viper.GetString, defaultCryptoKey)
 	helper.AssignFromViperIfSet(&cfg.TrustedSubnet, "TRUSTED_SUBNET", viper.GetString, defaultTrustedSubnet)
 	helper.AssignFromViperIfSet(&cfg.ConfigPath, "CONFIG", viper.GetString, defaultConfigPath)
+	helper.AssignFromViperIfSet(&cfg.EnableReflection, "ENABLE_REFLECTION", viper.GetBool, defaultEnableReflection)
 
 	return cfg
 }

@@ -2,11 +2,13 @@ package services
 
 import (
 	"net"
+	"gophKeeper/internal/config"
 
 	pb "gophKeeper/internal/proto"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 // Server представляет собой обертку для gRPC-сервера.
@@ -18,17 +20,22 @@ type Server struct {
 
 // New создает новый gRPC-сервер.
 // Он принимает логгер, реализацию KeeperService и адрес сервера.
-func New(log zerolog.Logger, keeperService pb.KeeperServiceServer, address string) (*Server, error) {
+func New(log zerolog.Logger, keeperService pb.KeeperServiceServer, cfg config.Config) (*Server, error) {
 	// Здесь можно добавить interceptors для логирования, аутентификации и т.д.
 	s := grpc.NewServer()
 
 	// Регистрируем нашу реализацию сервиса на gRPC-сервере.
 	pb.RegisterKeeperServiceServer(s, keeperService)
 
+	// Условно регистрируем reflection service на gRPC-сервере.
+	if cfg.EnableReflection {
+		reflection.Register(s)
+	}
+
 	return &Server{
 		server: s,
 		log:        log,
-		address:    address,
+		address:    cfg.ServerAddress,
 	}, nil
 }
 

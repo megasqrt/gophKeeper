@@ -6,7 +6,7 @@ services:
     ports: 
       - 5432:5432
     networks:
-      - tube
+      - backend-network
     volumes:
        - pgdata:/var/lib/postgresql/data
     environment:
@@ -17,9 +17,37 @@ services:
        interval: 5s
        timeout: 5s
        retries: 5
+  gkeeper-server:
+    container_name: gkeeper-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #image: gkeeper-server:latest
+    ports:
+      - "9090:9090"
+    networks:
+      - backend-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # volumes:
+    #   - ./keys:/run/keys:ro
+    #   - ./certs:/run/certs:ro
+    environment:
+      - ADDRESS=:9090
+      - DATABASE_URL=postgres://postgres:pwd@postgres:5432/gophkeeper?sslmode=disable
+      - DEBUG=true
+      - MIGRATIONS_PATH=file://internal/storage/postgres/migrations
 
+      - ENABLE_REFLECTION=true
+
+      # - PRIVATE_KEY_PATH=/run/keys/ed25519.key
+      # - PUBLIC_KEY_PATH=/run/keys/ed25519.pub
+      # - TLS_CERT_PATH=/run/certs/fullchain.pem
+      # - TLS_KEY_PATH=/run/certs/privkey.pem
 networks:
-  tube:
+  backend-network:
     driver: bridge
 
 volumes:

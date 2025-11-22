@@ -99,6 +99,7 @@ $$ LANGUAGE plpgsql;
 
 -- Применение триггера к таблице login_passwords
 -- Триггер срабатывает перед UPDATE или DELETE
+DROP TRIGGER IF EXISTS login_passwords_history_trigger ON login_passwords;
 CREATE TRIGGER login_passwords_history_trigger
 BEFORE UPDATE OR DELETE ON login_passwords
 FOR EACH ROW

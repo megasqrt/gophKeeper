@@ -16,10 +16,9 @@ func main() {
 
 	app :=app.NewApp(ctx)
 
-	app.Server.Start()
-	
 	<-ctx.Done()
 
+	// Graceful Shutdown.
 	app.Server.Stop()
 
 }
