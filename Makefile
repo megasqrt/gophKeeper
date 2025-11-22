@@ -12,8 +12,8 @@ echo:
 run_s:
 	KEY=$(KEY) DATABASE_URL=$(DATABASE_URL) go run cmd/server/main.go
 
-run_a:
-	KEY=$(KEY) go run cmd/agent/main.go
+run_c:
+	KEY=$(KEY) go run client/cmd/main.go
 	
 
 tests: vet
@@ -28,7 +28,7 @@ race:
 
 build:
 	go build -o server cmd/server/main.go
-# go build -o agent cmd/agent/main.go
+	go build -o client client/cmd/main.go
 
 cover:
 	go test -coverprofile=coverage.out -covermode=atomic ./...
@@ -58,4 +58,8 @@ protoc:
 # Docker
 
 start:
+	podman-compose -f $(COMPOSE_FILE) up
+startb:
 	podman-compose -f $(COMPOSE_FILE) up --build
+stop:
+	podman-compose -f $(COMPOSE_FILE) down

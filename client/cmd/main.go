@@ -5,3 +5,18 @@
 // 4. Инициализировать сервисы.
 // 5. Инициализировать CLI.
 // 6. Запустить CLI.
+
+
+package main
+
+import (
+	"gophKeeper/client/internal/delivery/cli"
+	"log"
+)
+
+func main() {
+	// Запускаем корневую команду CLI
+	if err := cli.Execute(); err != nil {
+		log.Fatalf("CLI execution failed: %v", err)
+	}
+}

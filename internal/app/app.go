@@ -55,11 +55,12 @@ func NewApp(ctx context.Context) *App {
 
 	userRepo := postgres.NewUserRepository(db)
 
-	_ = userRepo // Используем переменную, чтобы избежать ошибки компиляции
+	// Инициализируем сервис аутентификации с репозиторием пользователей.
+	authService := services.NewService(log, userRepo)
 
 	// 1. Инициализируем gRPC сервер
-	// TODO: Заменить nil на реальную реализацию сервиса аутентификации
-	server, err := services.New(log, nil, cfg)
+	// Передаем нашу реализацию сервиса.
+	server, err := services.New(log, authService, cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create gRPC server")
 	}

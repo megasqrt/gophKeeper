@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	"gophKeeper/internal/app"
-
 )
 
 func main() {
@@ -14,11 +13,11 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer stop()
 
-	app :=app.NewApp(ctx)
+	app := app.NewApp(ctx)
 
 	<-ctx.Done()
 
 	// Graceful Shutdown.
-	app.Server.Stop()
+	app.Stop()
 
 }
