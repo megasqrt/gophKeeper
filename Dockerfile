@@ -15,8 +15,6 @@ WORKDIR /app
 
 COPY --from=builder /app/server .
 COPY --from=builder /app/internal/storage/postgres/migrations ./internal/storage/postgres/migrations
+COPY --from=builder /app/certs ./certs
 
-RUN pwd
-RUN ls /app
-RUN ls /app/internal/storage/postgres/migrations
 ENTRYPOINT ["./server"]

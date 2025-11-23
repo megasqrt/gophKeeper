@@ -1,31 +1,42 @@
 package services
 
 import (
-	"net"
 	"gophKeeper/internal/config"
+	"net"
 
 	pb "gophKeeper/internal/proto"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
 // Server представляет собой обертку для gRPC-сервера.
 type Server struct {
-	server *grpc.Server
-	log        zerolog.Logger
-	address    string
+	server  *grpc.Server
+	log     zerolog.Logger
+	address string
 }
 
 // New создает новый gRPC-сервер.
 // Он принимает логгер, реализацию KeeperService и адрес сервера.
-func New(log zerolog.Logger, keeperService pb.KeeperServiceServer, cfg config.Config) (*Server, error) {
+func New(log zerolog.Logger, authService pb.AuthServiceServer, cfg config.Config) (*Server, error) {
+	// Загружаем учетные данные TLS для сервера.
+	// TODO: пути к файлам сертификатов лучше вынести в конфигурацию.
+	creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
+	if err != nil {
+		return nil, err
+	}
+
 	// Здесь можно добавить interceptors для логирования, аутентификации и т.д.
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.Creds(creds),
+	)
 
 	// Регистрируем нашу реализацию сервиса на gRPC-сервере.
-	pb.RegisterKeeperServiceServer(s, keeperService)
+	pb.RegisterAuthServiceServer(s, authService)
+	// TODO: Зарегистрировать здесь остальные сервисы (Device, Password и т.д.), когда они будут реализованы.
 
 	// Условно регистрируем reflection service на gRPC-сервере.
 	if cfg.EnableReflection {
@@ -33,9 +44,9 @@ func New(log zerolog.Logger, keeperService pb.KeeperServiceServer, cfg config.Co
 	}
 
 	return &Server{
-		server: s,
-		log:        log,
-		address:    cfg.ServerAddress,
+		server:  s,
+		log:     log,
+		address: cfg.ServerAddress,
 	}, nil
 }
 
@@ -49,18 +60,6 @@ func (s *Server) Start() error {
 	s.log.Info().Str("address", s.address).Msg("Starting gRPC server")
 	return s.server.Serve(listen)
 }
-
-		// listen, err := net.Listen("tcp", cfg.GRPCServerAddress)
-		// if err != nil {
-		// 	log.Fatal().Err(err).Msg("Failed to listen for gRPC")
-		// }
-		// s := grpc.NewServer(grpc.StreamInterceptor(middlewares.GrpcCheckMiddleware(cfg.TrustedSubnet)))
-		// pb.RegisterMetricsServer(s, services.NewMetricGRPCServer(storage, log))
-		// log.Info().Str("address", cfg.GRPCServerAddress).Msg("Starting gRPC server")
-		// if err := s.Serve(listen); err != nil {
-		// 	log.Fatal().Err(err).Msg("gRPC server error")
-		// }
-		//	if err := gRPCServer.Start(); err != nil {
 
 // Stop плавно останавливает gRPC-сервер.
 func (s *Server) Stop() {

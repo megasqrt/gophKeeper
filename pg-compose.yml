@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:alpine
+    ports: 
+      - 5432:5432
+    networks:
+      - backend-network
+    volumes:
+       - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_DB=gophkeeper
+    healthcheck:
+       test: ["CMD-SHELL", "pg_isready -U postgres -d gophkeeper"]
+       interval: 5s
+       timeout: 5s
+       retries: 5
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

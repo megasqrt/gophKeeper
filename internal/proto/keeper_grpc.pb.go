@@ -19,107 +19,1223 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	KeeperService_Register_FullMethodName = "/proto.KeeperService/Register"
+	AuthService_Register_FullMethodName = "/proto.AuthService/Register"
+	AuthService_Login_FullMethodName    = "/proto.AuthService/Login"
 )
 
-// KeeperServiceClient is the client API for KeeperService service.
+// AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// KeeperService предоставляет методы для работы с хранилищем.
-type KeeperServiceClient interface {
-	// Register регистрирует нового пользователя и возвращает токен доступа.
+// AuthService предоставляет методы для регистрации и аутентификации.
+type AuthServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
 
-type keeperServiceClient struct {
+type authServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewKeeperServiceClient(cc grpc.ClientConnInterface) KeeperServiceClient {
-	return &keeperServiceClient{cc}
+func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
+	return &authServiceClient{cc}
 }
 
-func (c *keeperServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+func (c *authServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegisterResponse)
-	err := c.cc.Invoke(ctx, KeeperService_Register_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// KeeperServiceServer is the server API for KeeperService service.
-// All implementations must embed UnimplementedKeeperServiceServer
-// for forward compatibility.
-//
-// KeeperService предоставляет методы для работы с хранилищем.
-type KeeperServiceServer interface {
-	// Register регистрирует нового пользователя и возвращает токен доступа.
-	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
-	mustEmbedUnimplementedKeeperServiceServer()
+func (c *authServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, AuthService_Login_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedKeeperServiceServer must be embedded to have
+// AuthServiceServer is the server API for AuthService service.
+// All implementations must embed UnimplementedAuthServiceServer
+// for forward compatibility.
+//
+// AuthService предоставляет методы для регистрации и аутентификации.
+type AuthServiceServer interface {
+	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	mustEmbedUnimplementedAuthServiceServer()
+}
+
+// UnimplementedAuthServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedKeeperServiceServer struct{}
+type UnimplementedAuthServiceServer struct{}
 
-func (UnimplementedKeeperServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+func (UnimplementedAuthServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedKeeperServiceServer) mustEmbedUnimplementedKeeperServiceServer() {}
-func (UnimplementedKeeperServiceServer) testEmbeddedByValue()                       {}
+func (UnimplementedAuthServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
+func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
 
-// UnsafeKeeperServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to KeeperServiceServer will
+// UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AuthServiceServer will
 // result in compilation errors.
-type UnsafeKeeperServiceServer interface {
-	mustEmbedUnimplementedKeeperServiceServer()
+type UnsafeAuthServiceServer interface {
+	mustEmbedUnimplementedAuthServiceServer()
 }
 
-func RegisterKeeperServiceServer(s grpc.ServiceRegistrar, srv KeeperServiceServer) {
-	// If the following call pancis, it indicates UnimplementedKeeperServiceServer was
+func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAuthServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&KeeperService_ServiceDesc, srv)
+	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
-func _KeeperService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AuthService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(KeeperServiceServer).Register(ctx, in)
+		return srv.(AuthServiceServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: KeeperService_Register_FullMethodName,
+		FullMethod: AuthService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(KeeperServiceServer).Register(ctx, req.(*RegisterRequest))
+		return srv.(AuthServiceServer).Register(ctx, req.(*RegisterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// KeeperService_ServiceDesc is the grpc.ServiceDesc for KeeperService service.
+func _AuthService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var KeeperService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.KeeperService",
-	HandlerType: (*KeeperServiceServer)(nil),
+var AuthService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.AuthService",
+	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Register",
-			Handler:    _KeeperService_Register_Handler,
+			Handler:    _AuthService_Register_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _AuthService_Login_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/keeper.proto",
+}
+
+const (
+	Device_AddDevice_FullMethodName    = "/proto.Device/AddDevice"
+	Device_RemoveDevice_FullMethodName = "/proto.Device/RemoveDevice"
+	Device_UpdateDevice_FullMethodName = "/proto.Device/UpdateDevice"
+	Device_GetDevices_FullMethodName   = "/proto.Device/GetDevices"
+)
+
+// DeviceClient is the client API for Device service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type DeviceClient interface {
+	AddDevice(ctx context.Context, in *AddDeviceRequest, opts ...grpc.CallOption) (*AddDeviceResponse, error)
+	RemoveDevice(ctx context.Context, in *RemoveDeviceRequest, opts ...grpc.CallOption) (*RemoveDeviceResponse, error)
+	UpdateDevice(ctx context.Context, in *UpdateDeviceRequest, opts ...grpc.CallOption) (*UpdateDeviceResponse, error)
+	GetDevices(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*GetDevicesResponse, error)
+}
+
+type deviceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewDeviceClient(cc grpc.ClientConnInterface) DeviceClient {
+	return &deviceClient{cc}
+}
+
+func (c *deviceClient) AddDevice(ctx context.Context, in *AddDeviceRequest, opts ...grpc.CallOption) (*AddDeviceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddDeviceResponse)
+	err := c.cc.Invoke(ctx, Device_AddDevice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deviceClient) RemoveDevice(ctx context.Context, in *RemoveDeviceRequest, opts ...grpc.CallOption) (*RemoveDeviceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveDeviceResponse)
+	err := c.cc.Invoke(ctx, Device_RemoveDevice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deviceClient) UpdateDevice(ctx context.Context, in *UpdateDeviceRequest, opts ...grpc.CallOption) (*UpdateDeviceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateDeviceResponse)
+	err := c.cc.Invoke(ctx, Device_UpdateDevice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deviceClient) GetDevices(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*GetDevicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDevicesResponse)
+	err := c.cc.Invoke(ctx, Device_GetDevices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// DeviceServer is the server API for Device service.
+// All implementations must embed UnimplementedDeviceServer
+// for forward compatibility.
+type DeviceServer interface {
+	AddDevice(context.Context, *AddDeviceRequest) (*AddDeviceResponse, error)
+	RemoveDevice(context.Context, *RemoveDeviceRequest) (*RemoveDeviceResponse, error)
+	UpdateDevice(context.Context, *UpdateDeviceRequest) (*UpdateDeviceResponse, error)
+	GetDevices(context.Context, *GetDevicesRequest) (*GetDevicesResponse, error)
+	mustEmbedUnimplementedDeviceServer()
+}
+
+// UnimplementedDeviceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedDeviceServer struct{}
+
+func (UnimplementedDeviceServer) AddDevice(context.Context, *AddDeviceRequest) (*AddDeviceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddDevice not implemented")
+}
+func (UnimplementedDeviceServer) RemoveDevice(context.Context, *RemoveDeviceRequest) (*RemoveDeviceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveDevice not implemented")
+}
+func (UnimplementedDeviceServer) UpdateDevice(context.Context, *UpdateDeviceRequest) (*UpdateDeviceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateDevice not implemented")
+}
+func (UnimplementedDeviceServer) GetDevices(context.Context, *GetDevicesRequest) (*GetDevicesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
+}
+func (UnimplementedDeviceServer) mustEmbedUnimplementedDeviceServer() {}
+func (UnimplementedDeviceServer) testEmbeddedByValue()                {}
+
+// UnsafeDeviceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DeviceServer will
+// result in compilation errors.
+type UnsafeDeviceServer interface {
+	mustEmbedUnimplementedDeviceServer()
+}
+
+func RegisterDeviceServer(s grpc.ServiceRegistrar, srv DeviceServer) {
+	// If the following call pancis, it indicates UnimplementedDeviceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Device_ServiceDesc, srv)
+}
+
+func _Device_AddDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServer).AddDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Device_AddDevice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServer).AddDevice(ctx, req.(*AddDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Device_RemoveDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServer).RemoveDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Device_RemoveDevice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServer).RemoveDevice(ctx, req.(*RemoveDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Device_UpdateDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServer).UpdateDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Device_UpdateDevice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServer).UpdateDevice(ctx, req.(*UpdateDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Device_GetDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDevicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServer).GetDevices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Device_GetDevices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServer).GetDevices(ctx, req.(*GetDevicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Device_ServiceDesc is the grpc.ServiceDesc for Device service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Device_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Device",
+	HandlerType: (*DeviceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddDevice",
+			Handler:    _Device_AddDevice_Handler,
+		},
+		{
+			MethodName: "RemoveDevice",
+			Handler:    _Device_RemoveDevice_Handler,
+		},
+		{
+			MethodName: "UpdateDevice",
+			Handler:    _Device_UpdateDevice_Handler,
+		},
+		{
+			MethodName: "GetDevices",
+			Handler:    _Device_GetDevices_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/keeper.proto",
+}
+
+const (
+	Password_AddPassword_FullMethodName    = "/proto.Password/AddPassword"
+	Password_RemovePassword_FullMethodName = "/proto.Password/RemovePassword"
+	Password_UpdatePassword_FullMethodName = "/proto.Password/UpdatePassword"
+	Password_GetPasswords_FullMethodName   = "/proto.Password/GetPasswords"
+)
+
+// PasswordClient is the client API for Password service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PasswordClient interface {
+	AddPassword(ctx context.Context, in *AddPasswordRequest, opts ...grpc.CallOption) (*AddPasswordResponse, error)
+	RemovePassword(ctx context.Context, in *RemovePasswordRequest, opts ...grpc.CallOption) (*RemovePasswordResponse, error)
+	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
+	GetPasswords(ctx context.Context, in *GetPasswordsRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error)
+}
+
+type passwordClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPasswordClient(cc grpc.ClientConnInterface) PasswordClient {
+	return &passwordClient{cc}
+}
+
+func (c *passwordClient) AddPassword(ctx context.Context, in *AddPasswordRequest, opts ...grpc.CallOption) (*AddPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddPasswordResponse)
+	err := c.cc.Invoke(ctx, Password_AddPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passwordClient) RemovePassword(ctx context.Context, in *RemovePasswordRequest, opts ...grpc.CallOption) (*RemovePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemovePasswordResponse)
+	err := c.cc.Invoke(ctx, Password_RemovePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passwordClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdatePasswordResponse)
+	err := c.cc.Invoke(ctx, Password_UpdatePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *passwordClient) GetPasswords(ctx context.Context, in *GetPasswordsRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPasswordsResponse)
+	err := c.cc.Invoke(ctx, Password_GetPasswords_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PasswordServer is the server API for Password service.
+// All implementations must embed UnimplementedPasswordServer
+// for forward compatibility.
+type PasswordServer interface {
+	AddPassword(context.Context, *AddPasswordRequest) (*AddPasswordResponse, error)
+	RemovePassword(context.Context, *RemovePasswordRequest) (*RemovePasswordResponse, error)
+	UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
+	GetPasswords(context.Context, *GetPasswordsRequest) (*GetPasswordsResponse, error)
+	mustEmbedUnimplementedPasswordServer()
+}
+
+// UnimplementedPasswordServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedPasswordServer struct{}
+
+func (UnimplementedPasswordServer) AddPassword(context.Context, *AddPasswordRequest) (*AddPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPassword not implemented")
+}
+func (UnimplementedPasswordServer) RemovePassword(context.Context, *RemovePasswordRequest) (*RemovePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemovePassword not implemented")
+}
+func (UnimplementedPasswordServer) UpdatePassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
+}
+func (UnimplementedPasswordServer) GetPasswords(context.Context, *GetPasswordsRequest) (*GetPasswordsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPasswords not implemented")
+}
+func (UnimplementedPasswordServer) mustEmbedUnimplementedPasswordServer() {}
+func (UnimplementedPasswordServer) testEmbeddedByValue()                  {}
+
+// UnsafePasswordServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PasswordServer will
+// result in compilation errors.
+type UnsafePasswordServer interface {
+	mustEmbedUnimplementedPasswordServer()
+}
+
+func RegisterPasswordServer(s grpc.ServiceRegistrar, srv PasswordServer) {
+	// If the following call pancis, it indicates UnimplementedPasswordServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Password_ServiceDesc, srv)
+}
+
+func _Password_AddPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordServer).AddPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Password_AddPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordServer).AddPassword(ctx, req.(*AddPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Password_RemovePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemovePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordServer).RemovePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Password_RemovePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordServer).RemovePassword(ctx, req.(*RemovePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Password_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Password_UpdatePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Password_GetPasswords_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPasswordsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PasswordServer).GetPasswords(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Password_GetPasswords_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PasswordServer).GetPasswords(ctx, req.(*GetPasswordsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Password_ServiceDesc is the grpc.ServiceDesc for Password service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Password_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Password",
+	HandlerType: (*PasswordServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddPassword",
+			Handler:    _Password_AddPassword_Handler,
+		},
+		{
+			MethodName: "RemovePassword",
+			Handler:    _Password_RemovePassword_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _Password_UpdatePassword_Handler,
+		},
+		{
+			MethodName: "GetPasswords",
+			Handler:    _Password_GetPasswords_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/keeper.proto",
+}
+
+const (
+	Note_AddNote_FullMethodName    = "/proto.Note/AddNote"
+	Note_RemoveNote_FullMethodName = "/proto.Note/RemoveNote"
+	Note_UpdateNote_FullMethodName = "/proto.Note/UpdateNote"
+	Note_GetNotes_FullMethodName   = "/proto.Note/GetNotes"
+)
+
+// NoteClient is the client API for Note service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type NoteClient interface {
+	AddNote(ctx context.Context, in *AddNoteRequest, opts ...grpc.CallOption) (*AddNoteResponse, error)
+	RemoveNote(ctx context.Context, in *RemoveNoteRequest, opts ...grpc.CallOption) (*RemoveNoteResponse, error)
+	UpdateNote(ctx context.Context, in *UpdateNoteRequest, opts ...grpc.CallOption) (*UpdateNoteResponse, error)
+	GetNotes(ctx context.Context, in *GetNotesRequest, opts ...grpc.CallOption) (*GetNotesResponse, error)
+}
+
+type noteClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewNoteClient(cc grpc.ClientConnInterface) NoteClient {
+	return &noteClient{cc}
+}
+
+func (c *noteClient) AddNote(ctx context.Context, in *AddNoteRequest, opts ...grpc.CallOption) (*AddNoteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddNoteResponse)
+	err := c.cc.Invoke(ctx, Note_AddNote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *noteClient) RemoveNote(ctx context.Context, in *RemoveNoteRequest, opts ...grpc.CallOption) (*RemoveNoteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveNoteResponse)
+	err := c.cc.Invoke(ctx, Note_RemoveNote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *noteClient) UpdateNote(ctx context.Context, in *UpdateNoteRequest, opts ...grpc.CallOption) (*UpdateNoteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateNoteResponse)
+	err := c.cc.Invoke(ctx, Note_UpdateNote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *noteClient) GetNotes(ctx context.Context, in *GetNotesRequest, opts ...grpc.CallOption) (*GetNotesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetNotesResponse)
+	err := c.cc.Invoke(ctx, Note_GetNotes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// NoteServer is the server API for Note service.
+// All implementations must embed UnimplementedNoteServer
+// for forward compatibility.
+type NoteServer interface {
+	AddNote(context.Context, *AddNoteRequest) (*AddNoteResponse, error)
+	RemoveNote(context.Context, *RemoveNoteRequest) (*RemoveNoteResponse, error)
+	UpdateNote(context.Context, *UpdateNoteRequest) (*UpdateNoteResponse, error)
+	GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error)
+	mustEmbedUnimplementedNoteServer()
+}
+
+// UnimplementedNoteServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedNoteServer struct{}
+
+func (UnimplementedNoteServer) AddNote(context.Context, *AddNoteRequest) (*AddNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNote not implemented")
+}
+func (UnimplementedNoteServer) RemoveNote(context.Context, *RemoveNoteRequest) (*RemoveNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveNote not implemented")
+}
+func (UnimplementedNoteServer) UpdateNote(context.Context, *UpdateNoteRequest) (*UpdateNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateNote not implemented")
+}
+func (UnimplementedNoteServer) GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNotes not implemented")
+}
+func (UnimplementedNoteServer) mustEmbedUnimplementedNoteServer() {}
+func (UnimplementedNoteServer) testEmbeddedByValue()              {}
+
+// UnsafeNoteServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NoteServer will
+// result in compilation errors.
+type UnsafeNoteServer interface {
+	mustEmbedUnimplementedNoteServer()
+}
+
+func RegisterNoteServer(s grpc.ServiceRegistrar, srv NoteServer) {
+	// If the following call pancis, it indicates UnimplementedNoteServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Note_ServiceDesc, srv)
+}
+
+func _Note_AddNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NoteServer).AddNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Note_AddNote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NoteServer).AddNote(ctx, req.(*AddNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Note_RemoveNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NoteServer).RemoveNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Note_RemoveNote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NoteServer).RemoveNote(ctx, req.(*RemoveNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Note_UpdateNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NoteServer).UpdateNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Note_UpdateNote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NoteServer).UpdateNote(ctx, req.(*UpdateNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Note_GetNotes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNotesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NoteServer).GetNotes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Note_GetNotes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NoteServer).GetNotes(ctx, req.(*GetNotesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Note_ServiceDesc is the grpc.ServiceDesc for Note service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Note_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Note",
+	HandlerType: (*NoteServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddNote",
+			Handler:    _Note_AddNote_Handler,
+		},
+		{
+			MethodName: "RemoveNote",
+			Handler:    _Note_RemoveNote_Handler,
+		},
+		{
+			MethodName: "UpdateNote",
+			Handler:    _Note_UpdateNote_Handler,
+		},
+		{
+			MethodName: "GetNotes",
+			Handler:    _Note_GetNotes_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/keeper.proto",
+}
+
+const (
+	Card_AddCard_FullMethodName    = "/proto.Card/AddCard"
+	Card_RemoveCard_FullMethodName = "/proto.Card/RemoveCard"
+	Card_UpdateCard_FullMethodName = "/proto.Card/UpdateCard"
+	Card_GetCards_FullMethodName   = "/proto.Card/GetCards"
+)
+
+// CardClient is the client API for Card service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CardClient interface {
+	AddCard(ctx context.Context, in *AddCardRequest, opts ...grpc.CallOption) (*AddCardResponse, error)
+	RemoveCard(ctx context.Context, in *RemoveCardRequest, opts ...grpc.CallOption) (*RemoveCardResponse, error)
+	UpdateCard(ctx context.Context, in *UpdateCardRequest, opts ...grpc.CallOption) (*UpdateCardResponse, error)
+	GetCards(ctx context.Context, in *GetCardsRequest, opts ...grpc.CallOption) (*GetCardsResponse, error)
+}
+
+type cardClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCardClient(cc grpc.ClientConnInterface) CardClient {
+	return &cardClient{cc}
+}
+
+func (c *cardClient) AddCard(ctx context.Context, in *AddCardRequest, opts ...grpc.CallOption) (*AddCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddCardResponse)
+	err := c.cc.Invoke(ctx, Card_AddCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cardClient) RemoveCard(ctx context.Context, in *RemoveCardRequest, opts ...grpc.CallOption) (*RemoveCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveCardResponse)
+	err := c.cc.Invoke(ctx, Card_RemoveCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cardClient) UpdateCard(ctx context.Context, in *UpdateCardRequest, opts ...grpc.CallOption) (*UpdateCardResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateCardResponse)
+	err := c.cc.Invoke(ctx, Card_UpdateCard_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cardClient) GetCards(ctx context.Context, in *GetCardsRequest, opts ...grpc.CallOption) (*GetCardsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCardsResponse)
+	err := c.cc.Invoke(ctx, Card_GetCards_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CardServer is the server API for Card service.
+// All implementations must embed UnimplementedCardServer
+// for forward compatibility.
+type CardServer interface {
+	AddCard(context.Context, *AddCardRequest) (*AddCardResponse, error)
+	RemoveCard(context.Context, *RemoveCardRequest) (*RemoveCardResponse, error)
+	UpdateCard(context.Context, *UpdateCardRequest) (*UpdateCardResponse, error)
+	GetCards(context.Context, *GetCardsRequest) (*GetCardsResponse, error)
+	mustEmbedUnimplementedCardServer()
+}
+
+// UnimplementedCardServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedCardServer struct{}
+
+func (UnimplementedCardServer) AddCard(context.Context, *AddCardRequest) (*AddCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCard not implemented")
+}
+func (UnimplementedCardServer) RemoveCard(context.Context, *RemoveCardRequest) (*RemoveCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveCard not implemented")
+}
+func (UnimplementedCardServer) UpdateCard(context.Context, *UpdateCardRequest) (*UpdateCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCard not implemented")
+}
+func (UnimplementedCardServer) GetCards(context.Context, *GetCardsRequest) (*GetCardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCards not implemented")
+}
+func (UnimplementedCardServer) mustEmbedUnimplementedCardServer() {}
+func (UnimplementedCardServer) testEmbeddedByValue()              {}
+
+// UnsafeCardServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CardServer will
+// result in compilation errors.
+type UnsafeCardServer interface {
+	mustEmbedUnimplementedCardServer()
+}
+
+func RegisterCardServer(s grpc.ServiceRegistrar, srv CardServer) {
+	// If the following call pancis, it indicates UnimplementedCardServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Card_ServiceDesc, srv)
+}
+
+func _Card_AddCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServer).AddCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Card_AddCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServer).AddCard(ctx, req.(*AddCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Card_RemoveCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServer).RemoveCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Card_RemoveCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServer).RemoveCard(ctx, req.(*RemoveCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Card_UpdateCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServer).UpdateCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Card_UpdateCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServer).UpdateCard(ctx, req.(*UpdateCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Card_GetCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServer).GetCards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Card_GetCards_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServer).GetCards(ctx, req.(*GetCardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Card_ServiceDesc is the grpc.ServiceDesc for Card service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Card_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Card",
+	HandlerType: (*CardServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddCard",
+			Handler:    _Card_AddCard_Handler,
+		},
+		{
+			MethodName: "RemoveCard",
+			Handler:    _Card_RemoveCard_Handler,
+		},
+		{
+			MethodName: "UpdateCard",
+			Handler:    _Card_UpdateCard_Handler,
+		},
+		{
+			MethodName: "GetCards",
+			Handler:    _Card_GetCards_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/keeper.proto",
+}
+
+const (
+	File_AddFile_FullMethodName    = "/proto.File/AddFile"
+	File_RemoveFile_FullMethodName = "/proto.File/RemoveFile"
+	File_UpdateFile_FullMethodName = "/proto.File/UpdateFile"
+	File_GetFiles_FullMethodName   = "/proto.File/GetFiles"
+)
+
+// FileClient is the client API for File service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type FileClient interface {
+	AddFile(ctx context.Context, in *AddFileRequest, opts ...grpc.CallOption) (*AddFileResponse, error)
+	RemoveFile(ctx context.Context, in *RemoveFileRequest, opts ...grpc.CallOption) (*RemoveFileResponse, error)
+	UpdateFile(ctx context.Context, in *UpdateFileRequest, opts ...grpc.CallOption) (*UpdateFileResponse, error)
+	GetFiles(ctx context.Context, in *GetFilesRequest, opts ...grpc.CallOption) (*GetFilesResponse, error)
+}
+
+type fileClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewFileClient(cc grpc.ClientConnInterface) FileClient {
+	return &fileClient{cc}
+}
+
+func (c *fileClient) AddFile(ctx context.Context, in *AddFileRequest, opts ...grpc.CallOption) (*AddFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddFileResponse)
+	err := c.cc.Invoke(ctx, File_AddFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileClient) RemoveFile(ctx context.Context, in *RemoveFileRequest, opts ...grpc.CallOption) (*RemoveFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveFileResponse)
+	err := c.cc.Invoke(ctx, File_RemoveFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileClient) UpdateFile(ctx context.Context, in *UpdateFileRequest, opts ...grpc.CallOption) (*UpdateFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateFileResponse)
+	err := c.cc.Invoke(ctx, File_UpdateFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileClient) GetFiles(ctx context.Context, in *GetFilesRequest, opts ...grpc.CallOption) (*GetFilesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFilesResponse)
+	err := c.cc.Invoke(ctx, File_GetFiles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// FileServer is the server API for File service.
+// All implementations must embed UnimplementedFileServer
+// for forward compatibility.
+type FileServer interface {
+	AddFile(context.Context, *AddFileRequest) (*AddFileResponse, error)
+	RemoveFile(context.Context, *RemoveFileRequest) (*RemoveFileResponse, error)
+	UpdateFile(context.Context, *UpdateFileRequest) (*UpdateFileResponse, error)
+	GetFiles(context.Context, *GetFilesRequest) (*GetFilesResponse, error)
+	mustEmbedUnimplementedFileServer()
+}
+
+// UnimplementedFileServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedFileServer struct{}
+
+func (UnimplementedFileServer) AddFile(context.Context, *AddFileRequest) (*AddFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddFile not implemented")
+}
+func (UnimplementedFileServer) RemoveFile(context.Context, *RemoveFileRequest) (*RemoveFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveFile not implemented")
+}
+func (UnimplementedFileServer) UpdateFile(context.Context, *UpdateFileRequest) (*UpdateFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateFile not implemented")
+}
+func (UnimplementedFileServer) GetFiles(context.Context, *GetFilesRequest) (*GetFilesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFiles not implemented")
+}
+func (UnimplementedFileServer) mustEmbedUnimplementedFileServer() {}
+func (UnimplementedFileServer) testEmbeddedByValue()              {}
+
+// UnsafeFileServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FileServer will
+// result in compilation errors.
+type UnsafeFileServer interface {
+	mustEmbedUnimplementedFileServer()
+}
+
+func RegisterFileServer(s grpc.ServiceRegistrar, srv FileServer) {
+	// If the following call pancis, it indicates UnimplementedFileServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&File_ServiceDesc, srv)
+}
+
+func _File_AddFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServer).AddFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: File_AddFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServer).AddFile(ctx, req.(*AddFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _File_RemoveFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServer).RemoveFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: File_RemoveFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServer).RemoveFile(ctx, req.(*RemoveFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _File_UpdateFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServer).UpdateFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: File_UpdateFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServer).UpdateFile(ctx, req.(*UpdateFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _File_GetFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFilesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServer).GetFiles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: File_GetFiles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServer).GetFiles(ctx, req.(*GetFilesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// File_ServiceDesc is the grpc.ServiceDesc for File service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var File_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.File",
+	HandlerType: (*FileServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddFile",
+			Handler:    _File_AddFile_Handler,
+		},
+		{
+			MethodName: "RemoveFile",
+			Handler:    _File_RemoveFile_Handler,
+		},
+		{
+			MethodName: "UpdateFile",
+			Handler:    _File_UpdateFile_Handler,
+		},
+		{
+			MethodName: "GetFiles",
+			Handler:    _File_GetFiles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

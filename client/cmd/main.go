@@ -1,22 +1,38 @@
-// План реализации:
-// 1. Инициализировать конфигурацию.
-// 2. Инициализировать логгер.
-// 3. Инициализировать клиент для взаимодействия с сервером.
-// 4. Инициализировать сервисы.
-// 5. Инициализировать CLI.
-// 6. Запустить CLI.
-
-
 package main
 
 import (
-	"gophKeeper/client/internal/delivery/cli"
+	"fmt"
+	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/delivery/tui"
+	"gophKeeper/client/internal/storage"
 	"log"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
-	// Запускаем корневую команду CLI
-	if err := cli.Execute(); err != nil {
-		log.Fatalf("CLI execution failed: %v", err)
+	// Инициализируем конфигурацию.
+	// Это создаст ~/.gophkeeper/gpk.conf, если его нет.
+	cfg, err := config.Init()
+	if err != nil {
+		log.Fatalf("Failed to initialize config: %v", err)
 	}
+
+	// Инициализируем хранилище.
+	store, err := storage.NewBboltStorage(cfg.DBPath)
+	if err != nil {
+		log.Fatalf("Failed to initialize storage: %v", err)
+	}
+	defer store.Close()
+
+	// Используем новую корневую модель
+	rootModel := tui.NewRootModel(store, cfg)
+
+	p := tea.NewProgram(rootModel)
+	if _, err := p.Run(); err != nil {
+		log.Printf("Alas, there's been an error: %v", err)
+		os.Exit(1)
+	}
+	fmt.Println("See you later!")
 }

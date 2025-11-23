@@ -54,9 +54,10 @@ func NewApp(ctx context.Context) *App {
 	log.Info().Msg("Successfully run migrations.")
 
 	userRepo := postgres.NewUserRepository(db)
+	deviceRepo := postgres.NewDeviceRepository(db)
 
 	// Инициализируем сервис аутентификации с репозиторием пользователей.
-	authService := services.NewService(log, userRepo)
+	authService := services.NewService(log, userRepo, deviceRepo)
 
 	// 1. Инициализируем gRPC сервер
 	// Передаем нашу реализацию сервиса.

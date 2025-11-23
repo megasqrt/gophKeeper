@@ -2,18 +2,9 @@ edition = "2023";
 
 package proto;
 
-// План реализации:
-// 1. Определить сервисы и сообщения для gRPC.
-// 2. Определить методы для регистрации, аутентификации, и других действий.
-// 3. Сгенерировать код для клиента и сервера.
-
 option go_package = "gophKeeper/internal/proto";
 
-// KeeperService предоставляет методы для работы с хранилищем.
-service KeeperService {
-    // Register регистрирует нового пользователя и возвращает токен доступа.
-    rpc Register(RegisterRequest) returns (RegisterResponse);
-}
+// --- AUTH ---
 
 // RegisterRequest содержит данные для регистрации нового пользователя.
 message RegisterRequest {
@@ -28,16 +19,257 @@ message RegisterResponse {
     string token = 1;
 }
 
+// LoginRequest содержит данные для аутентификации пользователя.
 message LoginRequest {
-  string username = 1;
-  string device_name = 2;
+  string login = 1;
+  string password = 2;
 }
 
+// LoginResponse содержит токен доступа после успешной аутентификации.
 message LoginResponse {
     string token = 1;
 }
 
-service User {
+// AuthService предоставляет методы для регистрации и аутентификации.
+service AuthService {
     rpc Register (RegisterRequest) returns (RegisterResponse);
     rpc Login (LoginRequest) returns (LoginResponse);
+}
+
+// --- DEVICE ---
+
+message DeviceInfo {
+    string id = 1;
+    string name = 2;
+}
+
+message AddDeviceRequest {
+    string name = 1;
+}
+
+message AddDeviceResponse {
+    string id = 1;
+}
+
+message RemoveDeviceRequest {
+    string id = 1;
+}
+
+message RemoveDeviceResponse {}
+
+message UpdateDeviceRequest {
+    string id = 1;
+    string name = 2;
+}
+
+message UpdateDeviceResponse {}
+
+message GetDevicesRequest {}
+
+message GetDevicesResponse {
+    repeated DeviceInfo devices = 1;
+}
+
+service Device {
+    rpc AddDevice (AddDeviceRequest) returns (AddDeviceResponse);
+    rpc RemoveDevice (RemoveDeviceRequest) returns (RemoveDeviceResponse);
+    rpc UpdateDevice (UpdateDeviceRequest) returns (UpdateDeviceResponse);
+    rpc GetDevices (GetDevicesRequest) returns (GetDevicesResponse);
+}
+
+// --- PASSWORD ---
+
+message PasswordItem {
+    string id = 1;
+    string site = 2;
+    string login = 3;
+    string password = 4;
+    string metadata = 5;
+}
+
+message AddPasswordRequest {
+    string site = 1;
+    string login = 2;
+    string password = 3;
+    string metadata = 4;
+}
+
+message AddPasswordResponse {
+    string id = 1;
+}
+
+message RemovePasswordRequest {
+    string id = 1;
+}
+
+message RemovePasswordResponse {}
+
+message UpdatePasswordRequest {
+    string id = 1;
+    string site = 2;
+    string login = 3;
+    string password = 4;
+    string metadata = 5;
+}
+
+message UpdatePasswordResponse {}
+
+message GetPasswordsRequest {}
+
+message GetPasswordsResponse {
+    repeated PasswordItem passwords = 1;
+}
+
+service Password {
+    rpc AddPassword (AddPasswordRequest) returns (AddPasswordResponse);
+    rpc RemovePassword (RemovePasswordRequest) returns (RemovePasswordResponse);
+    rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
+    rpc GetPasswords (GetPasswordsRequest) returns (GetPasswordsResponse);
+}
+
+// --- NOTE ---
+
+message NoteItem {
+    string id = 1;
+    string text = 2;
+    string metadata = 3;
+}
+
+message AddNoteRequest {
+    string text = 1;
+    string metadata = 2;
+}
+
+message AddNoteResponse {
+    string id = 1;
+}
+
+message RemoveNoteRequest {
+    string id = 1;
+}
+
+message RemoveNoteResponse {}
+
+message UpdateNoteRequest {
+    string id = 1;
+    string text = 2;
+    string metadata = 3;
+}
+
+message UpdateNoteResponse {}
+
+message GetNotesRequest {}
+
+message GetNotesResponse {
+    repeated NoteItem notes = 1;
+}
+
+service Note {
+    rpc AddNote (AddNoteRequest) returns (AddNoteResponse);
+    rpc RemoveNote (RemoveNoteRequest) returns (RemoveNoteResponse);
+    rpc UpdateNote (UpdateNoteRequest) returns (UpdateNoteResponse);
+    rpc GetNotes (GetNotesRequest) returns (GetNotesResponse);
+}
+
+// --- CARD ---
+
+service Card{
+    rpc AddCard (AddCardRequest) returns (AddCardResponse);
+    rpc RemoveCard (RemoveCardRequest) returns (RemoveCardResponse);
+    rpc UpdateCard (UpdateCardRequest) returns (UpdateCardResponse);
+    rpc GetCards (GetCardsRequest) returns (GetCardsResponse);
+}
+
+// --- FILE ---
+
+service File{   
+    rpc AddFile (AddFileRequest) returns (AddFileResponse);
+    rpc RemoveFile (RemoveFileRequest) returns (RemoveFileResponse);
+    rpc UpdateFile (UpdateFileRequest) returns (UpdateFileResponse);
+    rpc GetFiles (GetFilesRequest) returns (GetFilesResponse);
+}
+
+// --- CARD MESSAGES ---
+
+message CardItem {
+    string id = 1;
+    string number = 2;
+    string holder = 3;
+    string expiry = 4; // e.g., "MM/YY"
+    string cvv = 5;
+    string metadata = 6;
+}
+
+message AddCardRequest {
+    string number = 1;
+    string holder = 2;
+    string expiry = 3;
+    string cvv = 4;
+    string metadata = 5;
+}
+
+message AddCardResponse {
+    string id = 1;
+}
+
+message RemoveCardRequest {
+    string id = 1;
+}
+
+message RemoveCardResponse {}
+
+message UpdateCardRequest {
+    string id = 1;
+    string number = 2;
+    string holder = 3;
+    string expiry = 4;
+    string cvv = 5;
+    string metadata = 6;
+}
+
+message UpdateCardResponse {}
+
+message GetCardsRequest {}
+
+message GetCardsResponse {
+    repeated CardItem cards = 1;
+}
+
+// --- FILE MESSAGES ---
+
+message FileInfo {
+    string id = 1;
+    string name = 2;
+    string metadata = 3;
+}
+
+message AddFileRequest {
+    string name = 1;
+    bytes data = 2;
+    string metadata = 3;
+}
+
+message AddFileResponse {
+    string id = 1;
+}
+
+message RemoveFileRequest {
+    string id = 1;
+}
+
+message RemoveFileResponse {}
+
+message UpdateFileRequest {
+    string id = 1;
+    string name = 2;
+    bytes data = 3;
+    string metadata = 4;
+}
+
+message UpdateFileResponse {}
+
+message GetFilesRequest {}
+
+message GetFilesResponse {
+    repeated FileInfo files = 1;
 }
