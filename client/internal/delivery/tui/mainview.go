@@ -6,11 +6,38 @@ import (
 	"strings"
 	"time"
 
+	"context"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
+
+var (
+	docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
+	// Стиль для активной вкладки
+	// activeTabStyle = lipgloss.NewStyle().
+	// 		Background(lipgloss.Color("63")).
+	// 		Foreground(lipgloss.Color("230")).
+	// 		Padding(0, 1)
+	activeTabStyle = inactiveTabStyle.Border(activeTabBorder, true)
+	// Стиль для окна с контентом
+	//windowStyle = lipgloss.NewStyle().BorderForeground(lipgloss.Color("63")).Padding(2, 0).Border(lipgloss.NormalBorder()).UnsetBorderTop()
+	windowStyle       = lipgloss.NewStyle().BorderForeground(highlightColor).Padding(2, 0).Border(lipgloss.NormalBorder()).UnsetBorderTop()
+	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
+	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
+	highlightColor    = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
+	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true).BorderForeground(highlightColor).Padding(0, 1)
+)
+
+func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
+	border := lipgloss.RoundedBorder()
+	border.BottomLeft = left
+	border.Bottom = middle
+	border.BottomRight = right
+	return border
+}
 
 type MainViewModel struct {
 	tabs      []string
@@ -69,44 +96,45 @@ func (m MainViewModel) View() string {
 
 	var renderedTabs []string
 	for i, t := range m.tabs {
-		var style lipgloss.Style
 		if i == m.activeTab {
-			style = lipgloss.NewStyle().
-				Background(lipgloss.Color("63")).
-				Foreground(lipgloss.Color("230")).
-				Padding(1, 2)
+			renderedTabs = append(renderedTabs, activeTabStyle.Render(t))
 		} else {
-			style = lipgloss.NewStyle().Padding(1, 2)
+			renderedTabs = append(renderedTabs, inactiveTabStyle.Render(t))
 		}
-		renderedTabs = append(renderedTabs, style.Render(t))
 	}
 
-	// Добавляем иконку статуса сервера
 	serverStatusIcon := "❌" // Офлайн
 	if m.serverOnline {
 		serverStatusIcon = "✔️" // Онлайн
 	}
-	statusLine := lipgloss.NewStyle().Align(lipgloss.Right).SetString(fmt.Sprintf("Server: %s", serverStatusIcon))
-	tabsAndStatus := lipgloss.JoinHorizontal(lipgloss.Top, lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...), statusLine.Render())
+	statusLine := lipgloss.NewStyle().Align(lipgloss.Right).SetString(fmt.Sprintf("Server: %s", serverStatusIcon)).String()
 
-	doc.WriteString(tabsAndStatus)
-	doc.WriteString("\n\n")
+	// Собираем строку с вкладками и статусом
+	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+	doc.WriteString(lipgloss.JoinHorizontal(lipgloss.Right, row, statusLine))
+	doc.WriteString("\n")
 
+	// Готовим контент для окна
+	var tabContent strings.Builder
 	switch m.tabs[m.activeTab] {
 	case "Info":
-		infoStyle := lipgloss.NewStyle().PaddingLeft(2)
-		doc.WriteString(infoStyle.Render(fmt.Sprintf("User: %s\n", m.login)))
-		doc.WriteString(infoStyle.Render(fmt.Sprintf("Device: %s\n", m.deviceName)))
+		// Для выравнивания по левому краю просто добавляем строки.
+		tabContent.WriteString(fmt.Sprintf("User: %s\n", m.login))
+		tabContent.WriteString(fmt.Sprintf("Device: %s\n", m.deviceName))
 		if m.lastSync.IsZero() {
-			doc.WriteString(infoStyle.Render("Last sync: never\n"))
+			tabContent.WriteString("Last sync: never\n")
 		} else {
-			doc.WriteString(infoStyle.Render(fmt.Sprintf("Last sync: %s\n", m.lastSync.Format(time.RFC1123))))
+			tabContent.WriteString(fmt.Sprintf("Last sync: %s\n", m.lastSync.Format(time.RFC1123)))
 		}
 	default:
-		doc.WriteString(fmt.Sprintf("Content for %s tab.", m.tabs[m.activeTab]))
+		tabContent.WriteString(fmt.Sprintf("Content for %s tab.", m.tabs[m.activeTab]))
 	}
 
-	return doc.String()
+	// Рендерим окно с контентом
+	doc.WriteString(windowStyle.Render(tabContent.String()))
+
+	// Оборачиваем все в общий стиль документа с отступами
+	return docStyle.Render(doc.String())
 }
 
 // checkServer возвращает команду для проверки доступности сервера.
@@ -119,10 +147,12 @@ func checkServer(cfg *config.Config) tea.Cmd {
 		}
 
 		// Используем короткий таймаут для проверки соединения
-		// ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-		// defer cancel()
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
 
-		conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
+		// Используем DialContext, чтобы применить таймаут к попытке соединения.
+		// grpc.WithBlock() заставляет Dial дождаться установки соединения.
+		conn, err := grpc.DialContext(ctx, cfg.ServerAddress, grpc.WithTransportCredentials(creds), grpc.WithBlock())
 		if err != nil {
 			return serverStatusMsg{online: false}
 		}

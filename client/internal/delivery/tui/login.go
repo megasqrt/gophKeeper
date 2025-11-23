@@ -125,9 +125,8 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case loginOk:
 		// Это сообщение означает успешный вход. Мы должны выйти из программы,
-		// чтобы корневая модель могла перезапуститься и показать главный экран.
-		// В более сложном приложении мы бы отправили сообщение корневой модели.
-		return m, tea.Quit
+		// Корневая модель перехватит это сообщение и переключит вид.
+		return m, nil
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -188,47 +187,49 @@ func performLogin(cfg *config.Config, storage LocalStorage, login, password stri
 			return errMsg(fmt.Errorf("login and password cannot be empty"))
 		}
 
-		// Сначала пытаемся сгенерировать ключ. Если пароль неверный для локальных данных, нет смысла идти на сервер.
+		// Шаг 1: Локальная аутентификация. Пытаемся разблокировать хранилище.
 		if err := storage.Unlock(login, password); err != nil {
 			return errMsg(fmt.Errorf("failed to unlock local storage: %w", err))
 		}
+		// Проверяем, что ключ подходит, пытаясь что-нибудь расшифровать.
+		if _, err := storage.GetLastSyncTime(); err != nil {
+			// Если здесь ошибка, скорее всего, пароль неверный.
+			return errMsg(errors.New("invalid login or password"))
+		}
 
+		// Шаг 2: Попытка синхронизации с сервером (опционально).
 		serverHost := strings.Split(cfg.ServerAddress, ":")[0]
 		creds, err := credentials.NewClientTLSFromFile(cfg.CACertPath, serverHost)
 		if err != nil {
-			return errMsg(fmt.Errorf("could not load tls cert: %w", err))
+			// Невозможность загрузить сертификат - это локальная проблема, но не блокирующая вход.
+			// Мы можем продолжить работу в офлайн-режиме. Просто логируем.
+			fmt.Printf("Warning: could not load tls cert, proceeding in offline mode: %v\n", err)
+		} else {
+			dCtx, dCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer dCancel()
+
+			conn, err := grpc.DialContext(dCtx, cfg.ServerAddress, grpc.WithTransportCredentials(creds), grpc.WithBlock())
+			if err != nil {
+				// Сервер недоступен. Это НЕ ошибка для входа.
+				// Просто логируем и продолжаем, приложение будет работать с локальными данными.
+				fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
+			} else {
+				defer conn.Close()
+				client := pb.NewAuthServiceClient(conn)
+
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+
+				req := pb.LoginRequest_builder{Login: &login, Password: &password}.Build()
+				if res, err := client.Login(ctx, req); err == nil {
+					// Если сервер доступен и логин успешен, обновляем токен и время синхронизации.
+					_ = storage.SaveUserCredentials(login, res.GetToken())
+					_ = storage.SaveLastSyncTime(time.Now())
+				}
+			}
 		}
 
-		conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
-		if err != nil {
-			return errMsg(fmt.Errorf("could not connect: %w", err))
-		}
-		defer conn.Close()
-		client := pb.NewAuthServiceClient(conn)
-
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		req := &pb.LoginRequest{}
-		req.SetLogin(login)
-		req.SetPassword(password)
-
-		res, err := client.Login(ctx, req)
-		if err != nil {
-			return errMsg(err)
-		}
-
-		token := res.GetToken()
-		if err := storage.SaveUserCredentials(login, token); err != nil {
-			return errMsg(fmt.Errorf("failed to save credentials: %w", err))
-		}
-
-		// Сохраняем время успешной операции
-		if err := storage.SaveLastSyncTime(time.Now()); err != nil {
-			// Не критичная ошибка, можно проигнорировать или залогировать
-			fmt.Printf("Warning: could not save sync time: %v\n", err)
-		}
-
+		// Локальная аутентификация прошла успешно, возвращаем loginOk.
 		return loginOk{}
 	}
 }

@@ -223,7 +223,11 @@ func performRegistration(cfg *config.Config, login, password string, storage Loc
 		}
 
 		// Создаем защищенное соединение
-		conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
+		dCtx, dCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer dCancel()
+
+		// Используем DialContext для установки соединения с таймаутом
+		conn, err := grpc.DialContext(dCtx, cfg.ServerAddress, grpc.WithTransportCredentials(creds), grpc.WithBlock())
 		if err != nil {
 			return errMsg(fmt.Errorf("could not connect: %w", err))
 		}
@@ -233,11 +237,7 @@ func performRegistration(cfg *config.Config, login, password string, storage Loc
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 
-		req := pb.RegisterRequest_builder{
-			Login:    &login,
-			Password: &password,
-		}.Build()
-
+		req := pb.RegisterRequest_builder{Login: &login, Password: &password}.Build()
 		res, err := client.Register(ctx, req)
 		if err != nil {
 			return errMsg(err)
