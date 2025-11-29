@@ -13,6 +13,7 @@ type Config struct {
 	ServerAddress string `mapstructure:"server_address"`
 	DBPath        string `mapstructure:"db_path"`
 	CACertPath    string `mapstructure:"ca_cert_path"`
+	LogPath       string `mapstructure:"log_path"`
 }
 
 // Init инициализирует viper и загружает конфигурацию.
@@ -36,6 +37,7 @@ func Init() (*Config, error) {
 	viper.SetDefault("server_address", "localhost:9090")
 	viper.SetDefault("db_path", filepath.Join(configDir, ".gophkeeper.db"))
 	viper.SetDefault("ca_cert_path", filepath.Join(configDir, "certs/ca.crt"))
+	viper.SetDefault("log_path", filepath.Join(configDir, "client.log"))
 
 	viper.SetConfigFile(configPath)
 

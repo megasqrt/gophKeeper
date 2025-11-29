@@ -1,18 +1,19 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
-	"gophKeeper/client/internal/transport/grpc"
+	"gophKeeper/client/internal/transport"
 	"strings"
 	"time"
-
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type (
@@ -202,13 +203,16 @@ func (m regmodel) View() string {
 	return b.String()
 }
 
-func performRegistration( login, password string, storage LocalStorage) tea.Cmd {
+func performRegistration(cfg *config.Config, login, password string, storage LocalStorage) tea.Cmd {
 	return func() tea.Msg {
 		if login == "" || password == "" {
 			return errMsg(fmt.Errorf("login and password cannot be empty"))
 		}
 
-		
+		res, err := transport.Register(context.Background(), login, password)
+		if err != nil {
+			return errMsg(err)
+		}
 
 		// Сохраняем токен
 		if err := storage.SaveUserCredentials(login, res.GetToken()); err != nil {

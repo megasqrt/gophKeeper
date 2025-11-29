@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"gophKeeper/client/internal/config"
 	pb "gophKeeper/internal/proto"
 	"strings"
@@ -9,6 +10,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
+
+var ErrClientNotInitialized = errors.New("gRPC client not initialized")
 
 // Client - это централизованный gRPC клиент.
 type Client struct {
@@ -21,14 +24,14 @@ type Client struct {
 }
 
 // NewClient создает и возвращает новый gRPC клиент.
-func NewClient(cfg *config.Config) (*Client, error) {
+func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 	serverHost := strings.Split(cfg.ServerAddress, ":")[0]
 	creds, err := credentials.NewClientTLSFromFile(cfg.CACertPath, serverHost)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.DialContext(ctx, cfg.ServerAddress, grpc.WithTransportCredentials(creds))
 	if err != nil {
 
 		return nil, err
@@ -54,8 +57,8 @@ func (c *Client) IsConnected() bool {
 }
 
 // Login вызывает RPC-метод Login на сервере.
-func (c *Client) Login( login, password string) (*pb.LoginResponse, error) {
-	req := &pb.LoginRequest_builder{
+func (c *Client) Login(ctx context.Context, login, password string) (*pb.LoginResponse, error) {
+	req := pb.LoginRequest_builder{
 		Login:    &login,
 		Password: &password,
 	}.Build()
@@ -64,9 +67,15 @@ func (c *Client) Login( login, password string) (*pb.LoginResponse, error) {
 
 // Register вызывает RPC-метод Register на сервере.
 func (c *Client) Register(ctx context.Context, login, password string) (*pb.RegisterResponse, error) {
-	req := &pb.RegisterRequest{
-		Login:    login,
-		Password: password,
-	}
+	req := pb.RegisterRequest_builder{
+		Login:    &login,
+		Password: &password,
+	}.Build()
 	return c.Auth.Register(ctx, req)
+}	
+// Ping sends a Ping RPC to the server to check for connectivity.
+func (c *Client) Ping(ctx context.Context) error {
+	_, err := c.Auth.Ping(ctx, &pb.PingRequest{})
+	return err
 }
+	

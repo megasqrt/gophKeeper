@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/transport"
 	"io"
 	"strings"
 	"time"
@@ -11,9 +12,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/rs/zerolog"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 var (
@@ -70,20 +68,20 @@ type MainViewModel struct {
 	serverOnline bool
 	cfg          *config.Config
 	storage      LocalStorage
-	log          *zerolog.Logger
 	width        int
 	height       int
 }
 
 type serverStatusMsg struct{ online bool }
+type checkNowMsg struct{}
 
-func NewMainViewModel(login string, lastSync time.Time, cfg *config.Config, storage LocalStorage, log *zerolog.Logger) *MainViewModel {
+func NewMainViewModel(login string, lastSync time.Time, cfg *config.Config, storage LocalStorage) *MainViewModel {
 	items := []list.Item{
 		item("Credit Cards"),
 		item("Passwords"),
 		item("Secure Notes"),
 		item("Binary Data"),
-		item("Settings"),
+		item("Settings"), // This will now trigger the check
 	}
 
 	const defaultWidth = 20
@@ -101,17 +99,17 @@ func NewMainViewModel(login string, lastSync time.Time, cfg *config.Config, stor
 		menu:         l,
 		login:        login,
 		lastSync:     lastSync,
-		serverOnline: true, // Изначально считаем, что онлайн
+		serverOnline: transport.IsOnline(), // Initialize with status from transport layer
 		cfg:          cfg,
 		storage:      storage,
 		cardModel:    NewCardListModel(storage),
-		log:          log,
 	}
 }
 
 func (m *MainViewModel) Init() tea.Cmd {
-	return tea.Batch(m.cardModel.Init(), checkServer(m.cfg), tea.Every(10*time.Minute, func(t time.Time) tea.Msg {
-		return checkServer(m.cfg)()
+	// Periodically check the server status every 5 minutes.
+	return tea.Batch(m.cardModel.Init(), checkServer(), tea.Every(5*time.Minute, func(t time.Time) tea.Msg {
+		return checkNowMsg{}
 	}))
 }
 
@@ -126,7 +124,10 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case serverStatusMsg:
 		m.serverOnline = msg.online
-		return m, nil // Никакой новой команды не нужно
+		return m, nil
+
+	case checkNowMsg:
+		return m, checkServer()
 
 	// Сообщение от дочерней модели о возврате в меню
 	case backToMenuMsg:
@@ -150,12 +151,13 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch i {
 				case "Credit Cards":
 					m.state = cardView
-					// При переходе загружаем данные
 					if cardVM, ok := m.cardModel.(*CardListModel); ok {
 						cardVM.Load()
 					}
 					return m, nil
-					// TODO: Добавить обработку других пунктов меню
+				case "Settings":
+					// Manually trigger a server check
+					return m, checkServer()
 				}
 			}
 		}
@@ -178,6 +180,20 @@ func (m *MainViewModel) View() string {
 		return m.cardModel.View()
 	// Другие case для других окон
 	default: // mainMenu
-		return docStyle.Render(m.menu.View())
+		var status string
+		if m.serverOnline {
+			status = lipgloss.NewStyle().Foreground(lipgloss.Color("10")).Render("Status: Online")
+		} else {
+			status = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Status: Offline")
+		}
+		return docStyle.Render(m.menu.View() + "\n" + status)
+	}
+}
+
+// checkServer returns a command that pings the server and returns a serverStatusMsg.
+func checkServer() tea.Cmd {
+	return func() tea.Msg {
+		err := transport.Ping(context.Background())
+		return serverStatusMsg{online: err == nil}
 	}
 }

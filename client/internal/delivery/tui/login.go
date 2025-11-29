@@ -1,11 +1,11 @@
 package tui
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/transport"
-	
 	"strings"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	)
+)
 
 type loginOk struct{}
 
@@ -193,19 +193,19 @@ func performLogin(cfg *config.Config, storage LocalStorage, login, password stri
 			return errMsg(errors.New("invalid login or password"))
 		}
 
-		err := transport.ping()
-		if err != nil {
-			// Сервер недоступен. Это НЕ ошибка для входа.
-			// Просто логируем и продолжаем, приложение будет работать с локальными данными.
-			fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
-		} else {
+		// err := transport.ping()
+		// if err != nil {
+		// 	// Сервер недоступен. Это НЕ ошибка для входа.
+		// 	// Просто логируем и продолжаем, приложение будет работать с локальными данными.
+		// 	fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
+		// } else {
 			
-			if res, err := transport.Login(login, password); err == nil {
+			if res, err := transport.Login(context.Background(), login, password); err == nil {
 				// Если сервер доступен и логин успешен, обновляем токен и время синхронизации.
 				_ = storage.SaveUserCredentials(login, res.GetToken())
 				_ = storage.SaveLastSyncTime(time.Now())
 			}
-		}
+		// }
 	
 		// Локальная аутентификация прошла успешно, возвращаем loginOk.
 		return loginOk{}

@@ -9,12 +9,12 @@ import (
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/delivery/tui"
 	"gophKeeper/client/internal/storage"
-	"gophKeeper/client/internal/transport/grpc"
-	"gophKeeper/pkg/logger"
+	"gophKeeper/client/internal/transport"
+	logger "gophKeeper/pkg/logger"
 	"os"
+	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/docker/docker/client"
 	"github.com/rs/zerolog"
 )
 
@@ -28,28 +28,35 @@ func NewApp(ctx context.Context) *App {
 	// Инициализируем конфигурацию.
 	// Это создаст ~/.gophkeeper/gpk.conf, если его нет.
 
-	log := logger.NewZerologLogger()
-
 	cfg, err := config.Init()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to initialize config")
+		// Если конфиг не загрузился, логгер еще не создан. Паникуем.
+		panic(fmt.Sprintf("Failed to initialize config: %v", err))
 	}
 
+	log := logger.New(cfg.LogPath)
+	log.Info().Msg("Client application starting")
+	log.Info().Str("log_path", cfg.LogPath).Msg("Logging to file")
+
 	// Инициализируем хранилище.
-	store, err := storage.NewBboltStorage(cfg.DBPath)
+	store, err := storage.NewBboltStorage(cfg.DBPath, *log)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to initialize storage")
 	}
 
-	client, err:=grpc.NewClient(ctx,cfg)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to initialize grpc client")
+	// Initialize the transport layer.
+	if err := transport.Init(ctx, cfg); err != nil {
+		log.Warn().Err(err).Msg("Failed to initialize transport layer; starting in offline mode")
 	}
 
-	
+	app := &App{
+		Logger:  log,
+		Storage: store,
+	}
 
 	// Используем новую корневую модель
-	rootModel := tui.NewRootModel(store, cfg, &log)
+	rootModel := tui.NewRootModel(store, cfg)
+	app.Tui = &rootModel
 
 	p := tea.NewProgram(rootModel)
 	if _, err := p.Run(); err != nil {
@@ -57,11 +64,7 @@ func NewApp(ctx context.Context) *App {
 		os.Exit(1)
 	}
 
-	return &App{
-		Logger:  &log,
-		Storage: store,
-		Tui:     &rootModel,
-	}
+	return app
 }
 
 func (a *App) Stop() {

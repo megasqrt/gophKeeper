@@ -6,7 +6,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/rs/zerolog"
+
 )
 
 // sessionState определяет текущее состояние сессии пользователя.
@@ -26,19 +26,17 @@ type RootModel struct {
 	cfg     *config.Config
 	width   int
 	height  int
-	log     *zerolog.Logger
 }
 
 // NewRootModel создает корневую модель.
-func NewRootModel(storage LocalStorage, cfg *config.Config, log *zerolog.Logger) RootModel {
+func NewRootModel(storage LocalStorage, cfg *config.Config) RootModel {
 	// Проверяем, есть ли токен. Если да, считаем пользователя авторизованным.
 	// Теперь мы всегда начинаем с экрана входа, чтобы получить пароль для ключа.
 	login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
 
-	log.Info().Msgf("Login: %s", login)
 	// lastSync и deviceName будут получены после успешного входа.
 	// Поэтому передаем пустые значения в NewMainViewModel.
-	mainViewModel := NewMainViewModel(login, time.Time{}, cfg, storage, log)
+	mainViewModel := NewMainViewModel(login, time.Time{}, cfg, storage)
 
 	//TODO нормальный логер и валидация токена на просрочку
 	fmt.Printf("Login: %s, Token valid:\n", login)
@@ -76,7 +74,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// После успешного входа нам нужно обновить main view актуальными данными
 		login, _, _ := m.storage.GetUserCredentials()
 		lastSync, _ := m.storage.GetLastSyncTime()
-		newMainModel := NewMainViewModel(login, lastSync, m.cfg, m.storage, m.log)
+		newMainModel := NewMainViewModel(login, lastSync, m.cfg, m.storage)
 
 		// Теперь, когда хранилище открыто, загружаем данные для вкладок.
 		if cardVM, ok := newMainModel.cardModel.(*CardListModel); ok {
