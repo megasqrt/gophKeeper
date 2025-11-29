@@ -1,22 +1,18 @@
 package tui
 
 import (
-	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/transport/grpc"
 	"strings"
 	"time"
 
-	pb "gophKeeper/internal/proto"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/status"
+
 )
 
 type (
@@ -25,7 +21,7 @@ type (
 	}
 )
 
-type model struct {
+type regmodel struct {
 	cfg           *config.Config
 	storage       LocalStorage
 	loginInput    textinput.Model
@@ -40,8 +36,8 @@ type model struct {
 	width         int
 }
 
-func InitialModel(storage LocalStorage, cfg *config.Config) model {
-	m := model{
+func InitialModel(storage LocalStorage, cfg *config.Config) regmodel {
+	m := regmodel{
 		cfg:          cfg,
 		storage:      storage,
 		attemptsLeft: 3, // Устанавливаем 3 попытки
@@ -67,11 +63,11 @@ func InitialModel(storage LocalStorage, cfg *config.Config) model {
 	return m
 }
 
-func (m model) Init() tea.Cmd {
+func (m regmodel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -158,14 +154,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *model) updateInputs(msg tea.Msg) tea.Cmd {
+func (m *regmodel) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 2)
 	m.loginInput, cmds[0] = m.loginInput.Update(msg)
 	m.passwordInput, cmds[1] = m.passwordInput.Update(msg)
 	return tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m regmodel) View() string {
 	if m.loading {
 		return fmt.Sprintf("%s Registering...", m.spinner.View())
 	}
@@ -206,42 +202,13 @@ func (m model) View() string {
 	return b.String()
 }
 
-func performRegistration(cfg *config.Config, login, password string, storage LocalStorage) tea.Cmd {
+func performRegistration( login, password string, storage LocalStorage) tea.Cmd {
 	return func() tea.Msg {
 		if login == "" || password == "" {
 			return errMsg(fmt.Errorf("login and password cannot be empty"))
 		}
 
-		// Извлекаем хост из адреса сервера для serverName
-		serverHost := strings.Split(cfg.ServerAddress, ":")[0]
-
-		// Загружаем сертификат CA для клиента
-		// Используем хост сервера из конфига как serverName для проверки сертификата
-		creds, err := credentials.NewClientTLSFromFile(cfg.CACertPath, serverHost)
-		if err != nil {
-			return errMsg(fmt.Errorf("could not load tls cert '%s': %w. Make sure the certificate exists", cfg.CACertPath, err))
-		}
-
-		// Создаем защищенное соединение
-		dCtx, dCancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer dCancel()
-
-		// Используем DialContext для установки соединения с таймаутом
-		conn, err := grpc.DialContext(dCtx, cfg.ServerAddress, grpc.WithTransportCredentials(creds), grpc.WithBlock())
-		if err != nil {
-			return errMsg(fmt.Errorf("could not connect: %w", err))
-		}
-		defer conn.Close()
-		client := pb.NewAuthServiceClient(conn)
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-		defer cancel()
-
-		req := pb.RegisterRequest_builder{Login: &login, Password: &password}.Build()
-		res, err := client.Register(ctx, req)
-		if err != nil {
-			return errMsg(err)
-		}
+		
 
 		// Сохраняем токен
 		if err := storage.SaveUserCredentials(login, res.GetToken()); err != nil {

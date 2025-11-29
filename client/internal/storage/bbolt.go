@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"errors"
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
@@ -75,7 +76,6 @@ func NewBboltStorage(path string) (*BboltStorage, error) {
 // Unlock генерирует ключ шифрования из пароля и сохраняет его в сессии.
 func (s *BboltStorage) Unlock(login, password string) error {
 	// Используем логин как "соль" для scrypt. Это не идеально, но просто.
-	// В реальном приложении соль лучше генерировать и хранить отдельно.
 	salt := []byte(login)
 	// N=32768, r=8, p=1 - стандартные параметры для интерактивного входа
 	key, err := scrypt.Key([]byte(password), salt, 32768, 8, 1, 32)
@@ -115,7 +115,7 @@ func (s *BboltStorage) GetUserCredentials() (login, token string, err error) {
 		login = string(loginBytes)
 
 		tokenBytes := b.Get(tokenKey)
-		if tokenBytes != nil && len(tokenBytes) > 0 {
+		if len(tokenBytes) > 0 {
 			decryptedToken, err := s.decrypt(tokenBytes)
 			if err != nil {
 				// Если не можем расшифровать, возможно, пароль неверный
@@ -167,6 +167,51 @@ func (s *BboltStorage) GetLastSyncTime() (time.Time, error) {
 		return t.UnmarshalText(decryptedTime)
 	})
 	return t, err
+}
+
+// SaveCard сохраняет данные карты в хранилище.
+func (s *BboltStorage) SaveCard(cardData map[string]string) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(cardsBucket)
+		
+		// Используем номер карты как ключ (в реальном приложении лучше использовать UUID)
+		cardID := cardData["number"]
+
+		// Сериализуем данные карты в JSON
+		jsonData, err := json.Marshal(cardData)
+		if err != nil {
+			return fmt.Errorf("could not marshal card data: %w", err)
+		}
+
+		// Шифруем JSON
+		encryptedData, err := s.encrypt(jsonData)
+		if err != nil {
+			return fmt.Errorf("could not encrypt card data: %w", err)
+		}
+
+		return b.Put([]byte(cardID), encryptedData)
+	})
+}
+
+// GetCards извлекает все сохраненные карты.
+func (s *BboltStorage) GetCards() ([]map[string]string, error) {
+	var cards []map[string]string
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(cardsBucket)
+		return b.ForEach(func(k, v []byte) error {
+			decryptedData, err := s.decrypt(v)
+			if err != nil {
+				return fmt.Errorf("could not decrypt card data for key %s: %w", k, err)
+			}
+			var cardData map[string]string
+			if err := json.Unmarshal(decryptedData, &cardData); err != nil {
+				return fmt.Errorf("could not unmarshal card data for key %s: %w", k, err)
+			}
+			cards = append(cards, cardData)
+			return nil
+		})
+	})
+	return cards, err
 }
 
 // Close закрывает соединение с базой данных.

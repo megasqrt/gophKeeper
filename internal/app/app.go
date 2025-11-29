@@ -57,7 +57,7 @@ func NewApp(ctx context.Context) *App {
 	deviceRepo := postgres.NewDeviceRepository(db)
 
 	// Инициализируем сервис аутентификации с репозиторием пользователей.
-	authService := services.NewService(log, userRepo, deviceRepo)
+	authService := services.NewService(log, userRepo, deviceRepo,cfg)
 
 	// 1. Инициализируем gRPC сервер
 	// Передаем нашу реализацию сервиса.

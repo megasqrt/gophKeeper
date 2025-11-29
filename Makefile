@@ -53,6 +53,8 @@ godoc:
 #http://localhost:6070/pkg/ypMetrics/internal/?m=all
 
 protoc:
+	rm -rf internal/proto/keeper.pb.go
+	rm -rf internal/proto/keeper_grpc.pb.go
 	protoc --go_out=. --go_opt=default_api_level=API_OPAQUE --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative internal/proto/keeper.proto
 
 # Docker
@@ -111,3 +113,6 @@ clean-certs:
 	rm -f certs/*.crt certs/*.key certs/*.csr certs/*.srl
 
 .PHONY: certs-all certs-ca certs-server certs-client clean-certs start startb stop protoc run_s run_c
+
+tools:
+	go install github.com/bufbuild/buf/cmd/buf@latest

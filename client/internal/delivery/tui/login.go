@@ -1,11 +1,11 @@
 package tui
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"gophKeeper/client/internal/config"
-	pb "gophKeeper/internal/proto"
+	"gophKeeper/client/internal/transport"
+	
 	"strings"
 	"time"
 
@@ -13,11 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/status"
-)
+	)
 
 type loginOk struct{}
 
@@ -114,12 +110,12 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		m.loading = false
-		st, ok := status.FromError(m.err)
-		if ok && st.Code() == codes.Unauthenticated {
-			m.err = errors.New("invalid login or password")
-		} else if ok && st.Code() == codes.Unavailable {
-			m.err = errors.New("server is unavailable, please try again later")
-		}
+		//TODO parse error
+		// if ok && st.Code() == codes.Unauthenticated {
+		// 	m.err = errors.New("invalid login or password")
+		// } else if ok && st.Code() == codes.Unavailable {
+		// 	m.err = errors.New("server is unavailable, please try again later")
+		// }
 
 		return m, nil
 
@@ -197,38 +193,20 @@ func performLogin(cfg *config.Config, storage LocalStorage, login, password stri
 			return errMsg(errors.New("invalid login or password"))
 		}
 
-		// Шаг 2: Попытка синхронизации с сервером (опционально).
-		serverHost := strings.Split(cfg.ServerAddress, ":")[0]
-		creds, err := credentials.NewClientTLSFromFile(cfg.CACertPath, serverHost)
+		err := transport.ping()
 		if err != nil {
-			// Невозможность загрузить сертификат - это локальная проблема, но не блокирующая вход.
-			// Мы можем продолжить работу в офлайн-режиме. Просто логируем.
-			fmt.Printf("Warning: could not load tls cert, proceeding in offline mode: %v\n", err)
+			// Сервер недоступен. Это НЕ ошибка для входа.
+			// Просто логируем и продолжаем, приложение будет работать с локальными данными.
+			fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
 		} else {
-			dCtx, dCancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer dCancel()
-
-			conn, err := grpc.DialContext(dCtx, cfg.ServerAddress, grpc.WithTransportCredentials(creds), grpc.WithBlock())
-			if err != nil {
-				// Сервер недоступен. Это НЕ ошибка для входа.
-				// Просто логируем и продолжаем, приложение будет работать с локальными данными.
-				fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
-			} else {
-				defer conn.Close()
-				client := pb.NewAuthServiceClient(conn)
-
-				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				defer cancel()
-
-				req := pb.LoginRequest_builder{Login: &login, Password: &password}.Build()
-				if res, err := client.Login(ctx, req); err == nil {
-					// Если сервер доступен и логин успешен, обновляем токен и время синхронизации.
-					_ = storage.SaveUserCredentials(login, res.GetToken())
-					_ = storage.SaveLastSyncTime(time.Now())
-				}
+			
+			if res, err := transport.Login(login, password); err == nil {
+				// Если сервер доступен и логин успешен, обновляем токен и время синхронизации.
+				_ = storage.SaveUserCredentials(login, res.GetToken())
+				_ = storage.SaveLastSyncTime(time.Now())
 			}
 		}
-
+	
 		// Локальная аутентификация прошла успешно, возвращаем loginOk.
 		return loginOk{}
 	}

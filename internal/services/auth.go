@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"gophKeeper/internal/config"
 	"gophKeeper/internal/domain/model"
 	"gophKeeper/internal/domain/repository"
 	pb "gophKeeper/internal/proto"
@@ -32,11 +33,12 @@ type Service struct {
 }
 
 // NewService создает новый экземпляр сервиса аутентификации.
-func NewService(log zerolog.Logger, userRepo repository.UserRepository, deviceRepo repository.DeviceRepository) *Service {
+func NewService(log zerolog.Logger, userRepo repository.UserRepository, deviceRepo repository.DeviceRepository, cfg config.Config) *Service {
 	return &Service{
 		userRepo:   userRepo,
 		deviceRepo: deviceRepo,
 		log:        log,
+		jwtSecret:  []byte(cfg.HashKey),
 	}
 }
 
@@ -111,8 +113,7 @@ func (s *Service) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Re
 	}
 
 	return pb.RegisterResponse_builder{
-			Token: &token}.Build(),
-		nil // Эта строка была здесь по ошибке, исправлено
+		Token: &token}.Build(), nil
 }
 
 // Login аутентифицирует пользователя и возвращает JWT.

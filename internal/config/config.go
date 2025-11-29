@@ -34,7 +34,7 @@ const (
 	defaultRestore         = true
 	defaultDatabaseURL     = ""
 	MigrationsPath         = "file://internal/storage/postgres/migrations"
-	defaultHashKey         = ""
+	defaultHashKey         = "test"
 	defaultCryptoKey       = ""
 	defaultTrustedSubnet   = ""
 	defaultConfigPath      = ""

@@ -12,7 +12,9 @@ func NewZerologLogger() zerolog.Logger {
 
 	// Многоуровневый вывод
 	multi := zerolog.MultiLevelWriter(
-		zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339, NoColor: false},
+	//	zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339, NoColor: false},
+		zerolog.ConsoleWriter{Out: os.NewFile(0,"log.txt"), TimeFormat: time.RFC3339, NoColor: false},
+	
 		os.Stdout,
 	)
 

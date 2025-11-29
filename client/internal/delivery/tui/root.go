@@ -6,6 +6,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/rs/zerolog"
 )
 
 // sessionState определяет текущее состояние сессии пользователя.
@@ -25,17 +26,19 @@ type RootModel struct {
 	cfg     *config.Config
 	width   int
 	height  int
+	log     *zerolog.Logger
 }
 
 // NewRootModel создает корневую модель.
-func NewRootModel(storage LocalStorage, cfg *config.Config) RootModel {
+func NewRootModel(storage LocalStorage, cfg *config.Config, log *zerolog.Logger) RootModel {
 	// Проверяем, есть ли токен. Если да, считаем пользователя авторизованным.
 	// Теперь мы всегда начинаем с экрана входа, чтобы получить пароль для ключа.
 	login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
 
+	log.Info().Msgf("Login: %s", login)
 	// lastSync и deviceName будут получены после успешного входа.
 	// Поэтому передаем пустые значения в NewMainViewModel.
-	mainViewModel := NewMainViewModel("", "", time.Time{}, cfg, storage)
+	mainViewModel := NewMainViewModel(login, time.Time{}, cfg, storage, log)
 
 	//TODO нормальный логер и валидация токена на просрочку
 	fmt.Printf("Login: %s, Token valid:\n", login)
@@ -62,9 +65,25 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
 	case tea.KeyMsg:
-		if msg.Type == tea.KeyCtrlC {
+		switch msg.Type {
+		case tea.KeyCtrlC:
 			return m, tea.Quit
 		}
+	// Проверяем, не был ли вход успешным. Эта проверка должна быть здесь,
+	// чтобы перехватить сообщение от дочерней модели login.
+	case loginOk:
+		m.state = authorizedState
+		// После успешного входа нам нужно обновить main view актуальными данными
+		login, _, _ := m.storage.GetUserCredentials()
+		lastSync, _ := m.storage.GetLastSyncTime()
+		newMainModel := NewMainViewModel(login, lastSync, m.cfg, m.storage, m.log)
+
+		// Теперь, когда хранилище открыто, загружаем данные для вкладок.
+		if cardVM, ok := newMainModel.cardModel.(*CardListModel); ok {
+			cardVM.Load()
+		}
+		m.main = newMainModel
+		return m, m.main.Init() // Инициализируем main view (запускаем пингер)
 	}
 
 	// Передаем сообщения в активную дочернюю модель
@@ -77,18 +96,7 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var newLoginModel tea.Model
 		newLoginModel, cmd = m.login.Update(msg)
 		m.login = newLoginModel
-
-		// Проверяем, не был ли вход успешным
-		if _, ok := msg.(loginOk); ok {
-			m.state = authorizedState
-			// После успешного входа нам нужно обновить main view актуальными данными
-			login, _, _ := m.storage.GetUserCredentials()
-			lastSync, _ := m.storage.GetLastSyncTime()
-			m.main = NewMainViewModel(login, "Initial Device", lastSync, m.cfg, m.storage)
-			return m, m.main.Init() // Инициализируем main view (запускаем пингер)
-		}
 	}
-
 	return m, cmd
 }
 
