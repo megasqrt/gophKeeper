@@ -64,7 +64,6 @@ type MainViewModel struct {
 	// Другие модели для паролей, заметок и т.д.
 
 	login        string
-	lastSync     time.Time
 	serverOnline bool
 	cfg          *config.Config
 	storage      LocalStorage
@@ -75,7 +74,7 @@ type MainViewModel struct {
 type serverStatusMsg struct{ online bool }
 type checkNowMsg struct{}
 
-func NewMainViewModel(login string, lastSync time.Time, cfg *config.Config, storage LocalStorage) *MainViewModel {
+func NewMainViewModel( cfg *config.Config, storage LocalStorage) *MainViewModel {
 	items := []list.Item{
 		item("Credit Cards"),
 		item("Passwords"),
@@ -97,8 +96,6 @@ func NewMainViewModel(login string, lastSync time.Time, cfg *config.Config, stor
 	return &MainViewModel{
 		state:        mainMenu,
 		menu:         l,
-		login:        login,
-		lastSync:     lastSync,
 		serverOnline: transport.IsOnline(), // Initialize with status from transport layer
 		cfg:          cfg,
 		storage:      storage,

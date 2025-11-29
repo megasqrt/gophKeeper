@@ -4,15 +4,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"time"
 
+	"github.com/rs/zerolog"
 	"go.etcd.io/bbolt"
 	"golang.org/x/crypto/scrypt"
-	"github.com/rs/zerolog"
 )
 
 var (
@@ -32,15 +32,18 @@ var (
 // Определим ключи для хранения конфигурации.
 var (
 	loginKey    = []byte("login")
+	userKey     = []byte("user")
+	passwordKey = []byte("password")
 	tokenKey    = []byte("token")
 	lastSyncKey = []byte("lastSync")
 )
 
 // BboltStorage представляет собой хранилище на базе bbolt.
 type BboltStorage struct {
-	db  *bbolt.DB
-	key []byte // Ключ шифрования, активен в течение сессии
-	log zerolog.Logger
+	db   *bbolt.DB
+	key  []byte // Ключ шифрования, активен в течение сессии
+	log  zerolog.Logger
+	user string
 }
 
 // NewBboltStorage создает и инициализирует новое хранилище bbolt.
@@ -72,33 +75,86 @@ func NewBboltStorage(path string, log zerolog.Logger) (*BboltStorage, error) {
 		return nil, fmt.Errorf("could not set up buckets: %w", err)
 	}
 
-	return &BboltStorage{db: db}, nil
+	return &BboltStorage{db: db, log: log}, nil
 }
 
 // Unlock генерирует ключ шифрования из пароля и сохраняет его в сессии.
-func (s *BboltStorage) Unlock(login, password string) error {
-	s.log.Info().Str("login", login).Msg("Deriving encryption key from password")
-	// Используем логин как "соль" для scrypt. Это не идеально, но просто.
-	salt := []byte(login)
-	// N=32768, r=8, p=1 - стандартные параметры для интерактивного входа
-	key, err := scrypt.Key([]byte(password), salt, 32768, 8, 1, 32)
+func (s *BboltStorage) Unlock(user, password string) error {
+	s.log.Info().Str("user", user).Msg("Deriving encryption key from password")
+	// Используем имя пользователя как "соль" для scrypt. Это не идеально, но просто.
+	key, err := encriptPassword(user, password)
 	if err != nil {
 		s.log.Error().Err(err).Msg("Failed to derive key")
 		return fmt.Errorf("could not derive key: %w", err)
 	}
 	s.key = key
+
+	// Проверяем ключ, пытаясь расшифровать проверочное значение
+	err = s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(configBucket)
+		userBytes := b.Get(userKey)
+		if userBytes == nil {
+			s.log.Error().Msg("User not found in storage")
+			return errors.New("user not found in storage")
+		}
+		 unlockUser, err := s.decrypt(userBytes)
+		 if err != nil {
+			s.log.Error().Err(err).Msg("Failed to decrypt user")
+			return err
+		}
+		if string(unlockUser) != user {		
+			return errors.New("invalid password")
+		}
+		return nil
+	})
+	if err != nil {
+		return err		
+	}
+
 	s.log.Info().Msg("Storage unlocked successfully")
 	return nil
 }
 
-// SaveUserCredentials сохраняет логин и токен пользователя.
+func encriptPassword(user, password string) ([]byte, error) {
+	salt := []byte(user)
+	// N=32768, r=8, p=1 - стандартные параметры для интерактивного входа
+	key, err := scrypt.Key([]byte(password), salt, 32768, 8, 1, 32)
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}
+
+// SaveUserCredentials сохраняет пароль пользователя.
+func (s *BboltStorage) LocalRegister(user, password string) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(configBucket)
+		s.log.Info().Msg("Deriving encryption key from password")
+		key, err := encriptPassword(user, password)
+		if err != nil {
+			return fmt.Errorf("could not derive key: %w", err)
+		}
+		s.key = key
+		encryptedPassword, err := s.encrypt([]byte(password))
+		if err != nil {
+			return fmt.Errorf("could not encrypt password: %w", err)
+		}
+		encryptedUser, err := s.encrypt([]byte(user))
+		if err != nil {
+			return fmt.Errorf("could not encrypt user: %w", err)
+		}
+		if err = b.Put(userKey, encryptedUser); err != nil {
+			s.log.Error().Err(err).Msg("Failed to save login")
+		}
+		
+		return b.Put(passwordKey, encryptedPassword)
+	})
+}
+
+// SaveUserCredentials сохраняет токен пользователя.
 func (s *BboltStorage) SaveUserCredentials(login, token string) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
-		// Логин сохраняем в открытом виде, он нужен для восстановления "соли"
-		if err := b.Put(loginKey, []byte(login)); err != nil {
-			return err
-		}
 		encryptedToken, err := s.encrypt([]byte(token))
 		if err != nil {
 			return fmt.Errorf("could not encrypt token: %w", err)
@@ -107,17 +163,10 @@ func (s *BboltStorage) SaveUserCredentials(login, token string) error {
 	})
 }
 
-// GetUserCredentials извлекает логин и токен пользователя.
-func (s *BboltStorage) GetUserCredentials() (login, token string, err error) {
+// GetUserCredentials извлекает токен пользователя.
+func (s *BboltStorage) GetUserCredentials() (user,token string, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
-
-		loginBytes := b.Get(loginKey)
-		if loginBytes == nil {
-			// Если логин не найден, считаем, что пользователь не зарегистрирован.
-			return ErrUserNotRegistered
-		}
-		login = string(loginBytes)
 
 		tokenBytes := b.Get(tokenKey)
 		if len(tokenBytes) > 0 {
@@ -128,16 +177,42 @@ func (s *BboltStorage) GetUserCredentials() (login, token string, err error) {
 			}
 			token = string(decryptedToken)
 		}
-
+		userBytes := b.Get(userKey)
+		if len(userBytes) > 0 {
+			decryptedLogin, err := s.decrypt(userBytes)	
+			if err!= nil {
+				return fmt.Errorf("could not decrypt login: %w", err)
+			}
+			user = string(decryptedLogin)
+		}
 		return nil
 	})
-	return login, token, err
+	s.log.Info().Str("user", user).Str("token", token).Msg("Retrieved user credentials")
+	return user,token, nil
 }
 
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
-	_, token, err := s.GetUserCredentials()
+	_,token, err := s.GetUserCredentials()
 	return err == nil && token != ""
+}
+
+func (s *BboltStorage) IsFirstRun() bool {
+	s.log.Info().Msg("Checking if first run")
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(configBucket)
+		passwordBytes := b.Get(passwordKey)
+		if len(passwordBytes) > 0 {
+			return nil
+		}
+		return errors.New("password not found in storage")
+	})
+	if err != nil {
+		s.log.Info().Msg("Password not found in storage")
+		return true
+	}
+	s.log.Info().Msg("Password found in storage")
+	return false
 }
 
 // SaveLastSyncTime сохраняет время последней успешной синхронизации с сервером.

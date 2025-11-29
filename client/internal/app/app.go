@@ -34,7 +34,7 @@ func NewApp(ctx context.Context) *App {
 		panic(fmt.Sprintf("Failed to initialize config: %v", err))
 	}
 
-	log := logger.New(cfg.LogPath)
+	log := logger.NewFileLoger(cfg.LogPath)
 	log.Info().Msg("Client application starting")
 	log.Info().Str("log_path", cfg.LogPath).Msg("Logging to file")
 
@@ -57,6 +57,14 @@ func NewApp(ctx context.Context) *App {
 	// Используем новую корневую модель
 	rootModel := tui.NewRootModel(store, cfg)
 	app.Tui = &rootModel
+
+	f, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+			fmt.Println("fatal:", err)
+			os.Exit(1)
+	}
+	defer f.Close()
+
 
 	p := tea.NewProgram(rootModel)
 	if _, err := p.Run(); err != nil {

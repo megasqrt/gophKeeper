@@ -6,9 +6,12 @@ import (
 	"gophKeeper/client/internal/config"
 	pb "gophKeeper/internal/proto"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 var ErrClientNotInitialized = errors.New("gRPC client not initialized")
@@ -31,14 +34,13 @@ func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 		return nil, err
 	}
 
-	conn, err := grpc.DialContext(ctx, cfg.ServerAddress, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
 	if err != nil {
-
 		return nil, err
 	}
 
 	client := &Client{
-		Auth: pb.NewAuthServiceClient(conn),
+		Auth:   pb.NewAuthServiceClient(conn),
 		//	Cards: pb.NewCardServiceClient(conn),
 		Status: true,
 		conn:   conn,
@@ -72,10 +74,34 @@ func (c *Client) Register(ctx context.Context, login, password string) (*pb.Regi
 		Password: &password,
 	}.Build()
 	return c.Auth.Register(ctx, req)
-}	
+}
+
 // Ping sends a Ping RPC to the server to check for connectivity.
 func (c *Client) Ping(ctx context.Context) error {
 	_, err := c.Auth.Ping(ctx, &pb.PingRequest{})
 	return err
 }
-	
+
+func CheckHealth(addr string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, err := grpc.NewClient(addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+
+	healthClient := grpc_health_v1.NewHealthClient(conn)
+
+	resp, err := healthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{
+		Service: "", // Проверка всего сервера
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return resp.Status == grpc_health_v1.HealthCheckResponse_SERVING, nil
+}

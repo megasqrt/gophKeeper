@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	"github.com/spf13/viper"
@@ -14,6 +15,7 @@ type Config struct {
 	DBPath        string `mapstructure:"db_path"`
 	CACertPath    string `mapstructure:"ca_cert_path"`
 	LogPath       string `mapstructure:"log_path"`
+	User		  string `mapstructure:"user"`
 }
 
 // Init инициализирует viper и загружает конфигурацию.
@@ -23,6 +25,11 @@ func Init() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot find user home directory: %w", err)
 	}
+
+	currentUser, err := user.Current()
+    if err != nil {
+        return nil, fmt.Errorf("Error getting current user: %v\n", err)
+    }
 
 	configDir := filepath.Join(home, ".gophkeeper")
 	configName := "gpk.yaml"
@@ -35,9 +42,10 @@ func Init() (*Config, error) {
 
 	// Устанавливаем значения по умолчанию
 	viper.SetDefault("server_address", "localhost:9090")
-	viper.SetDefault("db_path", filepath.Join(configDir, ".gophkeeper.db"))
+	viper.SetDefault("db_path", filepath.Join(configDir, "gophkeeper.db"))
 	viper.SetDefault("ca_cert_path", filepath.Join(configDir, "certs/ca.crt"))
 	viper.SetDefault("log_path", filepath.Join(configDir, "client.log"))
+	viper.SetDefault("user", currentUser.Username)
 
 	viper.SetConfigFile(configPath)
 

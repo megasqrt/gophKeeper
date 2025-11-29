@@ -1,12 +1,9 @@
 package tui
 
 import (
-	"fmt"
 	"gophKeeper/client/internal/config"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-
 )
 
 // sessionState определяет текущее состояние сессии пользователя.
@@ -30,21 +27,19 @@ type RootModel struct {
 
 // NewRootModel создает корневую модель.
 func NewRootModel(storage LocalStorage, cfg *config.Config) RootModel {
-	// Проверяем, есть ли токен. Если да, считаем пользователя авторизованным.
-	// Теперь мы всегда начинаем с экрана входа, чтобы получить пароль для ключа.
-	login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
+
+	// Всегда начинаем с экрана входа, чтобы получить пароль для ключа.
+	//login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
 
 	// lastSync и deviceName будут получены после успешного входа.
 	// Поэтому передаем пустые значения в NewMainViewModel.
-	mainViewModel := NewMainViewModel(login, time.Time{}, cfg, storage)
+	mainViewModel := NewMainViewModel(cfg, storage)
 
-	//TODO нормальный логер и валидация токена на просрочку
-	fmt.Printf("Login: %s, Token valid:\n", login)
 	return RootModel{
 		state:   unauthorizedState, // Всегда начинаем с этого состояния
 		storage: storage,
 		cfg:     cfg,
-		login:   NewLoginModel(storage, login, cfg),
+		login:   NewLoginModel(storage, cfg),
 		main:    mainViewModel, // Создаем модель главного вида
 	}
 }
@@ -72,16 +67,17 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case loginOk:
 		m.state = authorizedState
 		// После успешного входа нам нужно обновить main view актуальными данными
-		login, _, _ := m.storage.GetUserCredentials()
-		lastSync, _ := m.storage.GetLastSyncTime()
-		newMainModel := NewMainViewModel(login, lastSync, m.cfg, m.storage)
+		//login, _, _ := m.storage.GetUserCredentials()
+		//lastSync, _ := m.storage.GetLastSyncTime()
+		newMainModel := NewMainViewModel(m.cfg, m.storage)
 
 		// Теперь, когда хранилище открыто, загружаем данные для вкладок.
 		if cardVM, ok := newMainModel.cardModel.(*CardListModel); ok {
 			cardVM.Load()
 		}
 		m.main = newMainModel
-		return m, m.main.Init() // Инициализируем main view (запускаем пингер)
+		//return m, tea.Batch(m.main.Init(), func() tea.Msg { return loginOk{} }) // Инициализируем main view (запускаем пингер)
+		return m, m.main.Init()
 	}
 
 	// Передаем сообщения в активную дочернюю модель

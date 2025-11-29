@@ -1,13 +1,11 @@
 package tui
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"gophKeeper/client/internal/config"
-	"gophKeeper/client/internal/transport"
+
+	//"gophKeeper/client/internal/transport"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -20,37 +18,31 @@ type loginOk struct{}
 type LoginModel struct {
 	cfg           *config.Config
 	storage       LocalStorage
-	loginInput    textinput.Model
 	passwordInput textinput.Model
 	focusIndex    int
 	err           error
 	spinner       spinner.Model
 	loading       bool
 	width         int
+	firstRun      bool
+	//attemptsLeft  int
 }
 
-func NewLoginModel(storage LocalStorage, login string, cfg *config.Config) tea.Model {
+func NewLoginModel(storage LocalStorage, cfg *config.Config) tea.Model {
 	m := LoginModel{
 		cfg:     cfg,
 		storage: storage,
+		//attemptsLeft: 3, // Устанавливаем 3 попытки
 	}
 
-	m.loginInput = textinput.New()
-	m.loginInput.Placeholder = "Login"
-	m.loginInput.Focus()
-	m.loginInput.CharLimit = 32
-	m.loginInput.Width = 20
-	if login != "" {
-		m.loginInput.SetValue(login)
-
-	}
-
+	m.firstRun = storage.IsFirstRun()
 	m.passwordInput = textinput.New()
 	m.passwordInput.Placeholder = "Password"
 	m.passwordInput.EchoMode = textinput.EchoPassword
 	m.passwordInput.EchoCharacter = '•'
 	m.passwordInput.CharLimit = 32
 	m.passwordInput.Width = 20
+	m.passwordInput.Focus()
 
 	m.spinner = spinner.New()
 	m.spinner.Spinner = spinner.Dot
@@ -76,9 +68,15 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
 
-			if s == "enter" && m.focusIndex == 2 {
+			if s == "enter" {
 				m.loading = true
-				return m, tea.Batch(m.spinner.Tick, performLogin(m.cfg, m.storage, m.loginInput.Value(), m.passwordInput.Value()))
+
+				if m.firstRun {
+
+					return m, tea.Batch(m.spinner.Tick, performRegister(m.cfg, m.storage, m.passwordInput.Value()))
+				} else {
+					return m, tea.Batch(m.spinner.Tick, performLogin(m.cfg, m.storage, m.passwordInput.Value()))
+				}
 			}
 
 			if s == "up" || s == "shift+tab" {
@@ -87,21 +85,16 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusIndex++
 			}
 
-			if m.focusIndex > 2 {
+			if m.focusIndex > 1 {
 				m.focusIndex = 0
 			} else if m.focusIndex < 0 {
-				m.focusIndex = 2
+				m.focusIndex = 1
 			}
 
-			cmds := make([]tea.Cmd, 2)
+			cmds := make([]tea.Cmd, 1)
 			if m.focusIndex == 0 {
-				cmds[0] = m.loginInput.Focus()
-				m.passwordInput.Blur()
-			} else if m.focusIndex == 1 {
-				m.loginInput.Blur()
 				cmds[0] = m.passwordInput.Focus()
 			} else {
-				m.loginInput.Blur()
 				m.passwordInput.Blur()
 			}
 			return m, tea.Batch(cmds...)
@@ -116,13 +109,18 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// } else if ok && st.Code() == codes.Unavailable {
 		// 	m.err = errors.New("server is unavailable, please try again later")
 		// }
+		// m.attemptsLeft--
+		// if m.attemptsLeft <= 0 {
+		// 	m.err = fmt.Errorf("Слишком много попыток неправильного ввода пароля: %w", m.err)
+		// 	return m, tea.Quit
+		// }
 
 		return m, nil
 
 	case loginOk:
 		// Это сообщение означает успешный вход. Мы должны выйти из программы,
 		// Корневая модель перехватит это сообщение и переключит вид.
-		return m, nil
+		return m, nil // func() tea.Msg { return loginOk{} }
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -137,9 +135,8 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *LoginModel) updateInputs(msg tea.Msg) tea.Cmd {
-	cmds := make([]tea.Cmd, 2)
-	m.loginInput, cmds[0] = m.loginInput.Update(msg)
-	m.passwordInput, cmds[1] = m.passwordInput.Update(msg)
+	cmds := make([]tea.Cmd, 1)
+	m.passwordInput, cmds[0] = m.passwordInput.Update(msg)
 	return tea.Batch(cmds...)
 }
 
@@ -149,15 +146,16 @@ func (m LoginModel) View() string {
 	}
 
 	var b strings.Builder
-	// ... остальной код View() похож на register.go, я его восстановлю для полноты
-	b.WriteString("Welcome to GophKeeper. Please log in.\n\n")
-	b.WriteString(m.loginInput.View())
-	b.WriteString("\n")
+	if m.firstRun {
+		b.WriteString("Придумайте пароль для локального хранилища.\n\n")
+	} else {
+		b.WriteString("Добро пожлаловать в GophKeeper. Введите пароль для входа.\n\n")
+	}
 	b.WriteString(m.passwordInput.View())
 	b.WriteString("\n\n")
 
 	button := "[ Login ]"
-	if m.focusIndex == 2 {
+	if m.focusIndex == 1 {
 		button = "> [ Login ]"
 	}
 	b.WriteString(button)
@@ -177,37 +175,32 @@ func (m LoginModel) View() string {
 	return b.String()
 }
 
-func performLogin(cfg *config.Config, storage LocalStorage, login, password string) tea.Cmd {
+func performLogin(cfg *config.Config, storage LocalStorage, password string) tea.Cmd {
 	return func() tea.Msg {
-		if login == "" || password == "" {
-			return errMsg(fmt.Errorf("login and password cannot be empty"))
+		if password == "" {
+			return errMsg(fmt.Errorf("password cannot be empty"))
 		}
 
 		// Шаг 1: Локальная аутентификация. Пытаемся разблокировать хранилище.
-		if err := storage.Unlock(login, password); err != nil {
+		if err := storage.Unlock(cfg.User, password); err != nil {
 			return errMsg(fmt.Errorf("failed to unlock local storage: %w", err))
 		}
-		// Проверяем, что ключ подходит, пытаясь что-нибудь расшифровать.
-		if _, err := storage.GetLastSyncTime(); err != nil {
-			// Если здесь ошибка, скорее всего, пароль неверный.
-			return errMsg(errors.New("invalid login or password"))
+
+		// Локальная аутентификация прошла успешно, возвращаем loginOk.
+		return loginOk{}
+	}
+}
+
+func performRegister(cfg *config.Config, storage LocalStorage, password string) tea.Cmd {
+	return func() tea.Msg {
+		if password == "" {
+			return errMsg(fmt.Errorf("login and password cannot be empty"))
 		}
 
-		// err := transport.ping()
-		// if err != nil {
-		// 	// Сервер недоступен. Это НЕ ошибка для входа.
-		// 	// Просто логируем и продолжаем, приложение будет работать с локальными данными.
-		// 	fmt.Printf("Warning: server is unavailable, proceeding in offline mode: %v\n", err)
-		// } else {
-			
-			if res, err := transport.Login(context.Background(), login, password); err == nil {
-				// Если сервер доступен и логин успешен, обновляем токен и время синхронизации.
-				_ = storage.SaveUserCredentials(login, res.GetToken())
-				_ = storage.SaveLastSyncTime(time.Now())
-			}
-		// }
-	
-		// Локальная аутентификация прошла успешно, возвращаем loginOk.
+		if err := storage.LocalRegister(cfg.User, password); err != nil {
+			return errMsg(fmt.Errorf("login and password cannot be save local storage: %w", err))
+		}
+
 		return loginOk{}
 	}
 }
