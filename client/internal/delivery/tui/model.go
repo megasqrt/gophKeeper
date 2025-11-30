@@ -23,6 +23,10 @@ type LocalStorage interface {
 	DeleteText(id string) error
 	IsLoggedIn() bool
 	IsFirstRun() bool
+	GetFiles() ([]map[string]interface{}, error)
+	GetFileByID(id string) (map[string]interface{}, error)
+	SaveFile(data map[string]interface{}) error
+	DeleteFileByID(id string) error
 	Close() error
 }
 

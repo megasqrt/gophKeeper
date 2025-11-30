@@ -28,6 +28,7 @@ const (
 	cardView
 	passView
 	textView
+	fileView
 	// Здесь будут другие состояния: passwordView, noteView и т.д.
 )
 
@@ -65,11 +66,13 @@ type MainViewModel struct {
 	cardModel tea.Model
 	passModel tea.Model
 	textModel tea.Model
+	fileModel tea.Model
 	// Другие модели для паролей, заметок и т.д.
 
 	login        string
 	serverOnline bool
 	cfg          *config.Config
+	program      *tea.Program
 	storage      LocalStorage
 	width        int
 	height       int
@@ -103,6 +106,15 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		cardModel:    NewCardListModel(storage),
 		passModel:    NewPassListModel(storage),
 		textModel:    NewTextEditModel(storage),
+		fileModel:    NewFileUploadModel(storage),
+	}
+}
+
+func (m *MainViewModel) SetProgram(p *tea.Program) {
+	m.program = p
+	// Передаем программу в дочерние модели, которым она нужна
+	if fileVM, ok := m.fileModel.(*FileUploadModel); ok {
+		fileVM.SetProgram(p)
 	}
 }
 
@@ -167,6 +179,12 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						textVM.Load()
 					}
 					return m, nil
+				case "Binary Data":
+					m.state = fileView
+					if fileVM, ok := m.fileModel.(*FileUploadModel); ok {
+						return m, fileVM.Load()
+					}
+					return m, nil
 				}
 			}
 		}
@@ -180,6 +198,8 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.passModel, cmd = m.passModel.Update(msg)
 	case textView:
 		m.textModel, cmd = m.textModel.Update(msg)
+	case fileView:
+		m.fileModel, cmd = m.fileModel.Update(msg)
 	default: // mainMenu
 		m.menu, cmd = m.menu.Update(msg)
 	}
@@ -195,6 +215,8 @@ func (m *MainViewModel) View() string {
 		return m.passModel.View()
 	case textView:
 		return m.textModel.View()
+	case fileView:
+		return m.fileModel.View()
 	// Другие case для других окон
 	default: // mainMenu
 		var status string

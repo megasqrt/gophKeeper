@@ -20,6 +20,7 @@ type RootModel struct {
 	login   tea.Model
 	main    tea.Model
 	storage LocalStorage
+	program *tea.Program // Ссылка на программу для отправки сообщений
 	cfg     *config.Config
 	width   int
 	height  int
@@ -53,6 +54,14 @@ func (m RootModel) Init() tea.Cmd {
 	}
 }
 
+func (m *RootModel) SetProgram(p *tea.Program) {
+	m.program = p
+	// Также передаем программу в дочерние модели, которым она нужна
+	if mainVM, ok := m.main.(*MainViewModel); ok {
+		mainVM.SetProgram(p)
+	}
+}
+
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -67,9 +76,9 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case loginOk:
 		m.state = authorizedState
 
-		newMainModel := NewMainViewModel(m.cfg, m.storage)
-
-		m.main = newMainModel
+		// Не создаем новую модель, а передаем программу в уже существующую.
+		// Указатель на программу был установлен в app.go.
+		// Теперь мы просто "активируем" main модель.
 		return m, m.main.Init()
 	}
 

@@ -6,13 +6,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/delivery/tui"
 	"gophKeeper/client/internal/storage"
 	"gophKeeper/client/internal/transport"
 	logger "gophKeeper/pkg/logger"
 	"os"
-	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/rs/zerolog"
@@ -55,20 +55,23 @@ func NewApp(ctx context.Context) *App {
 	}
 
 	// Используем новую корневую модель
-	rootModel := tui.NewRootModel(store, cfg)
-	app.Tui = &rootModel
-
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
-			fmt.Println("fatal:", err)
-			os.Exit(1)
+		fmt.Println("fatal:", err)
+		os.Exit(1)
 	}
 	defer f.Close()
 
-
+	// 1. Создаем модель без указателя на программу.
+	rootModel := tui.NewRootModel(store, cfg)
+	// 2. Создаем программу с этой моделью.
 	p := tea.NewProgram(rootModel)
+	// 3. Теперь, когда программа создана, устанавливаем указатель на нее в модели.
+	rootModel.SetProgram(p)
+	app.Tui = &rootModel
+
 	if _, err := p.Run(); err != nil {
-		log.Debug().Err(err).Msg("Alas, there's been an error:")
+		log.Error().Err(err).Msg("Alas, there's been an error:")
 		os.Exit(1)
 	}
 
