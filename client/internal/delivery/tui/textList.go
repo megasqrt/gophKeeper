@@ -14,13 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	listTitleStyle       = lipgloss.NewStyle().MarginLeft(2).Bold(true).Foreground(lipgloss.Color("63"))
-	itemStyle            = lipgloss.NewStyle().PaddingLeft(4)
-	selectedItemStyle    = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
-	itemDescriptionStyle = lipgloss.NewStyle().Faint(true).PaddingLeft(2)
-)
-
 type textItemDelegate struct{}
 
 func (d textItemDelegate) Height() int                               { return 1 }
@@ -206,7 +199,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keys.Back):
+		case key.Matches(msg, m.keys.Back) || msg.String() == "q":
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keys.SwitchFocus):

@@ -32,14 +32,29 @@ func (f FileItem) Title() string {
 	return fmt.Sprintf("%s %s", status, f.Name)
 }
 
-func (f FileItem) Description() string {
-	if f.IsUploaded {
-		return fmt.Sprintf("Uploaded - %s", formatFileSize(f.Size))
-	}
-	return fmt.Sprintf("Local - %s", formatFileSize(f.Size))
-}
-
 func (f FileItem) FilterValue() string { return f.Name }
+
+type fileItemDelegate struct{}
+
+func (d fileItemDelegate) Height() int                               { return 2 }
+func (d fileItemDelegate) Spacing() int                              { return 1 }
+func (d fileItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+func (d fileItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(FileItem)
+	if !ok {
+		return
+	}
+
+	titleStr := i.Title()
+
+	if index == m.Index() {
+		title := selectedItemStyle.Render("> " + titleStr)
+		fmt.Fprint(w, title)
+	} else {
+		title := itemStyle.Render(titleStr)
+		fmt.Fprint(w, title)
+	}
+}
 
 // Сообщения для загрузки файлов
 type FileSelectMsg struct {
@@ -100,25 +115,12 @@ type FileUploadModel struct {
 	browser        fileBrowserModel
 }
 
-// Стили
-var (
-// helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-)
-
 func NewFileUploadModel(storage LocalStorage) *FileUploadModel {
 	// Настройка списка файлов
-	delegate := list.NewDefaultDelegate()
-	delegate.Styles.SelectedTitle = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(lipgloss.Color("229")).
-		Foreground(lipgloss.Color("229")).
-		Padding(0, 0, 0, 1)
-
-	delegate.Styles.SelectedDesc = delegate.Styles.SelectedTitle.Copy().Faint(true)
-
-	l := list.New([]list.Item{}, delegate, 0, 0)
+	l := list.New([]list.Item{}, fileItemDelegate{}, 0, 15)
 	l.Title = "📁 File Manager"
 	l.SetShowStatusBar(true)
+	l.SetStatusBarItemName("file", "files")
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(true)
 

@@ -14,12 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	docStyle   = lipgloss.NewStyle().Padding(1, 2, 1, 2)
-	titleStyle = lipgloss.NewStyle().MarginLeft(2)
-	helpStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Margin(1, 0, 0, 2)
-)
-
 // viewState определяет, какой вид сейчас активен в главном окне.
 type mainViewState int
 
@@ -29,6 +23,7 @@ const (
 	passView
 	textView
 	fileView
+	settingsView
 	// Здесь будут другие состояния: passwordView, noteView и т.д.
 )
 
@@ -67,6 +62,7 @@ type MainViewModel struct {
 	passModel tea.Model
 	textModel tea.Model
 	fileModel tea.Model
+	settingsModel tea.Model
 	// Другие модели для паролей, заметок и т.д.
 
 	login        string
@@ -107,6 +103,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		passModel:    NewPassListModel(storage),
 		textModel:    NewTextEditModel(storage),
 		fileModel:    NewFileUploadModel(storage),
+		settingsModel: NewSettingsModel(),
 	}
 }
 
@@ -185,6 +182,9 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						return m, fileVM.Load()
 					}
 					return m, nil
+				case "Settings":
+					m.state = settingsView
+					return m, nil
 				}
 			}
 		}
@@ -200,6 +200,8 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.textModel, cmd = m.textModel.Update(msg)
 	case fileView:
 		m.fileModel, cmd = m.fileModel.Update(msg)
+	case settingsView:
+		m.settingsModel, cmd = m.settingsModel.Update(msg)
 	default: // mainMenu
 		m.menu, cmd = m.menu.Update(msg)
 	}
@@ -217,6 +219,8 @@ func (m *MainViewModel) View() string {
 		return m.textModel.View()
 	case fileView:
 		return m.fileModel.View()
+	case settingsView:
+		return m.settingsModel.View()
 	// Другие case для других окон
 	default: // mainMenu
 		var status string

@@ -8,10 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var baseStyle = lipgloss.NewStyle().
-	BorderStyle(lipgloss.NormalBorder()).
-	BorderForeground(lipgloss.Color("240"))
-
 type viewState int
 
 const (
@@ -76,7 +72,7 @@ func (m *CardListModel) Load() {
 func (m *CardListModel) loadCards() ([]table.Row, []model.Card) {
 	cardsData, err := m.storage.GetCards()
 	if err != nil {
-	//	m.log.Error().Err(err).Msg("get cards error")
+		//	m.log.Error().Err(err).Msg("get cards error")
 		return []table.Row{}, []model.Card{}
 	}
 
@@ -128,7 +124,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
-			m.form = NewCardForm(m.storage,nil) // Создаем новую чистую форму
+			m.form = NewCardForm(m.storage, nil) // Создаем новую чистую форму
 			return m, m.form.Init()
 		case "e", "enter":
 			if len(m.cards) == 0 {

@@ -96,18 +96,18 @@ func (s *BboltStorage) Unlock(user, password string) error {
 			s.log.Error().Msg("User not found in storage")
 			return errors.New("user not found in storage")
 		}
-		 unlockUser, err := s.decrypt(userBytes)
-		 if err != nil {
+		unlockUser, err := s.decrypt(userBytes)
+		if err != nil {
 			s.log.Error().Err(err).Msg("Failed to decrypt user")
 			return err
 		}
-		if string(unlockUser) != user {		
+		if string(unlockUser) != user {
 			return errors.New("invalid password")
 		}
 		return nil
 	})
 	if err != nil {
-		return err		
+		return err
 	}
 
 	s.log.Info().Msg("Storage unlocked successfully")
@@ -126,7 +126,7 @@ func encriptPassword(user, password string) ([]byte, error) {
 
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
-	_,token, err := s.GetUserCredentials()
+	_, token, err := s.GetUserCredentials()
 	return err == nil && token != ""
 }
 

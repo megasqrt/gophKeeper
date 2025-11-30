@@ -123,7 +123,7 @@ func (m fileBrowserModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, m.loadDirItems(m.currentPath)
 			}
 			// Файл выбран, отправляем сообщение
-				//	m.err = fmt.Errorf("items send")
+			//	m.err = fmt.Errorf("items send")
 			return m, func() tea.Msg {
 				return FileSelectMsg{Files: []string{selectedItem.path}}
 			}
