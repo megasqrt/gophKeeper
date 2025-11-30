@@ -1,0 +1,287 @@
+package tui
+
+import (
+	"fmt"
+	"gophKeeper/client/internal/domain/model"
+	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+type textItem struct {
+	model.TextData
+}
+
+func (i textItem) Title() string       { return i.TextData.Title }
+func (i textItem) FilterValue() string { return i.TextData.Title }
+
+type focusState int
+
+const (
+	listFocused  focusState = iota // 0
+	titleFocused                   // 1
+	editorFocused
+)
+
+type keyMap struct {
+	SwitchFocus key.Binding
+	Save        key.Binding
+	Back        key.Binding
+	NewItem     key.Binding
+	DeleteItem  key.Binding
+}
+
+type TextEditModel struct {
+	list          list.Model
+	editor        textarea.Model
+	titleInput    textinput.Model
+	storage       LocalStorage
+	focus         focusState
+	width, height int
+	err           error
+	keys          keyMap
+}
+
+func NewTextEditModel(storage LocalStorage) *TextEditModel {
+	// 1. Создаем список (list)
+	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Your Secure Notes"
+	l.SetShowHelp(false)
+
+	// 2. Создаем текстовый редактор (textarea)
+	t := textarea.New()
+	t.Placeholder = "Select a note to view its content..."
+	t.ShowLineNumbers = true
+
+	// Поле для ввода заголовка
+	ti := textinput.New()
+	ti.Placeholder = "Note title..."
+	ti.CharLimit = 100
+	ti.Width = 30
+
+	// 3. Определяем горячие клавиши
+	keys := keyMap{
+		SwitchFocus: key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "switch focus")),
+		Save:        key.NewBinding(key.WithKeys("ctrl+s"), key.WithHelp("ctrl+s", "save")),
+		Back:        key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "back to menu")),
+		NewItem:     key.NewBinding(key.WithKeys("ctrl+n"), key.WithHelp("ctrl+n", "new note")),
+		DeleteItem:  key.NewBinding(key.WithKeys("delete"), key.WithHelp("del", "delete note")),
+	}
+
+	// 4. Собираем модель
+	m := &TextEditModel{
+		titleInput: ti,
+		list:       l,
+		editor:     t,
+		storage:    storage,
+		focus:      listFocused, // По умолчанию фокус на списке
+		keys:       keys,
+	}
+
+	return m
+}
+
+// Load данные из хранилища и обновляет список.
+func (m *TextEditModel) Load() {
+	textsData, err := m.storage.GetTexts()
+	if err != nil {
+		m.err = fmt.Errorf("could not load notes: %w", err)
+		m.list.SetItems(nil)
+		return
+	}
+
+	items := make([]list.Item, len(textsData))
+	for i, data := range textsData {
+		items[i] = textItem{
+			model.TextData{
+				ID:    data["id"],
+				Title: data["title"],
+				Text:  data["text"],
+			},
+		}
+	}
+	m.list.SetItems(items)
+	m.syncEditor()
+}
+
+// syncEditor обновляет содержимое редактора в соответствии с выбранным элементом списка.
+func (m *TextEditModel) syncEditor() {
+	selectedItem, ok := m.list.SelectedItem().(textItem)
+	if !ok {
+		m.titleInput.SetValue("")
+		m.editor.Reset()
+		return
+	}
+
+	m.titleInput.SetValue(selectedItem.Title())
+	m.editor.SetValue(selectedItem.Text)
+}
+
+func (m *TextEditModel) saveNote() {
+	selectedItem, ok := m.list.SelectedItem().(textItem)
+	if !ok {
+		return
+	}
+
+	data := map[string]string{
+		"id":    selectedItem.ID,
+		"title": m.titleInput.Value(),
+		"text":  m.editor.Value(),
+	}
+	var err error
+	if selectedItem.ID == "" { // Новый элемент без ID
+		err = m.storage.SaveText(data)
+	} else {
+		err = m.storage.UpdateText(data)
+	}
+	if err == nil {
+		m.err = nil // Сбрасываем ошибку при успехе
+		m.Load()    // Перезагружаем, чтобы обновить данные
+	} else {
+		m.err = fmt.Errorf("could not save note: %w", err)
+	}
+}
+
+func (m *TextEditModel) Init() tea.Cmd {
+	return m.editor.Focus()
+}
+
+func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.height = msg.Height
+		m.width = msg.Width
+		listWidth := msg.Width / 3
+		editorWidth := msg.Width - listWidth
+		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
+		m.list.SetWidth(listWidth)
+		m.titleInput.Width = editorWidth - 4 // отступы
+		m.editor.SetWidth(editorWidth)
+		m.editor.SetHeight(msg.Height - 2)
+		return m, nil
+
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, m.keys.Back):
+			return m, func() tea.Msg { return backToMenuMsg{} }
+
+		case key.Matches(msg, m.keys.SwitchFocus):
+			if m.focus == listFocused {
+				m.focus = titleFocused
+				m.editor.Blur()
+				cmd = m.titleInput.Focus()
+				cmds = append(cmds, cmd)
+			} else if m.focus == titleFocused {
+				m.focus = editorFocused
+				m.titleInput.Blur()
+				cmd = m.editor.Focus()
+				cmds = append(cmds, cmd)
+			} else {
+				// АВТОСОХРАНЕНИЕ: когда фокус уходит из редактора по Tab
+				m.saveNote()
+				m.focus = listFocused
+				m.editor.Blur()
+				m.titleInput.Blur()
+			}
+
+		case key.Matches(msg, m.keys.Save):
+			m.saveNote()
+
+		case key.Matches(msg, m.keys.NewItem):
+			newItem := textItem{model.TextData{ID: "", Title: "Новая заметка", Text: ""}}
+			m.list.InsertItem(0, newItem)
+			m.list.Select(0)
+			m.syncEditor()
+			m.focus = titleFocused
+			return m, m.titleInput.Focus()
+
+		case key.Matches(msg, m.keys.DeleteItem):
+			if m.focus == listFocused {
+				selectedItem, ok := m.list.SelectedItem().(textItem)
+				if ok && selectedItem.ID != "" {
+					err := m.storage.DeleteText(selectedItem.ID)
+					if err == nil {
+						m.err = nil
+						m.Load()
+					} else {
+						m.err = fmt.Errorf("could not delete note: %w", err)
+					}
+				}
+			}
+		}
+	}
+
+	// Передаем сообщения компоненту в фокусе
+	if m.focus == titleFocused {
+		m.titleInput, cmd = m.titleInput.Update(msg)
+		cmds = append(cmds, cmd)
+	} else if m.focus == listFocused {
+		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, cmd)
+		m.syncEditor() // Обновляем редактор при навигации по списку
+	} else {
+		m.editor, cmd = m.editor.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m *TextEditModel) View() string {
+	listView := m.list.View()
+
+	rightPane := lipgloss.JoinVertical(lipgloss.Left,
+		m.titleInput.View(),
+		m.editor.View(),
+	)
+
+	// Добавляем рамку к компоненту в фокусе
+	if m.focus == titleFocused {
+		rightPane = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(rightPane)
+		m.titleInput.PromptStyle = lipgloss.NewStyle()
+		m.titleInput.TextStyle = lipgloss.NewStyle()
+	} else if m.focus == editorFocused { // editor
+		rightPane = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(rightPane)
+		m.titleInput.PromptStyle = lipgloss.NewStyle() // Сбрасываем стиль, когда не в фокусе
+		m.titleInput.TextStyle = lipgloss.NewStyle()
+	} else {
+		listView = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(listView)
+		m.titleInput.PromptStyle = lipgloss.NewStyle() // Сбрасываем стиль, когда не в фокусе
+		m.titleInput.TextStyle = lipgloss.NewStyle()
+	}
+
+	help := m.helpView()
+
+	// if m.err != nil {
+	// 	errorText := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
+	// 	return lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
+	// }
+
+	// Соединяем все части вместе
+	return lipgloss.JoinVertical(lipgloss.Left,
+		lipgloss.JoinHorizontal(lipgloss.Top, listView, rightPane),
+		help,
+	)
+}
+
+func (m *TextEditModel) helpView() string {
+	var parts []string
+	if m.focus == listFocused {
+		parts = append(parts, m.list.Help.View(m.list))
+	}
+	parts = append(parts, m.keys.NewItem.Help().Key+" "+m.keys.NewItem.Help().Desc)
+	parts = append(parts, m.keys.DeleteItem.Help().Key+" "+m.keys.DeleteItem.Help().Desc)
+	parts = append(parts, m.keys.SwitchFocus.Help().Key+" "+m.keys.SwitchFocus.Help().Desc)
+	parts = append(parts, m.keys.Save.Help().Key+" "+m.keys.Save.Help().Desc)
+	parts = append(parts, m.keys.Back.Help().Key+" "+m.keys.Back.Help().Desc)
+
+	return helpStyle.Render(strings.Join(parts, " | "))
+}

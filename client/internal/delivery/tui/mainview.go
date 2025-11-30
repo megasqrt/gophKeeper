@@ -26,6 +26,8 @@ type mainViewState int
 const (
 	mainMenu mainViewState = iota
 	cardView
+	passView
+	textView
 	// Здесь будут другие состояния: passwordView, noteView и т.д.
 )
 
@@ -61,6 +63,8 @@ type MainViewModel struct {
 	state     mainViewState
 	menu      list.Model
 	cardModel tea.Model
+	passModel tea.Model
+	textModel tea.Model
 	// Другие модели для паролей, заметок и т.д.
 
 	login        string
@@ -78,15 +82,14 @@ func NewMainViewModel( cfg *config.Config, storage LocalStorage) *MainViewModel 
 	items := []list.Item{
 		item("Credit Cards"),
 		item("Passwords"),
-		item("Secure Notes"),
+		item("Text Notes"),
 		item("Binary Data"),
 		item("Settings"), // This will now trigger the check
 	}
 
-	const defaultWidth = 20
-	const listHeight = 14
+	
 
-	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
+	l := list.New(items, itemDelegate{}, DefaulListtWidth, DefaultlistHeight)
 	l.Title = "GophKeeper Main Menu"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
@@ -100,6 +103,8 @@ func NewMainViewModel( cfg *config.Config, storage LocalStorage) *MainViewModel 
 		cfg:          cfg,
 		storage:      storage,
 		cardModel:    NewCardListModel(storage),
+		passModel:    NewPassListModel(storage),
+		textModel:    NewTextEditModel(storage),
 	}
 }
 
@@ -152,9 +157,18 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						cardVM.Load()
 					}
 					return m, nil
-				case "Settings":
-					// Manually trigger a server check
-					return m, checkServer()
+				case "Passwords":
+					m.state = passView
+					if passVM, ok := m.passModel.(*PassListModel); ok {
+						passVM.Load()
+					}
+					return m, nil
+				case "Text Notes":
+					m.state = textView
+					if textVM, ok := m.textModel.(*TextEditModel); ok {
+						textVM.Load()
+					}
+					return m, nil
 				}
 			}
 		}
@@ -164,6 +178,10 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case cardView:
 		m.cardModel, cmd = m.cardModel.Update(msg)
+	case passView:
+		m.passModel, cmd = m.passModel.Update(msg)
+	case textView:
+		m.textModel, cmd = m.textModel.Update(msg)
 	default: // mainMenu
 		m.menu, cmd = m.menu.Update(msg)
 	}
@@ -175,6 +193,10 @@ func (m *MainViewModel) View() string {
 	switch m.state {
 	case cardView:
 		return m.cardModel.View()
+	case passView:
+		return m.passModel.View()
+	case textView:
+		return m.textModel.View()
 	// Другие case для других окон
 	default: // mainMenu
 		var status string

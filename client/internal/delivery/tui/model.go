@@ -14,6 +14,13 @@ type LocalStorage interface {
 	GetCards() ([]map[string]string, error)
 	SaveLastSyncTime(t time.Time) error
 	GetLastSyncTime() (time.Time, error)
+	SavePass(passData map[string]string) error
+	UpdatePass(passData map[string]string) error
+	GetPasss() ([]map[string]string, error)
+	SaveText(textData map[string]string) error
+	UpdateText(textData map[string]string) error
+	GetTexts() ([]map[string]string, error)
+	DeleteText(id string) error
 	IsLoggedIn() bool
 	IsFirstRun() bool
 	Close() error

@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -125,72 +124,6 @@ func encriptPassword(user, password string) ([]byte, error) {
 	return key, nil
 }
 
-// SaveUserCredentials сохраняет пароль пользователя.
-func (s *BboltStorage) LocalRegister(user, password string) error {
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(configBucket)
-		s.log.Info().Msg("Deriving encryption key from password")
-		key, err := encriptPassword(user, password)
-		if err != nil {
-			return fmt.Errorf("could not derive key: %w", err)
-		}
-		s.key = key
-		encryptedPassword, err := s.encrypt([]byte(password))
-		if err != nil {
-			return fmt.Errorf("could not encrypt password: %w", err)
-		}
-		encryptedUser, err := s.encrypt([]byte(user))
-		if err != nil {
-			return fmt.Errorf("could not encrypt user: %w", err)
-		}
-		if err = b.Put(userKey, encryptedUser); err != nil {
-			s.log.Error().Err(err).Msg("Failed to save login")
-		}
-		
-		return b.Put(passwordKey, encryptedPassword)
-	})
-}
-
-// SaveUserCredentials сохраняет токен пользователя.
-func (s *BboltStorage) SaveUserCredentials(login, token string) error {
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(configBucket)
-		encryptedToken, err := s.encrypt([]byte(token))
-		if err != nil {
-			return fmt.Errorf("could not encrypt token: %w", err)
-		}
-		return b.Put(tokenKey, encryptedToken)
-	})
-}
-
-// GetUserCredentials извлекает токен пользователя.
-func (s *BboltStorage) GetUserCredentials() (user,token string, err error) {
-	err = s.db.View(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(configBucket)
-
-		tokenBytes := b.Get(tokenKey)
-		if len(tokenBytes) > 0 {
-			decryptedToken, err := s.decrypt(tokenBytes)
-			if err != nil {
-				// Если не можем расшифровать, возможно, пароль неверный
-				return fmt.Errorf("could not decrypt token: %w", err)
-			}
-			token = string(decryptedToken)
-		}
-		userBytes := b.Get(userKey)
-		if len(userBytes) > 0 {
-			decryptedLogin, err := s.decrypt(userBytes)	
-			if err!= nil {
-				return fmt.Errorf("could not decrypt login: %w", err)
-			}
-			user = string(decryptedLogin)
-		}
-		return nil
-	})
-	s.log.Info().Str("user", user).Str("token", token).Msg("Retrieved user credentials")
-	return user,token, nil
-}
-
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
 	_,token, err := s.GetUserCredentials()
@@ -213,118 +146,6 @@ func (s *BboltStorage) IsFirstRun() bool {
 	}
 	s.log.Info().Msg("Password found in storage")
 	return false
-}
-
-// SaveLastSyncTime сохраняет время последней успешной синхронизации с сервером.
-func (s *BboltStorage) SaveLastSyncTime(t time.Time) error {
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(configBucket)
-		timeBytes, err := t.MarshalText() // MarshalText более устойчив к изменениям
-		if err != nil {
-			return fmt.Errorf("could not marshal time: %w", err)
-		}
-		encryptedTime, err := s.encrypt(timeBytes)
-		if err != nil {
-			return fmt.Errorf("could not encrypt sync time: %w", err)
-		}
-		return b.Put(lastSyncKey, encryptedTime)
-	})
-}
-
-// GetLastSyncTime извлекает время последней успешной синхронизации.
-func (s *BboltStorage) GetLastSyncTime() (time.Time, error) {
-	var t time.Time
-	err := s.db.View(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(configBucket)
-		timeBytes := b.Get(lastSyncKey)
-		if timeBytes == nil {
-			return nil // Время еще не сохранено
-		}
-		decryptedTime, err := s.decrypt(timeBytes)
-		if err != nil {
-			return fmt.Errorf("could not decrypt sync time: %w", err)
-		}
-		return t.UnmarshalText(decryptedTime)
-	})
-	return t, err
-}
-
-// SaveCard сохраняет данные карты в хранилище.
-func (s *BboltStorage) SaveCard(cardData map[string]string) error {
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(cardsBucket)
-
-		// Генерируем уникальный ID для карты.
-		id, _ := b.NextSequence()
-		cardData["id"] = fmt.Sprintf("%d", id)
-
-		// Сериализуем данные карты в JSON
-		jsonData, err := json.Marshal(cardData)
-		if err != nil {
-			return fmt.Errorf("could not marshal card data: %w", err)
-		}
-
-		// Шифруем JSON
-		encryptedData, err := s.encrypt(jsonData)
-		if err != nil {
-			return fmt.Errorf("could not encrypt card data: %w", err)
-		}
-
-		s.log.Info().Str("card_id", cardData["id"]).Msg("Saving new card")
-		return b.Put([]byte(cardData["id"]), encryptedData)
-	})
-}
-
-// UpdateCard обновляет данные существующей карты.
-func (s *BboltStorage) UpdateCard(cardData map[string]string) error {
-	cardID, ok := cardData["id"]
-	if !ok || cardID == "" {
-		return errors.New("card ID is missing for update")
-	}
-
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(cardsBucket)
-
-		jsonData, err := json.Marshal(cardData)
-		if err != nil {
-			return fmt.Errorf("could not marshal card data for update: %w", err)
-		}
-
-		encryptedData, err := s.encrypt(jsonData)
-		if err != nil {
-			return fmt.Errorf("could not encrypt card data for update: %w", err)
-		}
-
-		s.log.Info().Str("card_id", cardID).Msg("Updating card")
-		return b.Put([]byte(cardID), encryptedData)
-	})
-}
-
-// GetCards извлекает все сохраненные карты.
-func (s *BboltStorage) GetCards() ([]map[string]string, error) {
-	var cards []map[string]string
-	s.log.Info().Msg("Retrieving all cards from storage")
-	err := s.db.View(func(tx *bbolt.Tx) error {
-		b := tx.Bucket(cardsBucket)
-		return b.ForEach(func(k, v []byte) error {
-			decryptedData, err := s.decrypt(v)
-			if err != nil {
-				s.log.Error().Err(err).Bytes("key", k).Msg("Could not decrypt card data")
-				return fmt.Errorf("could not decrypt card data for key %s: %w", k, err)
-			}
-			var cardData map[string]string
-			if err := json.Unmarshal(decryptedData, &cardData); err != nil {
-				s.log.Error().Err(err).Bytes("key", k).Msg("Could not unmarshal card data")
-				return fmt.Errorf("could not unmarshal card data for key %s: %w", k, err)
-			}
-			cards = append(cards, cardData)
-			return nil
-		})
-	})
-	if err != nil {
-		s.log.Error().Err(err).Msg("Failed to get cards from storage")
-	}
-	return cards, err
 }
 
 // Close закрывает соединение с базой данных.

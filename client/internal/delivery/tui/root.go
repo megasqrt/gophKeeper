@@ -66,17 +66,10 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// чтобы перехватить сообщение от дочерней модели login.
 	case loginOk:
 		m.state = authorizedState
-		// После успешного входа нам нужно обновить main view актуальными данными
-		//login, _, _ := m.storage.GetUserCredentials()
-		//lastSync, _ := m.storage.GetLastSyncTime()
+
 		newMainModel := NewMainViewModel(m.cfg, m.storage)
 
-		// Теперь, когда хранилище открыто, загружаем данные для вкладок.
-		if cardVM, ok := newMainModel.cardModel.(*CardListModel); ok {
-			cardVM.Load()
-		}
 		m.main = newMainModel
-		//return m, tea.Batch(m.main.Init(), func() tea.Msg { return loginOk{} }) // Инициализируем main view (запускаем пингер)
 		return m, m.main.Init()
 	}
 

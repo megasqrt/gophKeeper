@@ -10,11 +10,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"strconv"
 )
-const (
-	ccn = iota
-	exp
-	cvv
-)
 
 const (
 	hotPink  = lipgloss.Color("#FF06B7")
