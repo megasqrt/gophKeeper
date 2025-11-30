@@ -1,15 +1,18 @@
 package storage
 
+import "time"
 
 // SaveCard сохраняет данные карты в хранилище.
 func (s *BboltStorage) SaveCard(cardData map[string]string) error {
 	s.log.Info().Msg("Saving new card")
+	cardData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(cardsBucket, StringMapToInterfaceMap(cardData), true)
 }
 
 // UpdateCard обновляет данные существующей карты.
 func (s *BboltStorage) UpdateCard(cardData map[string]string) error {
 	s.log.Info().Str("card_id", cardData["id"]).Msg("Updating card")
+	cardData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(cardsBucket, StringMapToInterfaceMap(cardData), false)
 }
 

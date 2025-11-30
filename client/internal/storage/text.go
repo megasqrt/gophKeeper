@@ -1,18 +1,22 @@
 package storage
 
 import (
+	"time"
+
 	"go.etcd.io/bbolt"
 )
 
 // SaveText сохраняет текстовые данные в хранилище.
 func (s *BboltStorage) SaveText(textData map[string]string) error {
 	s.log.Info().Str("title", textData["title"]).Msg("Saving new text data")
+	textData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(textBucket, StringMapToInterfaceMap(textData), true)
 }
 
 // UpdateText обновляет данные существующей текстовой записи.
 func (s *BboltStorage) UpdateText(textData map[string]string) error {
 	s.log.Info().Str("text_id", textData["id"]).Msg("Updating text data")
+	textData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(textBucket, StringMapToInterfaceMap(textData), false)
 }
 

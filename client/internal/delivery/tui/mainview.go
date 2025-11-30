@@ -24,10 +24,9 @@ const (
 	textView
 	fileView
 	settingsView
-	// Здесь будут другие состояния: passwordView, noteView и т.д.
+	registerView
 )
 
-// item реализует интерфейс list.Item
 type item string
 
 func (i item) FilterValue() string { return "" }

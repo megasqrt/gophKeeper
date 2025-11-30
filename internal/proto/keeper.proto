@@ -88,6 +88,8 @@ message PasswordItem {
     string login = 3;
     string password = 4;
     string metadata = 5;
+    int64 change_time = 6;
+    int64 sync_time = 7;
 }
 
 message AddPasswordRequest {
@@ -95,6 +97,7 @@ message AddPasswordRequest {
     string login = 2;
     string password = 3;
     string metadata = 4;
+    int64 change_time = 5;
 }
 
 message AddPasswordResponse {
@@ -113,6 +116,7 @@ message UpdatePasswordRequest {
     string login = 3;
     string password = 4;
     string metadata = 5;
+    int64 change_time = 6;
 }
 
 message UpdatePasswordResponse {}
@@ -137,12 +141,15 @@ message NoteItem {
     string id = 2;
     string title = 3;
     string text = 4;
+    int64 change_time = 5;
+    int64 sync_time = 6;
 }
 
 message AddNoteRequest {
     string local_id = 1;
     string title = 2;
     string text = 3;
+    int64 change_time = 4;
 }
 
 message AddNoteResponse {
@@ -161,6 +168,7 @@ message UpdateNoteRequest {
     string id = 2;
     string title = 3;
     string text = 4;
+    int64 change_time = 5;
 }
 
 message UpdateNoteResponse {}
@@ -205,6 +213,8 @@ message CardItem {
     string expiry = 4; // e.g., "MM/YY"
     string cvv = 5;
     string metadata = 6;
+    int64 change_time = 7;
+    int64 sync_time = 8;
 }
 
 message AddCardRequest {
@@ -213,6 +223,7 @@ message AddCardRequest {
     string expiry = 3;
     string cvv = 4;
     string metadata = 5;
+    int64 change_time = 6;
 }
 
 message AddCardResponse {
@@ -232,6 +243,7 @@ message UpdateCardRequest {
     string expiry = 4;
     string cvv = 5;
     string metadata = 6;
+    int64 change_time = 7;
 }
 
 message UpdateCardResponse {}
@@ -248,12 +260,15 @@ message FileInfo {
     string id = 1;
     string name = 2;
     string metadata = 3;
+    int64 change_time = 4;
+    int64 sync_time = 5;
 }
 
 message AddFileRequest {
     string name = 1;
     bytes data = 2;
     string metadata = 3;
+    int64 change_time = 4;
 }
 
 message AddFileResponse {
@@ -271,6 +286,7 @@ message UpdateFileRequest {
     string name = 2;
     bytes data = 3;
     string metadata = 4;
+    int64 change_time = 5;
 }
 
 message UpdateFileResponse {}

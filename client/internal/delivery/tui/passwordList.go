@@ -2,6 +2,7 @@ package tui
 
 import (
 	"gophKeeper/client/internal/domain/model"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -63,7 +64,7 @@ func (m *PassListModel) Load() {
 func (m *PassListModel) loadPasss() ([]table.Row, []model.Password) {
 	passsData, err := m.storage.GetPasss()
 	if err != nil {
-	//	m.log.Error().Err(err).Msg("get passs error")
+		//	m.log.Error().Err(err).Msg("get passs error")
 		return []table.Row{}, []model.Password{}
 	}
 
@@ -71,11 +72,19 @@ func (m *PassListModel) loadPasss() ([]table.Row, []model.Password) {
 	passs := make([]model.Password, len(passsData))
 	for i, data := range passsData {
 		pass := model.Password{
-			ID:     data["id"],
-			Login: data["login"],
-			Password: data["password"],
+			ID:          data["id"],
+			Login:       data["login"],
+			Password:    data["password"],
 			Description: data["description"],
 		}
+
+		if changeTimeStr, ok := data["changeTime"]; ok {
+			pass.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
+		}
+		if syncTimeStr, ok := data["syncTime"]; ok {
+			pass.SyncTime, _ = time.Parse(time.RFC3339Nano, syncTimeStr)
+		}
+
 		// Используем Title() и Description() из модели пароли для консистентности
 		passs[i] = pass
 		rows[i] = table.Row{pass.Login, pass.Password, pass.Description}

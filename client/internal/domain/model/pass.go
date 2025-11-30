@@ -1,9 +1,13 @@
 package model
 
-// Card представляет собой данные кредитной карты.
+import "time"
+
+// Password представляет собой данные пароля.
 type Password struct {
-	ID     string
-	Login string
-	Password string
+	ID          string
+	Login       string
+	Password    string
 	Description string
+	ChangeTime  time.Time
+	SyncTime    time.Time
 }

@@ -3,15 +3,18 @@ package model
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 // Card представляет собой данные кредитной карты.
 type Card struct {
-	ID     string
-	Number string
-	Holder string
-	Expiry string
-	CVV    string
+	ID         string
+	Number     string
+	Holder     string
+	Expiry     string
+	CVV        string
+	ChangeTime time.Time
+	SyncTime   time.Time
 }
 
 // Title возвращает заголовок для элемента списка (номер карты).

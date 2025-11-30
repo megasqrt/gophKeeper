@@ -54,14 +54,6 @@ func NewApp(ctx context.Context) *App {
 		Storage: store,
 	}
 
-	// Используем новую корневую модель
-	f, err := tea.LogToFile("debug.log", "debug")
-	if err != nil {
-		fmt.Println("fatal:", err)
-		os.Exit(1)
-	}
-	defer f.Close()
-
 	// 1. Создаем модель без указателя на программу.
 	rootModel := tui.NewRootModel(store, cfg)
 	// 2. Создаем программу с этой моделью.

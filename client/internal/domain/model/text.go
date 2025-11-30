@@ -1,9 +1,13 @@
 package model
 
+import "time"
+
 type TextData struct {
-	ID    string
-	Title string
-	Text  string
+	ID         string
+	Title      string
+	Text       string
+	ChangeTime time.Time
+	SyncTime   time.Time
 }
 
 func (i TextData) getShortTitle() string { 

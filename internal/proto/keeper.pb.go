@@ -468,94 +468,6 @@ func (b0 LoginResponse_builder) Build() *LoginResponse {
 	return m0
 }
 
-// PingRequest is an empty message for the Ping RPC.
-type PingRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PingRequest) Reset() {
-	*x = PingRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PingRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingRequest) ProtoMessage() {}
-
-func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PingRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PingRequest_builder) Build() *PingRequest {
-	m0 := &PingRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-// PingResponse is an empty message for the Ping RPC.
-type PingResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PingResponse) Reset() {
-	*x = PingResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PingResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingResponse) ProtoMessage() {}
-
-func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PingResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PingResponse_builder) Build() *PingResponse {
-	m0 := &PingResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
 type DeviceInfo struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
@@ -568,7 +480,7 @@ type DeviceInfo struct {
 
 func (x *DeviceInfo) Reset() {
 	*x = DeviceInfo{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[6]
+	mi := &file_internal_proto_keeper_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -580,7 +492,7 @@ func (x *DeviceInfo) String() string {
 func (*DeviceInfo) ProtoMessage() {}
 
 func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[6]
+	mi := &file_internal_proto_keeper_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +590,7 @@ type AddDeviceRequest struct {
 
 func (x *AddDeviceRequest) Reset() {
 	*x = AddDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[7]
+	mi := &file_internal_proto_keeper_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -690,7 +602,7 @@ func (x *AddDeviceRequest) String() string {
 func (*AddDeviceRequest) ProtoMessage() {}
 
 func (x *AddDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[7]
+	mi := &file_internal_proto_keeper_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -756,7 +668,7 @@ type AddDeviceResponse struct {
 
 func (x *AddDeviceResponse) Reset() {
 	*x = AddDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[8]
+	mi := &file_internal_proto_keeper_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -768,7 +680,7 @@ func (x *AddDeviceResponse) String() string {
 func (*AddDeviceResponse) ProtoMessage() {}
 
 func (x *AddDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[8]
+	mi := &file_internal_proto_keeper_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +746,7 @@ type RemoveDeviceRequest struct {
 
 func (x *RemoveDeviceRequest) Reset() {
 	*x = RemoveDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[9]
+	mi := &file_internal_proto_keeper_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -846,7 +758,7 @@ func (x *RemoveDeviceRequest) String() string {
 func (*RemoveDeviceRequest) ProtoMessage() {}
 
 func (x *RemoveDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[9]
+	mi := &file_internal_proto_keeper_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -909,7 +821,7 @@ type RemoveDeviceResponse struct {
 
 func (x *RemoveDeviceResponse) Reset() {
 	*x = RemoveDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[10]
+	mi := &file_internal_proto_keeper_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -921,7 +833,7 @@ func (x *RemoveDeviceResponse) String() string {
 func (*RemoveDeviceResponse) ProtoMessage() {}
 
 func (x *RemoveDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[10]
+	mi := &file_internal_proto_keeper_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -956,7 +868,7 @@ type UpdateDeviceRequest struct {
 
 func (x *UpdateDeviceRequest) Reset() {
 	*x = UpdateDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[11]
+	mi := &file_internal_proto_keeper_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -968,7 +880,7 @@ func (x *UpdateDeviceRequest) String() string {
 func (*UpdateDeviceRequest) ProtoMessage() {}
 
 func (x *UpdateDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[11]
+	mi := &file_internal_proto_keeper_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1063,7 +975,7 @@ type UpdateDeviceResponse struct {
 
 func (x *UpdateDeviceResponse) Reset() {
 	*x = UpdateDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[12]
+	mi := &file_internal_proto_keeper_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1075,7 +987,7 @@ func (x *UpdateDeviceResponse) String() string {
 func (*UpdateDeviceResponse) ProtoMessage() {}
 
 func (x *UpdateDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[12]
+	mi := &file_internal_proto_keeper_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1018,7 @@ type GetDevicesRequest struct {
 
 func (x *GetDevicesRequest) Reset() {
 	*x = GetDevicesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[13]
+	mi := &file_internal_proto_keeper_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1118,7 +1030,7 @@ func (x *GetDevicesRequest) String() string {
 func (*GetDevicesRequest) ProtoMessage() {}
 
 func (x *GetDevicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[13]
+	mi := &file_internal_proto_keeper_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1150,7 +1062,7 @@ type GetDevicesResponse struct {
 
 func (x *GetDevicesResponse) Reset() {
 	*x = GetDevicesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[14]
+	mi := &file_internal_proto_keeper_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1162,7 +1074,7 @@ func (x *GetDevicesResponse) String() string {
 func (*GetDevicesResponse) ProtoMessage() {}
 
 func (x *GetDevicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[14]
+	mi := &file_internal_proto_keeper_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1207,6 +1119,8 @@ type PasswordItem struct {
 	xxx_hidden_Login       *string                `protobuf:"bytes,3,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,4,opt,name=password"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,5,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,6,opt,name=change_time,json=changeTime"`
+	xxx_hidden_SyncTime    int64                  `protobuf:"varint,7,opt,name=sync_time,json=syncTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -1215,7 +1129,7 @@ type PasswordItem struct {
 
 func (x *PasswordItem) Reset() {
 	*x = PasswordItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[15]
+	mi := &file_internal_proto_keeper_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1227,7 +1141,7 @@ func (x *PasswordItem) String() string {
 func (*PasswordItem) ProtoMessage() {}
 
 func (x *PasswordItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[15]
+	mi := &file_internal_proto_keeper_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,29 +1202,53 @@ func (x *PasswordItem) GetMetadata() string {
 	return ""
 }
 
+func (x *PasswordItem) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *PasswordItem) GetSyncTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_SyncTime
+	}
+	return 0
+}
+
 func (x *PasswordItem) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
 }
 
 func (x *PasswordItem) SetSite(v string) {
 	x.xxx_hidden_Site = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *PasswordItem) SetLogin(v string) {
 	x.xxx_hidden_Login = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *PasswordItem) SetPassword(v string) {
 	x.xxx_hidden_Password = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *PasswordItem) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+}
+
+func (x *PasswordItem) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+}
+
+func (x *PasswordItem) SetSyncTime(v int64) {
+	x.xxx_hidden_SyncTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
 func (x *PasswordItem) HasId() bool {
@@ -1348,6 +1286,20 @@ func (x *PasswordItem) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
+func (x *PasswordItem) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *PasswordItem) HasSyncTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
 func (x *PasswordItem) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -1373,14 +1325,26 @@ func (x *PasswordItem) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *PasswordItem) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+func (x *PasswordItem) ClearSyncTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_SyncTime = 0
+}
+
 type PasswordItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Site     *string
-	Login    *string
-	Password *string
-	Metadata *string
+	Id         *string
+	Site       *string
+	Login      *string
+	Password   *string
+	Metadata   *string
+	ChangeTime *int64
+	SyncTime   *int64
 }
 
 func (b0 PasswordItem_builder) Build() *PasswordItem {
@@ -1388,24 +1352,32 @@ func (b0 PasswordItem_builder) Build() *PasswordItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Site != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_Site = b.Site
 	}
 	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Login = b.Login
 	}
 	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Password = b.Password
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	if b.SyncTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		x.xxx_hidden_SyncTime = *b.SyncTime
 	}
 	return m0
 }
@@ -1416,6 +1388,7 @@ type AddPasswordRequest struct {
 	xxx_hidden_Login       *string                `protobuf:"bytes,2,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,3,opt,name=password"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,4,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,5,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -1424,7 +1397,7 @@ type AddPasswordRequest struct {
 
 func (x *AddPasswordRequest) Reset() {
 	*x = AddPasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[16]
+	mi := &file_internal_proto_keeper_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1436,7 +1409,7 @@ func (x *AddPasswordRequest) String() string {
 func (*AddPasswordRequest) ProtoMessage() {}
 
 func (x *AddPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[16]
+	mi := &file_internal_proto_keeper_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1487,24 +1460,36 @@ func (x *AddPasswordRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *AddPasswordRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *AddPasswordRequest) SetSite(v string) {
 	x.xxx_hidden_Site = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *AddPasswordRequest) SetLogin(v string) {
 	x.xxx_hidden_Login = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *AddPasswordRequest) SetPassword(v string) {
 	x.xxx_hidden_Password = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
 func (x *AddPasswordRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *AddPasswordRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
 func (x *AddPasswordRequest) HasSite() bool {
@@ -1535,6 +1520,13 @@ func (x *AddPasswordRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
+func (x *AddPasswordRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
 func (x *AddPasswordRequest) ClearSite() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Site = nil
@@ -1555,13 +1547,19 @@ func (x *AddPasswordRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *AddPasswordRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type AddPasswordRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Site     *string
-	Login    *string
-	Password *string
-	Metadata *string
+	Site       *string
+	Login      *string
+	Password   *string
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 AddPasswordRequest_builder) Build() *AddPasswordRequest {
@@ -1569,20 +1567,24 @@ func (b0 AddPasswordRequest_builder) Build() *AddPasswordRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Site != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_Site = b.Site
 	}
 	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Login = b.Login
 	}
 	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Password = b.Password
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -1598,7 +1600,7 @@ type AddPasswordResponse struct {
 
 func (x *AddPasswordResponse) Reset() {
 	*x = AddPasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[17]
+	mi := &file_internal_proto_keeper_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1610,7 +1612,7 @@ func (x *AddPasswordResponse) String() string {
 func (*AddPasswordResponse) ProtoMessage() {}
 
 func (x *AddPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[17]
+	mi := &file_internal_proto_keeper_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1676,7 +1678,7 @@ type RemovePasswordRequest struct {
 
 func (x *RemovePasswordRequest) Reset() {
 	*x = RemovePasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[18]
+	mi := &file_internal_proto_keeper_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1688,7 +1690,7 @@ func (x *RemovePasswordRequest) String() string {
 func (*RemovePasswordRequest) ProtoMessage() {}
 
 func (x *RemovePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[18]
+	mi := &file_internal_proto_keeper_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1751,7 +1753,7 @@ type RemovePasswordResponse struct {
 
 func (x *RemovePasswordResponse) Reset() {
 	*x = RemovePasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[19]
+	mi := &file_internal_proto_keeper_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1763,7 +1765,7 @@ func (x *RemovePasswordResponse) String() string {
 func (*RemovePasswordResponse) ProtoMessage() {}
 
 func (x *RemovePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[19]
+	mi := &file_internal_proto_keeper_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1793,6 +1795,7 @@ type UpdatePasswordRequest struct {
 	xxx_hidden_Login       *string                `protobuf:"bytes,3,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,4,opt,name=password"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,5,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,6,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -1801,7 +1804,7 @@ type UpdatePasswordRequest struct {
 
 func (x *UpdatePasswordRequest) Reset() {
 	*x = UpdatePasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[20]
+	mi := &file_internal_proto_keeper_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1813,7 +1816,7 @@ func (x *UpdatePasswordRequest) String() string {
 func (*UpdatePasswordRequest) ProtoMessage() {}
 
 func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[20]
+	mi := &file_internal_proto_keeper_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,29 +1877,41 @@ func (x *UpdatePasswordRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *UpdatePasswordRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *UpdatePasswordRequest) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
 }
 
 func (x *UpdatePasswordRequest) SetSite(v string) {
 	x.xxx_hidden_Site = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
 }
 
 func (x *UpdatePasswordRequest) SetLogin(v string) {
 	x.xxx_hidden_Login = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
 }
 
 func (x *UpdatePasswordRequest) SetPassword(v string) {
 	x.xxx_hidden_Password = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
 }
 
 func (x *UpdatePasswordRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+}
+
+func (x *UpdatePasswordRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *UpdatePasswordRequest) HasId() bool {
@@ -1934,6 +1949,13 @@ func (x *UpdatePasswordRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
+func (x *UpdatePasswordRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
 func (x *UpdatePasswordRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -1959,14 +1981,20 @@ func (x *UpdatePasswordRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *UpdatePasswordRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type UpdatePasswordRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Site     *string
-	Login    *string
-	Password *string
-	Metadata *string
+	Id         *string
+	Site       *string
+	Login      *string
+	Password   *string
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 UpdatePasswordRequest_builder) Build() *UpdatePasswordRequest {
@@ -1974,24 +2002,28 @@ func (b0 UpdatePasswordRequest_builder) Build() *UpdatePasswordRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Site != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
 		x.xxx_hidden_Site = b.Site
 	}
 	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
 		x.xxx_hidden_Login = b.Login
 	}
 	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
 		x.xxx_hidden_Password = b.Password
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -2004,7 +2036,7 @@ type UpdatePasswordResponse struct {
 
 func (x *UpdatePasswordResponse) Reset() {
 	*x = UpdatePasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[21]
+	mi := &file_internal_proto_keeper_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2016,7 +2048,7 @@ func (x *UpdatePasswordResponse) String() string {
 func (*UpdatePasswordResponse) ProtoMessage() {}
 
 func (x *UpdatePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[21]
+	mi := &file_internal_proto_keeper_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2047,7 +2079,7 @@ type GetPasswordsRequest struct {
 
 func (x *GetPasswordsRequest) Reset() {
 	*x = GetPasswordsRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[22]
+	mi := &file_internal_proto_keeper_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2059,7 +2091,7 @@ func (x *GetPasswordsRequest) String() string {
 func (*GetPasswordsRequest) ProtoMessage() {}
 
 func (x *GetPasswordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[22]
+	mi := &file_internal_proto_keeper_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2091,7 +2123,7 @@ type GetPasswordsResponse struct {
 
 func (x *GetPasswordsResponse) Reset() {
 	*x = GetPasswordsResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[23]
+	mi := &file_internal_proto_keeper_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2103,7 +2135,7 @@ func (x *GetPasswordsResponse) String() string {
 func (*GetPasswordsResponse) ProtoMessage() {}
 
 func (x *GetPasswordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[23]
+	mi := &file_internal_proto_keeper_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2143,9 +2175,12 @@ func (b0 GetPasswordsResponse_builder) Build() *GetPasswordsResponse {
 
 type NoteItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Text        *string                `protobuf:"bytes,2,opt,name=text"`
-	xxx_hidden_Metadata    *string                `protobuf:"bytes,3,opt,name=metadata"`
+	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,2,opt,name=id"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,3,opt,name=title"`
+	xxx_hidden_Text        *string                `protobuf:"bytes,4,opt,name=text"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,5,opt,name=change_time,json=changeTime"`
+	xxx_hidden_SyncTime    int64                  `protobuf:"varint,6,opt,name=sync_time,json=syncTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -2154,7 +2189,7 @@ type NoteItem struct {
 
 func (x *NoteItem) Reset() {
 	*x = NoteItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[24]
+	mi := &file_internal_proto_keeper_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2166,7 +2201,7 @@ func (x *NoteItem) String() string {
 func (*NoteItem) ProtoMessage() {}
 
 func (x *NoteItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[24]
+	mi := &file_internal_proto_keeper_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2177,10 +2212,30 @@ func (x *NoteItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *NoteItem) GetLocalId() string {
+	if x != nil {
+		if x.xxx_hidden_LocalId != nil {
+			return *x.xxx_hidden_LocalId
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *NoteItem) GetId() string {
 	if x != nil {
 		if x.xxx_hidden_Id != nil {
 			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *NoteItem) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
 		}
 		return ""
 	}
@@ -2197,98 +2252,170 @@ func (x *NoteItem) GetText() string {
 	return ""
 }
 
-func (x *NoteItem) GetMetadata() string {
+func (x *NoteItem) GetChangeTime() int64 {
 	if x != nil {
-		if x.xxx_hidden_Metadata != nil {
-			return *x.xxx_hidden_Metadata
-		}
-		return ""
+		return x.xxx_hidden_ChangeTime
 	}
-	return ""
+	return 0
+}
+
+func (x *NoteItem) GetSyncTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_SyncTime
+	}
+	return 0
+}
+
+func (x *NoteItem) SetLocalId(v string) {
+	x.xxx_hidden_LocalId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
 }
 
 func (x *NoteItem) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+}
+
+func (x *NoteItem) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
 }
 
 func (x *NoteItem) SetText(v string) {
 	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
 }
 
-func (x *NoteItem) SetMetadata(v string) {
-	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+func (x *NoteItem) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
 }
 
-func (x *NoteItem) HasId() bool {
+func (x *NoteItem) SetSyncTime(v int64) {
+	x.xxx_hidden_SyncTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+}
+
+func (x *NoteItem) HasLocalId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *NoteItem) HasText() bool {
+func (x *NoteItem) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *NoteItem) HasMetadata() bool {
+func (x *NoteItem) HasTitle() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *NoteItem) ClearId() {
+func (x *NoteItem) HasText() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *NoteItem) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *NoteItem) HasSyncTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *NoteItem) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_LocalId = nil
+}
+
+func (x *NoteItem) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Id = nil
 }
 
+func (x *NoteItem) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Title = nil
+}
+
 func (x *NoteItem) ClearText() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Text = nil
 }
 
-func (x *NoteItem) ClearMetadata() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_Metadata = nil
+func (x *NoteItem) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+func (x *NoteItem) ClearSyncTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_SyncTime = 0
 }
 
 type NoteItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Text     *string
-	Metadata *string
+	LocalId    *string
+	Id         *string
+	Title      *string
+	Text       *string
+	ChangeTime *int64
+	SyncTime   *int64
 }
 
 func (b0 NoteItem_builder) Build() *NoteItem {
 	m0 := &NoteItem{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.LocalId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_LocalId = b.LocalId
+	}
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
 		x.xxx_hidden_Id = b.Id
 	}
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		x.xxx_hidden_Title = b.Title
+	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
 		x.xxx_hidden_Text = b.Text
 	}
-	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
-		x.xxx_hidden_Metadata = b.Metadata
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	if b.SyncTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_SyncTime = *b.SyncTime
 	}
 	return m0
 }
 
 type AddNoteRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Text        *string                `protobuf:"bytes,1,opt,name=text"`
-	xxx_hidden_Metadata    *string                `protobuf:"bytes,2,opt,name=metadata"`
+	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,2,opt,name=title"`
+	xxx_hidden_Text        *string                `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,4,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -2297,7 +2424,7 @@ type AddNoteRequest struct {
 
 func (x *AddNoteRequest) Reset() {
 	*x = AddNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[25]
+	mi := &file_internal_proto_keeper_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2309,7 +2436,7 @@ func (x *AddNoteRequest) String() string {
 func (*AddNoteRequest) ProtoMessage() {}
 
 func (x *AddNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[25]
+	mi := &file_internal_proto_keeper_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2318,6 +2445,26 @@ func (x *AddNoteRequest) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *AddNoteRequest) GetLocalId() string {
+	if x != nil {
+		if x.xxx_hidden_LocalId != nil {
+			return *x.xxx_hidden_LocalId
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *AddNoteRequest) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
+		}
+		return ""
+	}
+	return ""
 }
 
 func (x *AddNoteRequest) GetText() string {
@@ -2330,68 +2477,109 @@ func (x *AddNoteRequest) GetText() string {
 	return ""
 }
 
-func (x *AddNoteRequest) GetMetadata() string {
+func (x *AddNoteRequest) GetChangeTime() int64 {
 	if x != nil {
-		if x.xxx_hidden_Metadata != nil {
-			return *x.xxx_hidden_Metadata
-		}
-		return ""
+		return x.xxx_hidden_ChangeTime
 	}
-	return ""
+	return 0
+}
+
+func (x *AddNoteRequest) SetLocalId(v string) {
+	x.xxx_hidden_LocalId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+}
+
+func (x *AddNoteRequest) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
 func (x *AddNoteRequest) SetText(v string) {
 	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
 }
 
-func (x *AddNoteRequest) SetMetadata(v string) {
-	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+func (x *AddNoteRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
 }
 
-func (x *AddNoteRequest) HasText() bool {
+func (x *AddNoteRequest) HasLocalId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *AddNoteRequest) HasMetadata() bool {
+func (x *AddNoteRequest) HasTitle() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *AddNoteRequest) ClearText() {
+func (x *AddNoteRequest) HasText() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *AddNoteRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *AddNoteRequest) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_LocalId = nil
+}
+
+func (x *AddNoteRequest) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Title = nil
+}
+
+func (x *AddNoteRequest) ClearText() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Text = nil
 }
 
-func (x *AddNoteRequest) ClearMetadata() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Metadata = nil
+func (x *AddNoteRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_ChangeTime = 0
 }
 
 type AddNoteRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Text     *string
-	Metadata *string
+	LocalId    *string
+	Title      *string
+	Text       *string
+	ChangeTime *int64
 }
 
 func (b0 AddNoteRequest_builder) Build() *AddNoteRequest {
 	m0 := &AddNoteRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.LocalId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		x.xxx_hidden_LocalId = b.LocalId
+	}
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_Title = b.Title
+	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
 		x.xxx_hidden_Text = b.Text
 	}
-	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
-		x.xxx_hidden_Metadata = b.Metadata
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -2407,7 +2595,7 @@ type AddNoteResponse struct {
 
 func (x *AddNoteResponse) Reset() {
 	*x = AddNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[26]
+	mi := &file_internal_proto_keeper_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2419,7 +2607,7 @@ func (x *AddNoteResponse) String() string {
 func (*AddNoteResponse) ProtoMessage() {}
 
 func (x *AddNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[26]
+	mi := &file_internal_proto_keeper_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2476,7 +2664,8 @@ func (b0 AddNoteResponse_builder) Build() *AddNoteResponse {
 
 type RemoveNoteRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,2,opt,name=id"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -2485,7 +2674,7 @@ type RemoveNoteRequest struct {
 
 func (x *RemoveNoteRequest) Reset() {
 	*x = RemoveNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[27]
+	mi := &file_internal_proto_keeper_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2497,7 +2686,7 @@ func (x *RemoveNoteRequest) String() string {
 func (*RemoveNoteRequest) ProtoMessage() {}
 
 func (x *RemoveNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[27]
+	mi := &file_internal_proto_keeper_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2506,6 +2695,16 @@ func (x *RemoveNoteRequest) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *RemoveNoteRequest) GetLocalId() string {
+	if x != nil {
+		if x.xxx_hidden_LocalId != nil {
+			return *x.xxx_hidden_LocalId
+		}
+		return ""
+	}
+	return ""
 }
 
 func (x *RemoveNoteRequest) GetId() string {
@@ -2518,35 +2717,57 @@ func (x *RemoveNoteRequest) GetId() string {
 	return ""
 }
 
-func (x *RemoveNoteRequest) SetId(v string) {
-	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+func (x *RemoveNoteRequest) SetLocalId(v string) {
+	x.xxx_hidden_LocalId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
 }
 
-func (x *RemoveNoteRequest) HasId() bool {
+func (x *RemoveNoteRequest) SetId(v string) {
+	x.xxx_hidden_Id = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+}
+
+func (x *RemoveNoteRequest) HasLocalId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *RemoveNoteRequest) ClearId() {
+func (x *RemoveNoteRequest) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *RemoveNoteRequest) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_LocalId = nil
+}
+
+func (x *RemoveNoteRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Id = nil
 }
 
 type RemoveNoteRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id *string
+	LocalId *string
+	Id      *string
 }
 
 func (b0 RemoveNoteRequest_builder) Build() *RemoveNoteRequest {
 	m0 := &RemoveNoteRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.LocalId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_LocalId = b.LocalId
+	}
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
 		x.xxx_hidden_Id = b.Id
 	}
 	return m0
@@ -2560,7 +2781,7 @@ type RemoveNoteResponse struct {
 
 func (x *RemoveNoteResponse) Reset() {
 	*x = RemoveNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[28]
+	mi := &file_internal_proto_keeper_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2572,7 +2793,7 @@ func (x *RemoveNoteResponse) String() string {
 func (*RemoveNoteResponse) ProtoMessage() {}
 
 func (x *RemoveNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[28]
+	mi := &file_internal_proto_keeper_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2597,9 +2818,11 @@ func (b0 RemoveNoteResponse_builder) Build() *RemoveNoteResponse {
 
 type UpdateNoteRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Text        *string                `protobuf:"bytes,2,opt,name=text"`
-	xxx_hidden_Metadata    *string                `protobuf:"bytes,3,opt,name=metadata"`
+	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,2,opt,name=id"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,3,opt,name=title"`
+	xxx_hidden_Text        *string                `protobuf:"bytes,4,opt,name=text"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,5,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -2608,7 +2831,7 @@ type UpdateNoteRequest struct {
 
 func (x *UpdateNoteRequest) Reset() {
 	*x = UpdateNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[29]
+	mi := &file_internal_proto_keeper_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2620,7 +2843,7 @@ func (x *UpdateNoteRequest) String() string {
 func (*UpdateNoteRequest) ProtoMessage() {}
 
 func (x *UpdateNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[29]
+	mi := &file_internal_proto_keeper_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2631,10 +2854,30 @@ func (x *UpdateNoteRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *UpdateNoteRequest) GetLocalId() string {
+	if x != nil {
+		if x.xxx_hidden_LocalId != nil {
+			return *x.xxx_hidden_LocalId
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *UpdateNoteRequest) GetId() string {
 	if x != nil {
 		if x.xxx_hidden_Id != nil {
 			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *UpdateNoteRequest) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
 		}
 		return ""
 	}
@@ -2651,90 +2894,131 @@ func (x *UpdateNoteRequest) GetText() string {
 	return ""
 }
 
-func (x *UpdateNoteRequest) GetMetadata() string {
+func (x *UpdateNoteRequest) GetChangeTime() int64 {
 	if x != nil {
-		if x.xxx_hidden_Metadata != nil {
-			return *x.xxx_hidden_Metadata
-		}
-		return ""
+		return x.xxx_hidden_ChangeTime
 	}
-	return ""
+	return 0
+}
+
+func (x *UpdateNoteRequest) SetLocalId(v string) {
+	x.xxx_hidden_LocalId = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *UpdateNoteRequest) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+}
+
+func (x *UpdateNoteRequest) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
 func (x *UpdateNoteRequest) SetText(v string) {
 	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
 }
 
-func (x *UpdateNoteRequest) SetMetadata(v string) {
-	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+func (x *UpdateNoteRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
-func (x *UpdateNoteRequest) HasId() bool {
+func (x *UpdateNoteRequest) HasLocalId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *UpdateNoteRequest) HasText() bool {
+func (x *UpdateNoteRequest) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *UpdateNoteRequest) HasMetadata() bool {
+func (x *UpdateNoteRequest) HasTitle() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *UpdateNoteRequest) ClearId() {
+func (x *UpdateNoteRequest) HasText() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *UpdateNoteRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *UpdateNoteRequest) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_LocalId = nil
+}
+
+func (x *UpdateNoteRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Id = nil
 }
 
+func (x *UpdateNoteRequest) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Title = nil
+}
+
 func (x *UpdateNoteRequest) ClearText() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Text = nil
 }
 
-func (x *UpdateNoteRequest) ClearMetadata() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_Metadata = nil
+func (x *UpdateNoteRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_ChangeTime = 0
 }
 
 type UpdateNoteRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Text     *string
-	Metadata *string
+	LocalId    *string
+	Id         *string
+	Title      *string
+	Text       *string
+	ChangeTime *int64
 }
 
 func (b0 UpdateNoteRequest_builder) Build() *UpdateNoteRequest {
 	m0 := &UpdateNoteRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.LocalId != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		x.xxx_hidden_LocalId = b.LocalId
+	}
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Id = b.Id
 	}
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		x.xxx_hidden_Title = b.Title
+	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
 		x.xxx_hidden_Text = b.Text
 	}
-	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
-		x.xxx_hidden_Metadata = b.Metadata
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -2747,7 +3031,7 @@ type UpdateNoteResponse struct {
 
 func (x *UpdateNoteResponse) Reset() {
 	*x = UpdateNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[30]
+	mi := &file_internal_proto_keeper_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2759,7 +3043,7 @@ func (x *UpdateNoteResponse) String() string {
 func (*UpdateNoteResponse) ProtoMessage() {}
 
 func (x *UpdateNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[30]
+	mi := &file_internal_proto_keeper_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2790,7 +3074,7 @@ type GetNotesRequest struct {
 
 func (x *GetNotesRequest) Reset() {
 	*x = GetNotesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[31]
+	mi := &file_internal_proto_keeper_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2802,7 +3086,7 @@ func (x *GetNotesRequest) String() string {
 func (*GetNotesRequest) ProtoMessage() {}
 
 func (x *GetNotesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[31]
+	mi := &file_internal_proto_keeper_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2834,7 +3118,7 @@ type GetNotesResponse struct {
 
 func (x *GetNotesResponse) Reset() {
 	*x = GetNotesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[32]
+	mi := &file_internal_proto_keeper_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2846,7 +3130,7 @@ func (x *GetNotesResponse) String() string {
 func (*GetNotesResponse) ProtoMessage() {}
 
 func (x *GetNotesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[32]
+	mi := &file_internal_proto_keeper_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2892,6 +3176,8 @@ type CardItem struct {
 	xxx_hidden_Expiry      *string                `protobuf:"bytes,4,opt,name=expiry"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,5,opt,name=cvv"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,6,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,7,opt,name=change_time,json=changeTime"`
+	xxx_hidden_SyncTime    int64                  `protobuf:"varint,8,opt,name=sync_time,json=syncTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -2900,7 +3186,7 @@ type CardItem struct {
 
 func (x *CardItem) Reset() {
 	*x = CardItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[33]
+	mi := &file_internal_proto_keeper_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2912,7 +3198,7 @@ func (x *CardItem) String() string {
 func (*CardItem) ProtoMessage() {}
 
 func (x *CardItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[33]
+	mi := &file_internal_proto_keeper_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2983,34 +3269,58 @@ func (x *CardItem) GetMetadata() string {
 	return ""
 }
 
+func (x *CardItem) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *CardItem) GetSyncTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_SyncTime
+	}
+	return 0
+}
+
 func (x *CardItem) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
 }
 
 func (x *CardItem) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
 }
 
 func (x *CardItem) SetHolder(v string) {
 	x.xxx_hidden_Holder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
 }
 
 func (x *CardItem) SetExpiry(v string) {
 	x.xxx_hidden_Expiry = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
 }
 
 func (x *CardItem) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
 }
 
 func (x *CardItem) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 8)
+}
+
+func (x *CardItem) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
+}
+
+func (x *CardItem) SetSyncTime(v int64) {
+	x.xxx_hidden_SyncTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
 }
 
 func (x *CardItem) HasId() bool {
@@ -3055,6 +3365,20 @@ func (x *CardItem) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
+func (x *CardItem) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *CardItem) HasSyncTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
 func (x *CardItem) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -3085,15 +3409,27 @@ func (x *CardItem) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *CardItem) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+func (x *CardItem) ClearSyncTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_SyncTime = 0
+}
+
 type CardItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Number   *string
-	Holder   *string
-	Expiry   *string
-	Cvv      *string
-	Metadata *string
+	Id         *string
+	Number     *string
+	Holder     *string
+	Expiry     *string
+	Cvv        *string
+	Metadata   *string
+	ChangeTime *int64
+	SyncTime   *int64
 }
 
 func (b0 CardItem_builder) Build() *CardItem {
@@ -3101,28 +3437,36 @@ func (b0 CardItem_builder) Build() *CardItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.Holder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
 		x.xxx_hidden_Holder = b.Holder
 	}
 	if b.Expiry != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
 		x.xxx_hidden_Expiry = b.Expiry
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 8)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	if b.SyncTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		x.xxx_hidden_SyncTime = *b.SyncTime
 	}
 	return m0
 }
@@ -3134,6 +3478,7 @@ type AddCardRequest struct {
 	xxx_hidden_Expiry      *string                `protobuf:"bytes,3,opt,name=expiry"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,4,opt,name=cvv"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,5,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,6,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -3142,7 +3487,7 @@ type AddCardRequest struct {
 
 func (x *AddCardRequest) Reset() {
 	*x = AddCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[34]
+	mi := &file_internal_proto_keeper_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3154,7 +3499,7 @@ func (x *AddCardRequest) String() string {
 func (*AddCardRequest) ProtoMessage() {}
 
 func (x *AddCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[34]
+	mi := &file_internal_proto_keeper_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3215,29 +3560,41 @@ func (x *AddCardRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *AddCardRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *AddCardRequest) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
 }
 
 func (x *AddCardRequest) SetHolder(v string) {
 	x.xxx_hidden_Holder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
 }
 
 func (x *AddCardRequest) SetExpiry(v string) {
 	x.xxx_hidden_Expiry = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
 }
 
 func (x *AddCardRequest) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
 }
 
 func (x *AddCardRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+}
+
+func (x *AddCardRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *AddCardRequest) HasNumber() bool {
@@ -3275,6 +3632,13 @@ func (x *AddCardRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
+func (x *AddCardRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
 func (x *AddCardRequest) ClearNumber() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Number = nil
@@ -3300,14 +3664,20 @@ func (x *AddCardRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *AddCardRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type AddCardRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Number   *string
-	Holder   *string
-	Expiry   *string
-	Cvv      *string
-	Metadata *string
+	Number     *string
+	Holder     *string
+	Expiry     *string
+	Cvv        *string
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 AddCardRequest_builder) Build() *AddCardRequest {
@@ -3315,24 +3685,28 @@ func (b0 AddCardRequest_builder) Build() *AddCardRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.Holder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
 		x.xxx_hidden_Holder = b.Holder
 	}
 	if b.Expiry != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
 		x.xxx_hidden_Expiry = b.Expiry
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -3348,7 +3722,7 @@ type AddCardResponse struct {
 
 func (x *AddCardResponse) Reset() {
 	*x = AddCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[35]
+	mi := &file_internal_proto_keeper_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3360,7 +3734,7 @@ func (x *AddCardResponse) String() string {
 func (*AddCardResponse) ProtoMessage() {}
 
 func (x *AddCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[35]
+	mi := &file_internal_proto_keeper_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3426,7 +3800,7 @@ type RemoveCardRequest struct {
 
 func (x *RemoveCardRequest) Reset() {
 	*x = RemoveCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[36]
+	mi := &file_internal_proto_keeper_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3438,7 +3812,7 @@ func (x *RemoveCardRequest) String() string {
 func (*RemoveCardRequest) ProtoMessage() {}
 
 func (x *RemoveCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[36]
+	mi := &file_internal_proto_keeper_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3501,7 +3875,7 @@ type RemoveCardResponse struct {
 
 func (x *RemoveCardResponse) Reset() {
 	*x = RemoveCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[37]
+	mi := &file_internal_proto_keeper_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3513,7 +3887,7 @@ func (x *RemoveCardResponse) String() string {
 func (*RemoveCardResponse) ProtoMessage() {}
 
 func (x *RemoveCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[37]
+	mi := &file_internal_proto_keeper_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3544,6 +3918,7 @@ type UpdateCardRequest struct {
 	xxx_hidden_Expiry      *string                `protobuf:"bytes,4,opt,name=expiry"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,5,opt,name=cvv"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,6,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,7,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -3552,7 +3927,7 @@ type UpdateCardRequest struct {
 
 func (x *UpdateCardRequest) Reset() {
 	*x = UpdateCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[38]
+	mi := &file_internal_proto_keeper_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3564,7 +3939,7 @@ func (x *UpdateCardRequest) String() string {
 func (*UpdateCardRequest) ProtoMessage() {}
 
 func (x *UpdateCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[38]
+	mi := &file_internal_proto_keeper_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3635,34 +4010,46 @@ func (x *UpdateCardRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *UpdateCardRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *UpdateCardRequest) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
 }
 
 func (x *UpdateCardRequest) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *UpdateCardRequest) SetHolder(v string) {
 	x.xxx_hidden_Holder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *UpdateCardRequest) SetExpiry(v string) {
 	x.xxx_hidden_Expiry = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *UpdateCardRequest) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
 }
 
 func (x *UpdateCardRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+}
+
+func (x *UpdateCardRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
 func (x *UpdateCardRequest) HasId() bool {
@@ -3707,6 +4094,13 @@ func (x *UpdateCardRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
+func (x *UpdateCardRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
 func (x *UpdateCardRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -3737,15 +4131,21 @@ func (x *UpdateCardRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *UpdateCardRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type UpdateCardRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Number   *string
-	Holder   *string
-	Expiry   *string
-	Cvv      *string
-	Metadata *string
+	Id         *string
+	Number     *string
+	Holder     *string
+	Expiry     *string
+	Cvv        *string
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 UpdateCardRequest_builder) Build() *UpdateCardRequest {
@@ -3753,28 +4153,32 @@ func (b0 UpdateCardRequest_builder) Build() *UpdateCardRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.Holder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Holder = b.Holder
 	}
 	if b.Expiry != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Expiry = b.Expiry
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -3787,7 +4191,7 @@ type UpdateCardResponse struct {
 
 func (x *UpdateCardResponse) Reset() {
 	*x = UpdateCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[39]
+	mi := &file_internal_proto_keeper_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3799,7 +4203,7 @@ func (x *UpdateCardResponse) String() string {
 func (*UpdateCardResponse) ProtoMessage() {}
 
 func (x *UpdateCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[39]
+	mi := &file_internal_proto_keeper_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3830,7 +4234,7 @@ type GetCardsRequest struct {
 
 func (x *GetCardsRequest) Reset() {
 	*x = GetCardsRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[40]
+	mi := &file_internal_proto_keeper_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3842,7 +4246,7 @@ func (x *GetCardsRequest) String() string {
 func (*GetCardsRequest) ProtoMessage() {}
 
 func (x *GetCardsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[40]
+	mi := &file_internal_proto_keeper_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3874,7 +4278,7 @@ type GetCardsResponse struct {
 
 func (x *GetCardsResponse) Reset() {
 	*x = GetCardsResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[41]
+	mi := &file_internal_proto_keeper_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3886,7 +4290,7 @@ func (x *GetCardsResponse) String() string {
 func (*GetCardsResponse) ProtoMessage() {}
 
 func (x *GetCardsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[41]
+	mi := &file_internal_proto_keeper_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3929,6 +4333,8 @@ type FileInfo struct {
 	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,3,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,4,opt,name=change_time,json=changeTime"`
+	xxx_hidden_SyncTime    int64                  `protobuf:"varint,5,opt,name=sync_time,json=syncTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -3937,7 +4343,7 @@ type FileInfo struct {
 
 func (x *FileInfo) Reset() {
 	*x = FileInfo{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[42]
+	mi := &file_internal_proto_keeper_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3949,7 +4355,7 @@ func (x *FileInfo) String() string {
 func (*FileInfo) ProtoMessage() {}
 
 func (x *FileInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[42]
+	mi := &file_internal_proto_keeper_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3990,19 +4396,43 @@ func (x *FileInfo) GetMetadata() string {
 	return ""
 }
 
+func (x *FileInfo) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *FileInfo) GetSyncTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_SyncTime
+	}
+	return 0
+}
+
 func (x *FileInfo) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *FileInfo) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *FileInfo) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+}
+
+func (x *FileInfo) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *FileInfo) SetSyncTime(v int64) {
+	x.xxx_hidden_SyncTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
 func (x *FileInfo) HasId() bool {
@@ -4026,6 +4456,20 @@ func (x *FileInfo) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
+func (x *FileInfo) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *FileInfo) HasSyncTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
 func (x *FileInfo) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -4041,12 +4485,24 @@ func (x *FileInfo) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *FileInfo) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+func (x *FileInfo) ClearSyncTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_SyncTime = 0
+}
+
 type FileInfo_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Name     *string
-	Metadata *string
+	Id         *string
+	Name       *string
+	Metadata   *string
+	ChangeTime *int64
+	SyncTime   *int64
 }
 
 func (b0 FileInfo_builder) Build() *FileInfo {
@@ -4054,16 +4510,24 @@ func (b0 FileInfo_builder) Build() *FileInfo {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	if b.SyncTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_SyncTime = *b.SyncTime
 	}
 	return m0
 }
@@ -4073,6 +4537,7 @@ type AddFileRequest struct {
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
 	xxx_hidden_Data        []byte                 `protobuf:"bytes,2,opt,name=data"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,3,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,4,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -4081,7 +4546,7 @@ type AddFileRequest struct {
 
 func (x *AddFileRequest) Reset() {
 	*x = AddFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[43]
+	mi := &file_internal_proto_keeper_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4093,7 +4558,7 @@ func (x *AddFileRequest) String() string {
 func (*AddFileRequest) ProtoMessage() {}
 
 func (x *AddFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[43]
+	mi := &file_internal_proto_keeper_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4131,9 +4596,16 @@ func (x *AddFileRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *AddFileRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *AddFileRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
 }
 
 func (x *AddFileRequest) SetData(v []byte) {
@@ -4141,12 +4613,17 @@ func (x *AddFileRequest) SetData(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Data = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
 func (x *AddFileRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+}
+
+func (x *AddFileRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
 }
 
 func (x *AddFileRequest) HasName() bool {
@@ -4170,6 +4647,13 @@ func (x *AddFileRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
+func (x *AddFileRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
 func (x *AddFileRequest) ClearName() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Name = nil
@@ -4185,12 +4669,18 @@ func (x *AddFileRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *AddFileRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type AddFileRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name     *string
-	Data     []byte
-	Metadata *string
+	Name       *string
+	Data       []byte
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 AddFileRequest_builder) Build() *AddFileRequest {
@@ -4198,16 +4688,20 @@ func (b0 AddFileRequest_builder) Build() *AddFileRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Data != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
 		x.xxx_hidden_Data = b.Data
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -4223,7 +4717,7 @@ type AddFileResponse struct {
 
 func (x *AddFileResponse) Reset() {
 	*x = AddFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[44]
+	mi := &file_internal_proto_keeper_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4235,7 +4729,7 @@ func (x *AddFileResponse) String() string {
 func (*AddFileResponse) ProtoMessage() {}
 
 func (x *AddFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[44]
+	mi := &file_internal_proto_keeper_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4301,7 +4795,7 @@ type RemoveFileRequest struct {
 
 func (x *RemoveFileRequest) Reset() {
 	*x = RemoveFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[45]
+	mi := &file_internal_proto_keeper_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4313,7 +4807,7 @@ func (x *RemoveFileRequest) String() string {
 func (*RemoveFileRequest) ProtoMessage() {}
 
 func (x *RemoveFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[45]
+	mi := &file_internal_proto_keeper_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4376,7 +4870,7 @@ type RemoveFileResponse struct {
 
 func (x *RemoveFileResponse) Reset() {
 	*x = RemoveFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[46]
+	mi := &file_internal_proto_keeper_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4388,7 +4882,7 @@ func (x *RemoveFileResponse) String() string {
 func (*RemoveFileResponse) ProtoMessage() {}
 
 func (x *RemoveFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[46]
+	mi := &file_internal_proto_keeper_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4417,6 +4911,7 @@ type UpdateFileRequest struct {
 	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
 	xxx_hidden_Data        []byte                 `protobuf:"bytes,3,opt,name=data"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,4,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,5,opt,name=change_time,json=changeTime"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -4425,7 +4920,7 @@ type UpdateFileRequest struct {
 
 func (x *UpdateFileRequest) Reset() {
 	*x = UpdateFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[47]
+	mi := &file_internal_proto_keeper_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4437,7 +4932,7 @@ func (x *UpdateFileRequest) String() string {
 func (*UpdateFileRequest) ProtoMessage() {}
 
 func (x *UpdateFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[47]
+	mi := &file_internal_proto_keeper_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4485,14 +4980,21 @@ func (x *UpdateFileRequest) GetMetadata() string {
 	return ""
 }
 
+func (x *UpdateFileRequest) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
 func (x *UpdateFileRequest) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *UpdateFileRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *UpdateFileRequest) SetData(v []byte) {
@@ -4500,12 +5002,17 @@ func (x *UpdateFileRequest) SetData(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Data = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
 func (x *UpdateFileRequest) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *UpdateFileRequest) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
 func (x *UpdateFileRequest) HasId() bool {
@@ -4536,6 +5043,13 @@ func (x *UpdateFileRequest) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
+func (x *UpdateFileRequest) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
 func (x *UpdateFileRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -4556,13 +5070,19 @@ func (x *UpdateFileRequest) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *UpdateFileRequest) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_ChangeTime = 0
+}
+
 type UpdateFileRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	Name     *string
-	Data     []byte
-	Metadata *string
+	Id         *string
+	Name       *string
+	Data       []byte
+	Metadata   *string
+	ChangeTime *int64
 }
 
 func (b0 UpdateFileRequest_builder) Build() *UpdateFileRequest {
@@ -4570,20 +5090,24 @@ func (b0 UpdateFileRequest_builder) Build() *UpdateFileRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Data != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Data = b.Data
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
 	}
 	return m0
 }
@@ -4596,7 +5120,7 @@ type UpdateFileResponse struct {
 
 func (x *UpdateFileResponse) Reset() {
 	*x = UpdateFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[48]
+	mi := &file_internal_proto_keeper_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4608,7 +5132,7 @@ func (x *UpdateFileResponse) String() string {
 func (*UpdateFileResponse) ProtoMessage() {}
 
 func (x *UpdateFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[48]
+	mi := &file_internal_proto_keeper_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4639,7 +5163,7 @@ type GetFilesRequest struct {
 
 func (x *GetFilesRequest) Reset() {
 	*x = GetFilesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[49]
+	mi := &file_internal_proto_keeper_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4651,7 +5175,7 @@ func (x *GetFilesRequest) String() string {
 func (*GetFilesRequest) ProtoMessage() {}
 
 func (x *GetFilesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[49]
+	mi := &file_internal_proto_keeper_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4683,7 +5207,7 @@ type GetFilesResponse struct {
 
 func (x *GetFilesResponse) Reset() {
 	*x = GetFilesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[50]
+	mi := &file_internal_proto_keeper_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4695,7 +5219,7 @@ func (x *GetFilesResponse) String() string {
 func (*GetFilesResponse) ProtoMessage() {}
 
 func (x *GetFilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[50]
+	mi := &file_internal_proto_keeper_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4749,9 +5273,7 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\r\n" +
-	"\vPingRequest\"\x0e\n" +
-	"\fPingResponse\"0\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
 	"\n" +
 	"DeviceInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
@@ -4769,108 +5291,139 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"\x14UpdateDeviceResponse\"\x13\n" +
 	"\x11GetDevicesRequest\"A\n" +
 	"\x12GetDevicesResponse\x12+\n" +
-	"\adevices\x18\x01 \x03(\v2\x11.proto.DeviceInfoR\adevices\"\x80\x01\n" +
+	"\adevices\x18\x01 \x03(\v2\x11.proto.DeviceInfoR\adevices\"\xbe\x01\n" +
 	"\fPasswordItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04site\x18\x02 \x01(\tR\x04site\x12\x14\n" +
 	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x1a\n" +
-	"\bmetadata\x18\x05 \x01(\tR\bmetadata\"v\n" +
+	"\bmetadata\x18\x05 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x06 \x01(\x03R\n" +
+	"changeTime\x12\x1b\n" +
+	"\tsync_time\x18\a \x01(\x03R\bsyncTime\"\x97\x01\n" +
 	"\x12AddPasswordRequest\x12\x12\n" +
 	"\x04site\x18\x01 \x01(\tR\x04site\x12\x14\n" +
 	"\x05login\x18\x02 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x1a\n" +
-	"\bmetadata\x18\x04 \x01(\tR\bmetadata\"%\n" +
+	"\bmetadata\x18\x04 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x05 \x01(\x03R\n" +
+	"changeTime\"%\n" +
 	"\x13AddPasswordResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"'\n" +
 	"\x15RemovePasswordRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x18\n" +
-	"\x16RemovePasswordResponse\"\x89\x01\n" +
+	"\x16RemovePasswordResponse\"\xaa\x01\n" +
 	"\x15UpdatePasswordRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04site\x18\x02 \x01(\tR\x04site\x12\x14\n" +
 	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x1a\n" +
-	"\bmetadata\x18\x05 \x01(\tR\bmetadata\"\x18\n" +
+	"\bmetadata\x18\x05 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x06 \x01(\x03R\n" +
+	"changeTime\"\x18\n" +
 	"\x16UpdatePasswordResponse\"\x15\n" +
 	"\x13GetPasswordsRequest\"I\n" +
 	"\x14GetPasswordsResponse\x121\n" +
-	"\tpasswords\x18\x01 \x03(\v2\x13.proto.PasswordItemR\tpasswords\"J\n" +
-	"\bNoteItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1a\n" +
-	"\bmetadata\x18\x03 \x01(\tR\bmetadata\"@\n" +
-	"\x0eAddNoteRequest\x12\x12\n" +
-	"\x04text\x18\x01 \x01(\tR\x04text\x12\x1a\n" +
-	"\bmetadata\x18\x02 \x01(\tR\bmetadata\"!\n" +
+	"\tpasswords\x18\x01 \x03(\v2\x13.proto.PasswordItemR\tpasswords\"\x9d\x01\n" +
+	"\bNoteItem\x12\x19\n" +
+	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
+	"\x04text\x18\x04 \x01(\tR\x04text\x12\x1f\n" +
+	"\vchange_time\x18\x05 \x01(\x03R\n" +
+	"changeTime\x12\x1b\n" +
+	"\tsync_time\x18\x06 \x01(\x03R\bsyncTime\"v\n" +
+	"\x0eAddNoteRequest\x12\x19\n" +
+	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12\x1f\n" +
+	"\vchange_time\x18\x04 \x01(\x03R\n" +
+	"changeTime\"!\n" +
 	"\x0fAddNoteResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"#\n" +
-	"\x11RemoveNoteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
-	"\x12RemoveNoteResponse\"S\n" +
-	"\x11UpdateNoteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text\x12\x1a\n" +
-	"\bmetadata\x18\x03 \x01(\tR\bmetadata\"\x14\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\">\n" +
+	"\x11RemoveNoteRequest\x12\x19\n" +
+	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"\x14\n" +
+	"\x12RemoveNoteResponse\"\x89\x01\n" +
+	"\x11UpdateNoteRequest\x12\x19\n" +
+	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
+	"\x04text\x18\x04 \x01(\tR\x04text\x12\x1f\n" +
+	"\vchange_time\x18\x05 \x01(\x03R\n" +
+	"changeTime\"\x14\n" +
 	"\x12UpdateNoteResponse\"\x11\n" +
 	"\x0fGetNotesRequest\"9\n" +
 	"\x10GetNotesResponse\x12%\n" +
-	"\x05notes\x18\x01 \x03(\v2\x0f.proto.NoteItemR\x05notes\"\x90\x01\n" +
+	"\x05notes\x18\x01 \x03(\v2\x0f.proto.NoteItemR\x05notes\"\xce\x01\n" +
 	"\bCardItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\tR\x06number\x12\x16\n" +
 	"\x06holder\x18\x03 \x01(\tR\x06holder\x12\x16\n" +
 	"\x06expiry\x18\x04 \x01(\tR\x06expiry\x12\x10\n" +
 	"\x03cvv\x18\x05 \x01(\tR\x03cvv\x12\x1a\n" +
-	"\bmetadata\x18\x06 \x01(\tR\bmetadata\"\x86\x01\n" +
+	"\bmetadata\x18\x06 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\a \x01(\x03R\n" +
+	"changeTime\x12\x1b\n" +
+	"\tsync_time\x18\b \x01(\x03R\bsyncTime\"\xa7\x01\n" +
 	"\x0eAddCardRequest\x12\x16\n" +
 	"\x06number\x18\x01 \x01(\tR\x06number\x12\x16\n" +
 	"\x06holder\x18\x02 \x01(\tR\x06holder\x12\x16\n" +
 	"\x06expiry\x18\x03 \x01(\tR\x06expiry\x12\x10\n" +
 	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12\x1a\n" +
-	"\bmetadata\x18\x05 \x01(\tR\bmetadata\"!\n" +
+	"\bmetadata\x18\x05 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x06 \x01(\x03R\n" +
+	"changeTime\"!\n" +
 	"\x0fAddCardResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"#\n" +
 	"\x11RemoveCardRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
-	"\x12RemoveCardResponse\"\x99\x01\n" +
+	"\x12RemoveCardResponse\"\xba\x01\n" +
 	"\x11UpdateCardRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\tR\x06number\x12\x16\n" +
 	"\x06holder\x18\x03 \x01(\tR\x06holder\x12\x16\n" +
 	"\x06expiry\x18\x04 \x01(\tR\x06expiry\x12\x10\n" +
 	"\x03cvv\x18\x05 \x01(\tR\x03cvv\x12\x1a\n" +
-	"\bmetadata\x18\x06 \x01(\tR\bmetadata\"\x14\n" +
+	"\bmetadata\x18\x06 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\a \x01(\x03R\n" +
+	"changeTime\"\x14\n" +
 	"\x12UpdateCardResponse\"\x11\n" +
 	"\x0fGetCardsRequest\"9\n" +
 	"\x10GetCardsResponse\x12%\n" +
-	"\x05cards\x18\x01 \x03(\v2\x0f.proto.CardItemR\x05cards\"J\n" +
+	"\x05cards\x18\x01 \x03(\v2\x0f.proto.CardItemR\x05cards\"\x88\x01\n" +
 	"\bFileInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
-	"\bmetadata\x18\x03 \x01(\tR\bmetadata\"T\n" +
+	"\bmetadata\x18\x03 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x04 \x01(\x03R\n" +
+	"changeTime\x12\x1b\n" +
+	"\tsync_time\x18\x05 \x01(\x03R\bsyncTime\"u\n" +
 	"\x0eAddFileRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04data\x18\x02 \x01(\fR\x04data\x12\x1a\n" +
-	"\bmetadata\x18\x03 \x01(\tR\bmetadata\"!\n" +
+	"\bmetadata\x18\x03 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x04 \x01(\x03R\n" +
+	"changeTime\"!\n" +
 	"\x0fAddFileResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"#\n" +
 	"\x11RemoveFileRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
-	"\x12RemoveFileResponse\"g\n" +
+	"\x12RemoveFileResponse\"\x88\x01\n" +
 	"\x11UpdateFileRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04data\x18\x03 \x01(\fR\x04data\x12\x1a\n" +
-	"\bmetadata\x18\x04 \x01(\tR\bmetadata\"\x14\n" +
+	"\bmetadata\x18\x04 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x05 \x01(\x03R\n" +
+	"changeTime\"\x14\n" +
 	"\x12UpdateFileResponse\"\x11\n" +
 	"\x0fGetFilesRequest\"9\n" +
 	"\x10GetFilesResponse\x12%\n" +
-	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files2\xaf\x01\n" +
+	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files2~\n" +
 	"\vAuthService\x12;\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x122\n" +
-	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse\x12/\n" +
-	"\x04Ping\x12\x12.proto.PingRequest\x1a\x13.proto.PingResponse2\x9d\x02\n" +
+	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse2\x9d\x02\n" +
 	"\x06Device\x12>\n" +
 	"\tAddDevice\x12\x17.proto.AddDeviceRequest\x1a\x18.proto.AddDeviceResponse\x12G\n" +
 	"\fRemoveDevice\x12\x1a.proto.RemoveDeviceRequest\x1a\x1b.proto.RemoveDeviceResponse\x12G\n" +
@@ -4904,114 +5457,110 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"UpdateFile\x12\x18.proto.UpdateFileRequest\x1a\x19.proto.UpdateFileResponse\x12;\n" +
 	"\bGetFiles\x12\x16.proto.GetFilesRequest\x1a\x17.proto.GetFilesResponseB\x1bZ\x19gophKeeper/internal/protob\beditionsp\xe8\a"
 
-var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
+var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_internal_proto_keeper_proto_goTypes = []any{
 	(*RegisterRequest)(nil),        // 0: proto.RegisterRequest
 	(*RegisterResponse)(nil),       // 1: proto.RegisterResponse
 	(*LoginRequest)(nil),           // 2: proto.LoginRequest
 	(*LoginResponse)(nil),          // 3: proto.LoginResponse
-	(*PingRequest)(nil),            // 4: proto.PingRequest
-	(*PingResponse)(nil),           // 5: proto.PingResponse
-	(*DeviceInfo)(nil),             // 6: proto.DeviceInfo
-	(*AddDeviceRequest)(nil),       // 7: proto.AddDeviceRequest
-	(*AddDeviceResponse)(nil),      // 8: proto.AddDeviceResponse
-	(*RemoveDeviceRequest)(nil),    // 9: proto.RemoveDeviceRequest
-	(*RemoveDeviceResponse)(nil),   // 10: proto.RemoveDeviceResponse
-	(*UpdateDeviceRequest)(nil),    // 11: proto.UpdateDeviceRequest
-	(*UpdateDeviceResponse)(nil),   // 12: proto.UpdateDeviceResponse
-	(*GetDevicesRequest)(nil),      // 13: proto.GetDevicesRequest
-	(*GetDevicesResponse)(nil),     // 14: proto.GetDevicesResponse
-	(*PasswordItem)(nil),           // 15: proto.PasswordItem
-	(*AddPasswordRequest)(nil),     // 16: proto.AddPasswordRequest
-	(*AddPasswordResponse)(nil),    // 17: proto.AddPasswordResponse
-	(*RemovePasswordRequest)(nil),  // 18: proto.RemovePasswordRequest
-	(*RemovePasswordResponse)(nil), // 19: proto.RemovePasswordResponse
-	(*UpdatePasswordRequest)(nil),  // 20: proto.UpdatePasswordRequest
-	(*UpdatePasswordResponse)(nil), // 21: proto.UpdatePasswordResponse
-	(*GetPasswordsRequest)(nil),    // 22: proto.GetPasswordsRequest
-	(*GetPasswordsResponse)(nil),   // 23: proto.GetPasswordsResponse
-	(*NoteItem)(nil),               // 24: proto.NoteItem
-	(*AddNoteRequest)(nil),         // 25: proto.AddNoteRequest
-	(*AddNoteResponse)(nil),        // 26: proto.AddNoteResponse
-	(*RemoveNoteRequest)(nil),      // 27: proto.RemoveNoteRequest
-	(*RemoveNoteResponse)(nil),     // 28: proto.RemoveNoteResponse
-	(*UpdateNoteRequest)(nil),      // 29: proto.UpdateNoteRequest
-	(*UpdateNoteResponse)(nil),     // 30: proto.UpdateNoteResponse
-	(*GetNotesRequest)(nil),        // 31: proto.GetNotesRequest
-	(*GetNotesResponse)(nil),       // 32: proto.GetNotesResponse
-	(*CardItem)(nil),               // 33: proto.CardItem
-	(*AddCardRequest)(nil),         // 34: proto.AddCardRequest
-	(*AddCardResponse)(nil),        // 35: proto.AddCardResponse
-	(*RemoveCardRequest)(nil),      // 36: proto.RemoveCardRequest
-	(*RemoveCardResponse)(nil),     // 37: proto.RemoveCardResponse
-	(*UpdateCardRequest)(nil),      // 38: proto.UpdateCardRequest
-	(*UpdateCardResponse)(nil),     // 39: proto.UpdateCardResponse
-	(*GetCardsRequest)(nil),        // 40: proto.GetCardsRequest
-	(*GetCardsResponse)(nil),       // 41: proto.GetCardsResponse
-	(*FileInfo)(nil),               // 42: proto.FileInfo
-	(*AddFileRequest)(nil),         // 43: proto.AddFileRequest
-	(*AddFileResponse)(nil),        // 44: proto.AddFileResponse
-	(*RemoveFileRequest)(nil),      // 45: proto.RemoveFileRequest
-	(*RemoveFileResponse)(nil),     // 46: proto.RemoveFileResponse
-	(*UpdateFileRequest)(nil),      // 47: proto.UpdateFileRequest
-	(*UpdateFileResponse)(nil),     // 48: proto.UpdateFileResponse
-	(*GetFilesRequest)(nil),        // 49: proto.GetFilesRequest
-	(*GetFilesResponse)(nil),       // 50: proto.GetFilesResponse
+	(*DeviceInfo)(nil),             // 4: proto.DeviceInfo
+	(*AddDeviceRequest)(nil),       // 5: proto.AddDeviceRequest
+	(*AddDeviceResponse)(nil),      // 6: proto.AddDeviceResponse
+	(*RemoveDeviceRequest)(nil),    // 7: proto.RemoveDeviceRequest
+	(*RemoveDeviceResponse)(nil),   // 8: proto.RemoveDeviceResponse
+	(*UpdateDeviceRequest)(nil),    // 9: proto.UpdateDeviceRequest
+	(*UpdateDeviceResponse)(nil),   // 10: proto.UpdateDeviceResponse
+	(*GetDevicesRequest)(nil),      // 11: proto.GetDevicesRequest
+	(*GetDevicesResponse)(nil),     // 12: proto.GetDevicesResponse
+	(*PasswordItem)(nil),           // 13: proto.PasswordItem
+	(*AddPasswordRequest)(nil),     // 14: proto.AddPasswordRequest
+	(*AddPasswordResponse)(nil),    // 15: proto.AddPasswordResponse
+	(*RemovePasswordRequest)(nil),  // 16: proto.RemovePasswordRequest
+	(*RemovePasswordResponse)(nil), // 17: proto.RemovePasswordResponse
+	(*UpdatePasswordRequest)(nil),  // 18: proto.UpdatePasswordRequest
+	(*UpdatePasswordResponse)(nil), // 19: proto.UpdatePasswordResponse
+	(*GetPasswordsRequest)(nil),    // 20: proto.GetPasswordsRequest
+	(*GetPasswordsResponse)(nil),   // 21: proto.GetPasswordsResponse
+	(*NoteItem)(nil),               // 22: proto.NoteItem
+	(*AddNoteRequest)(nil),         // 23: proto.AddNoteRequest
+	(*AddNoteResponse)(nil),        // 24: proto.AddNoteResponse
+	(*RemoveNoteRequest)(nil),      // 25: proto.RemoveNoteRequest
+	(*RemoveNoteResponse)(nil),     // 26: proto.RemoveNoteResponse
+	(*UpdateNoteRequest)(nil),      // 27: proto.UpdateNoteRequest
+	(*UpdateNoteResponse)(nil),     // 28: proto.UpdateNoteResponse
+	(*GetNotesRequest)(nil),        // 29: proto.GetNotesRequest
+	(*GetNotesResponse)(nil),       // 30: proto.GetNotesResponse
+	(*CardItem)(nil),               // 31: proto.CardItem
+	(*AddCardRequest)(nil),         // 32: proto.AddCardRequest
+	(*AddCardResponse)(nil),        // 33: proto.AddCardResponse
+	(*RemoveCardRequest)(nil),      // 34: proto.RemoveCardRequest
+	(*RemoveCardResponse)(nil),     // 35: proto.RemoveCardResponse
+	(*UpdateCardRequest)(nil),      // 36: proto.UpdateCardRequest
+	(*UpdateCardResponse)(nil),     // 37: proto.UpdateCardResponse
+	(*GetCardsRequest)(nil),        // 38: proto.GetCardsRequest
+	(*GetCardsResponse)(nil),       // 39: proto.GetCardsResponse
+	(*FileInfo)(nil),               // 40: proto.FileInfo
+	(*AddFileRequest)(nil),         // 41: proto.AddFileRequest
+	(*AddFileResponse)(nil),        // 42: proto.AddFileResponse
+	(*RemoveFileRequest)(nil),      // 43: proto.RemoveFileRequest
+	(*RemoveFileResponse)(nil),     // 44: proto.RemoveFileResponse
+	(*UpdateFileRequest)(nil),      // 45: proto.UpdateFileRequest
+	(*UpdateFileResponse)(nil),     // 46: proto.UpdateFileResponse
+	(*GetFilesRequest)(nil),        // 47: proto.GetFilesRequest
+	(*GetFilesResponse)(nil),       // 48: proto.GetFilesResponse
 }
 var file_internal_proto_keeper_proto_depIdxs = []int32{
-	6,  // 0: proto.GetDevicesResponse.devices:type_name -> proto.DeviceInfo
-	15, // 1: proto.GetPasswordsResponse.passwords:type_name -> proto.PasswordItem
-	24, // 2: proto.GetNotesResponse.notes:type_name -> proto.NoteItem
-	33, // 3: proto.GetCardsResponse.cards:type_name -> proto.CardItem
-	42, // 4: proto.GetFilesResponse.files:type_name -> proto.FileInfo
+	4,  // 0: proto.GetDevicesResponse.devices:type_name -> proto.DeviceInfo
+	13, // 1: proto.GetPasswordsResponse.passwords:type_name -> proto.PasswordItem
+	22, // 2: proto.GetNotesResponse.notes:type_name -> proto.NoteItem
+	31, // 3: proto.GetCardsResponse.cards:type_name -> proto.CardItem
+	40, // 4: proto.GetFilesResponse.files:type_name -> proto.FileInfo
 	0,  // 5: proto.AuthService.Register:input_type -> proto.RegisterRequest
 	2,  // 6: proto.AuthService.Login:input_type -> proto.LoginRequest
-	4,  // 7: proto.AuthService.Ping:input_type -> proto.PingRequest
-	7,  // 8: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
-	9,  // 9: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
-	11, // 10: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
-	13, // 11: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
-	16, // 12: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
-	18, // 13: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
-	20, // 14: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
-	22, // 15: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
-	25, // 16: proto.Note.AddNote:input_type -> proto.AddNoteRequest
-	27, // 17: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
-	29, // 18: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
-	31, // 19: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
-	34, // 20: proto.Card.AddCard:input_type -> proto.AddCardRequest
-	36, // 21: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
-	38, // 22: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
-	40, // 23: proto.Card.GetCards:input_type -> proto.GetCardsRequest
-	43, // 24: proto.File.AddFile:input_type -> proto.AddFileRequest
-	45, // 25: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
-	47, // 26: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
-	49, // 27: proto.File.GetFiles:input_type -> proto.GetFilesRequest
-	1,  // 28: proto.AuthService.Register:output_type -> proto.RegisterResponse
-	3,  // 29: proto.AuthService.Login:output_type -> proto.LoginResponse
-	5,  // 30: proto.AuthService.Ping:output_type -> proto.PingResponse
-	8,  // 31: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
-	10, // 32: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
-	12, // 33: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
-	14, // 34: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
-	17, // 35: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
-	19, // 36: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
-	21, // 37: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
-	23, // 38: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
-	26, // 39: proto.Note.AddNote:output_type -> proto.AddNoteResponse
-	28, // 40: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
-	30, // 41: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
-	32, // 42: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
-	35, // 43: proto.Card.AddCard:output_type -> proto.AddCardResponse
-	37, // 44: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
-	39, // 45: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
-	41, // 46: proto.Card.GetCards:output_type -> proto.GetCardsResponse
-	44, // 47: proto.File.AddFile:output_type -> proto.AddFileResponse
-	46, // 48: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
-	48, // 49: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
-	50, // 50: proto.File.GetFiles:output_type -> proto.GetFilesResponse
-	28, // [28:51] is the sub-list for method output_type
-	5,  // [5:28] is the sub-list for method input_type
+	5,  // 7: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
+	7,  // 8: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
+	9,  // 9: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
+	11, // 10: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
+	14, // 11: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
+	16, // 12: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
+	18, // 13: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
+	20, // 14: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
+	23, // 15: proto.Note.AddNote:input_type -> proto.AddNoteRequest
+	25, // 16: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
+	27, // 17: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
+	29, // 18: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
+	32, // 19: proto.Card.AddCard:input_type -> proto.AddCardRequest
+	34, // 20: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
+	36, // 21: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
+	38, // 22: proto.Card.GetCards:input_type -> proto.GetCardsRequest
+	41, // 23: proto.File.AddFile:input_type -> proto.AddFileRequest
+	43, // 24: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
+	45, // 25: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
+	47, // 26: proto.File.GetFiles:input_type -> proto.GetFilesRequest
+	1,  // 27: proto.AuthService.Register:output_type -> proto.RegisterResponse
+	3,  // 28: proto.AuthService.Login:output_type -> proto.LoginResponse
+	6,  // 29: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
+	8,  // 30: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
+	10, // 31: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
+	12, // 32: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
+	15, // 33: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
+	17, // 34: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
+	19, // 35: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
+	21, // 36: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
+	24, // 37: proto.Note.AddNote:output_type -> proto.AddNoteResponse
+	26, // 38: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
+	28, // 39: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
+	30, // 40: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
+	33, // 41: proto.Card.AddCard:output_type -> proto.AddCardResponse
+	35, // 42: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
+	37, // 43: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
+	39, // 44: proto.Card.GetCards:output_type -> proto.GetCardsResponse
+	42, // 45: proto.File.AddFile:output_type -> proto.AddFileResponse
+	44, // 46: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
+	46, // 47: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
+	48, // 48: proto.File.GetFiles:output_type -> proto.GetFilesResponse
+	27, // [27:49] is the sub-list for method output_type
+	5,  // [5:27] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -5028,7 +5577,7 @@ func file_internal_proto_keeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_keeper_proto_rawDesc), len(file_internal_proto_keeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   51,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   6,
 		},

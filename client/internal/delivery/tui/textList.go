@@ -5,6 +5,7 @@ import (
 	"gophKeeper/client/internal/domain/model"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -118,13 +119,18 @@ func (m *TextEditModel) Load() {
 
 	items := make([]list.Item, len(textsData))
 	for i, data := range textsData {
-		items[i] = textItem{
-			model.TextData{
-				ID:    data["id"],
-				Title: data["title"],
-				Text:  data["text"],
-			},
+		textData := model.TextData{
+			ID:    data["id"],
+			Title: data["title"],
+			Text:  data["text"],
 		}
+		if changeTimeStr, ok := data["changeTime"]; ok {
+			textData.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
+		}
+		if syncTimeStr, ok := data["syncTime"]; ok {
+			textData.SyncTime, _ = time.Parse(time.RFC3339Nano, syncTimeStr)
+		}
+		items[i] = textItem{textData}
 	}
 	m.list.SetItems(items)
 	m.syncEditor()

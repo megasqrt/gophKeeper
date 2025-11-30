@@ -2,6 +2,7 @@ package tui
 
 import (
 	"gophKeeper/client/internal/domain/model"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -86,6 +87,13 @@ func (m *CardListModel) loadCards() ([]table.Row, []model.Card) {
 			Expiry: data["expiry"],
 			CVV:    data["cvv"],
 		}
+		if changeTimeStr, ok := data["changeTime"]; ok {
+			card.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
+		}
+		if syncTimeStr, ok := data["syncTime"]; ok {
+			card.SyncTime, _ = time.Parse(time.RFC3339Nano, syncTimeStr)
+		}
+
 		// Используем Title() и Description() из модели карты для консистентности
 		cards[i] = card
 		rows[i] = table.Row{card.Title(), card.Description(), card.Expiry}

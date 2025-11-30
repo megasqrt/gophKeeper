@@ -49,7 +49,8 @@ func Ping(ctx context.Context) error {
 		isOnline = false
 		return grpc.ErrClientNotInitialized
 	}
-	err := client.Ping(ctx)
+	//TODO 
+	_,err := client.CheckHealth()
 	isOnline = err == nil
 	return err
 }

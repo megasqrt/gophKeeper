@@ -23,6 +23,7 @@ type Client struct {
 	// Passwords pb.PasswordServiceClient
 	// ...
 	conn   *grpc.ClientConn
+	Config *config.Config
 	Status bool
 }
 
@@ -41,7 +42,7 @@ func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 
 	client := &Client{
 		Auth:   pb.NewAuthServiceClient(conn),
-		//	Cards: pb.NewCardServiceClient(conn),
+		Config: cfg,
 		Status: true,
 		conn:   conn,
 	}
@@ -76,17 +77,11 @@ func (c *Client) Register(ctx context.Context, login, password string) (*pb.Regi
 	return c.Auth.Register(ctx, req)
 }
 
-// Ping sends a Ping RPC to the server to check for connectivity.
-func (c *Client) Ping(ctx context.Context) error {
-	_, err := c.Auth.Ping(ctx, &pb.PingRequest{})
-	return err
-}
-
-func CheckHealth(addr string) (bool, error) {
+func (c *Client) CheckHealth() (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	conn, err := grpc.NewClient(addr,
+	conn, err := grpc.NewClient(c.Config.ServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

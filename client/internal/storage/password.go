@@ -1,15 +1,18 @@
 package storage
 
+import "time"
 
 // SavePass сохраняет данные пароля в хранилище.
 func (s *BboltStorage) SavePass(passData map[string]string) error {
 	s.log.Info().Msg("Saving new password")
+	passData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(passwordsBucket, StringMapToInterfaceMap(passData), true)
 }
 
 // UpdatePass обновляет данные существующего пароля.
 func (s *BboltStorage) UpdatePass(passData map[string]string) error {
 	s.log.Info().Str("pass_id", passData["id"]).Msg("Updating password")
+	passData["changeTime"] = time.Now().Format(time.RFC3339Nano)
 	return s.saveItem(passwordsBucket, StringMapToInterfaceMap(passData), false)
 }
 
