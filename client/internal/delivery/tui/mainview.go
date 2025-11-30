@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/transport"
@@ -45,6 +44,13 @@ func (d mainMenuDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 	str := string(i)
 
 	fn := lipgloss.NewStyle().PaddingLeft(4).Render
+
+	// Если пункт меню для регистрации и токен невалиден, окрашиваем в красный
+	// if strings.Contains(str, "Register") && !d.tokenIsValid {
+	// 	fn = lipgloss.NewStyle().PaddingLeft(4).Foreground(lipgloss.Color("#FF5B5B")).Render
+	// }
+
+	// Стиль для выбранного элемента (переопределяет предыдущий стиль)
 	if index == m.Index() {
 		fn = func(s ...string) string { // Active item
 			return lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170")).Render("> " + strings.Join(s, " "))
@@ -62,10 +68,12 @@ type MainViewModel struct {
 	textModel     tea.Model
 	fileModel     tea.Model
 	settingsModel tea.Model
+	registerModel tea.Model
 	// Другие модели для паролей, заметок и т.д.
 
 	login        string
 	serverOnline bool
+	tokenIsValid bool
 	cfg          *config.Config
 	program      *tea.Program
 	storage      LocalStorage
@@ -73,7 +81,7 @@ type MainViewModel struct {
 	height       int
 }
 
-type serverStatusMsg struct{ online bool }
+type serverStatusMsg struct{ tokenValid bool }
 type checkNowMsg struct{}
 
 func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
@@ -83,6 +91,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		item("📝 Text Notes"),
 		item("📦 Binary Data"),
 		item("⚙️ Settings"),
+		item("🚀 Register to server"),
 	}
 
 	l := list.New(items, mainMenuDelegate{}, DefaulListtWidth, DefaultlistHeight)
@@ -96,6 +105,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		state:         mainMenu,
 		menu:          l,
 		serverOnline:  transport.IsOnline(), // Initialize with status from transport layer
+		tokenIsValid:  false,                // Assume token is invalid at start, will be checked
 		cfg:           cfg,
 		storage:       storage,
 		cardModel:     NewCardListModel(storage),
@@ -103,6 +113,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		textModel:     NewTextEditModel(storage),
 		fileModel:     NewFileUploadModel(storage),
 		settingsModel: NewSettingsModel(),
+		registerModel: InitialModel(storage, cfg),
 	}
 }
 
@@ -116,7 +127,7 @@ func (m *MainViewModel) SetProgram(p *tea.Program) {
 
 func (m *MainViewModel) Init() tea.Cmd {
 	// Periodically check the server status every 5 minutes.
-	return tea.Batch(m.cardModel.Init(), checkServer(), tea.Every(5*time.Minute, func(t time.Time) tea.Msg {
+	return tea.Batch(m.cardModel.Init(), checkServer(m.storage), tea.Every(5*time.Minute, func(t time.Time) tea.Msg {
 		return checkNowMsg{}
 	}))
 }
@@ -131,11 +142,11 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case serverStatusMsg:
-		m.serverOnline = msg.online
+		m.tokenIsValid = msg.tokenValid
 		return m, nil
 
 	case checkNowMsg:
-		return m, checkServer()
+		return m, checkServer(m.storage)
 
 	// Сообщение от дочерней модели о возврате в меню
 	case backToMenuMsg:
@@ -184,6 +195,9 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case "⚙️ Settings":
 					m.state = settingsView
 					return m, nil
+				case "🚀 Register to server", "☁️ Sync with server":
+					m.state = registerView
+					return m, m.registerModel.Init()
 				}
 			}
 		}
@@ -201,6 +215,8 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.fileModel, cmd = m.fileModel.Update(msg)
 	case settingsView:
 		m.settingsModel, cmd = m.settingsModel.Update(msg)
+	case registerView:
+		m.registerModel, cmd = m.registerModel.Update(msg)
 	default: // mainMenu
 		m.menu, cmd = m.menu.Update(msg)
 	}
@@ -220,22 +236,42 @@ func (m *MainViewModel) View() string {
 		return m.fileModel.View()
 	case settingsView:
 		return m.settingsModel.View()
+	case registerView:
+		return m.registerModel.View()
 	// Другие case для других окон
 	default: // mainMenu
 		var status string
-		if m.serverOnline {
-			status = lipgloss.NewStyle().Foreground(lipgloss.Color("10")).Render("Status: Online")
+
+		// Динамически меняем текст пункта меню
+		items := m.menu.Items()
+		if m.tokenIsValid {
+			items[5] = item("☁️ Sync with server")
 		} else {
-			status = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Status: Offline")
+			items[5] = item("🚀 Register to server")
+		}
+		m.menu.SetItems(items)
+		if m.tokenIsValid {
+			// Используем AdaptiveColor для надежного отображения цвета
+			green := lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+			statusText := "Authorization"
+			status = lipgloss.NewStyle().Foreground(green).Render(statusText)
+		} else {
+			// Используем AdaptiveColor для надежного отображения цвета
+			red := lipgloss.AdaptiveColor{Light: "#FF5B5B", Dark: "#FF6B6B"}
+			statusText := "Register to server"
+			status = lipgloss.NewStyle().Foreground(red).Render(statusText)
 		}
 		return docStyle.Render(m.menu.View() + "\n" + status)
 	}
 }
 
 // checkServer returns a command that pings the server and returns a serverStatusMsg.
-func checkServer() tea.Cmd {
+func checkServer(storage LocalStorage) tea.Cmd {
 	return func() tea.Msg {
-		err := transport.Ping(context.Background())
-		return serverStatusMsg{online: err == nil}
+		_, token, err := storage.GetUserCredentials()
+		if err != nil {
+			return serverStatusMsg{tokenValid: false}
+		}
+		return serverStatusMsg{tokenValid: transport.Ping(token)}
 	}
 }

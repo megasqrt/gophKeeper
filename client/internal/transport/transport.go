@@ -4,6 +4,8 @@ import (
 	"context"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/transport/grpc"
+	
+
 	pb "gophKeeper/internal/proto"
 )
 
@@ -44,15 +46,15 @@ func Login(ctx context.Context, login, password string) (*pb.LoginResponse, erro
 }
 
 // Ping sends a Ping RPC to the server to check for connectivity and updates the online status.
-func Ping(ctx context.Context) error {
+func Ping(token string) bool {
 	if client == nil {
 		isOnline = false
-		return grpc.ErrClientNotInitialized
+		return false
 	}
-	//TODO 
-	_,err := client.CheckHealth()
-	isOnline = err == nil
-	return err
+
+	isHealthy, _ := client.CheckHealth(token)
+	isOnline = isHealthy
+	return isOnline
 }
 
 // IsOnline returns the last known connection status.
@@ -62,10 +64,9 @@ func IsOnline() bool {
 
 // Register provides a package-level function for the TUI to call.
 // It proxies the call to the underlying gRPC client's method.
-func Register(ctx context.Context, login, password string) (*pb.RegisterResponse, error) {
+func Register(ctx context.Context, login, password, email string) (*pb.RegisterResponse, error) {
 	if client == nil {
 		return nil, grpc.ErrClientNotInitialized
 	}
-	return client.Register(ctx, login, password)
+	return client.Register(ctx, login, password, email)
 }
-

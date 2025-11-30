@@ -27,6 +27,7 @@ type regmodel struct {
 	storage       LocalStorage
 	loginInput    textinput.Model
 	passwordInput textinput.Model
+	emailInput    textinput.Model
 	focusIndex    int
 	err           error
 	spinner       spinner.Model
@@ -57,6 +58,11 @@ func InitialModel(storage LocalStorage, cfg *config.Config) regmodel {
 	m.passwordInput.CharLimit = 32
 	m.passwordInput.Width = 20
 
+	m.emailInput = textinput.New()
+	m.emailInput.Placeholder = "Email"
+	m.emailInput.CharLimit = 64
+	m.emailInput.Width = 20
+
 	m.spinner = spinner.New()
 	m.spinner.Spinner = spinner.Dot
 	m.spinner.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
@@ -81,9 +87,9 @@ func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
 
-			if s == "enter" && m.focusIndex == 2 {
+			if s == "enter" && m.focusIndex == 3 {
 				m.loading = true
-				return m, tea.Batch(m.spinner.Tick, performRegistration(m.cfg, m.loginInput.Value(), m.passwordInput.Value(), m.storage))
+				return m, tea.Batch(m.spinner.Tick, performRegistration(m.cfg, m.loginInput.Value(), m.passwordInput.Value(), m.emailInput.Value(), m.storage))
 			}
 
 			if s == "up" || s == "shift+tab" {
@@ -92,10 +98,10 @@ func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusIndex++
 			}
 
-			if m.focusIndex > 2 {
+			if m.focusIndex > 3 {
 				m.focusIndex = 0
 			} else if m.focusIndex < 0 {
-				m.focusIndex = 2
+				m.focusIndex = 3
 			}
 
 			cmds := make([]tea.Cmd, 2)
@@ -104,10 +110,16 @@ func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.passwordInput.Blur()
 			} else if m.focusIndex == 1 {
 				m.loginInput.Blur()
+				m.emailInput.Blur()
 				cmds[0] = m.passwordInput.Focus()
+			} else if m.focusIndex == 2 {
+				m.loginInput.Blur()
+				m.passwordInput.Blur()
+				cmds[0] = m.emailInput.Focus()
 			} else {
 				m.loginInput.Blur()
 				m.passwordInput.Blur()
+				m.emailInput.Blur()
 			}
 			return m, tea.Batch(cmds...)
 		}
@@ -159,6 +171,7 @@ func (m *regmodel) updateInputs(msg tea.Msg) tea.Cmd {
 	cmds := make([]tea.Cmd, 2)
 	m.loginInput, cmds[0] = m.loginInput.Update(msg)
 	m.passwordInput, cmds[1] = m.passwordInput.Update(msg)
+	m.emailInput, cmds[1] = m.emailInput.Update(msg) // reuse index, batch will handle it
 	return tea.Batch(cmds...)
 }
 
@@ -174,10 +187,12 @@ func (m regmodel) View() string {
 	b.WriteString(m.loginInput.View())
 	b.WriteString("\n")
 	b.WriteString(m.passwordInput.View())
+	b.WriteString("\n")
+	b.WriteString(m.emailInput.View())
 	b.WriteString("\n\n")
 
 	button := "[ Register ]"
-	if m.focusIndex == 2 {
+	if m.focusIndex == 3 {
 		button = "> [ Register ]"
 	}
 	b.WriteString(button)
@@ -203,13 +218,13 @@ func (m regmodel) View() string {
 	return b.String()
 }
 
-func performRegistration(cfg *config.Config, login, password string, storage LocalStorage) tea.Cmd {
+func performRegistration(cfg *config.Config, login, password, email string, storage LocalStorage) tea.Cmd {
 	return func() tea.Msg {
 		if login == "" || password == "" {
 			return errMsg(fmt.Errorf("login and password cannot be empty"))
 		}
 
-		res, err := transport.Register(context.Background(), login, password)
+		res, err := transport.Register(context.Background(), login, password, email)
 		if err != nil {
 			return errMsg(err)
 		}

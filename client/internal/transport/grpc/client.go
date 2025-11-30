@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -69,17 +70,23 @@ func (c *Client) Login(ctx context.Context, login, password string) (*pb.LoginRe
 }
 
 // Register вызывает RPC-метод Register на сервере.
-func (c *Client) Register(ctx context.Context, login, password string) (*pb.RegisterResponse, error) {
+func (c *Client) Register(ctx context.Context, login, password,email string) (*pb.RegisterResponse, error) {
 	req := pb.RegisterRequest_builder{
 		Login:    &login,
 		Password: &password,
+		Email:    &email,
 	}.Build()
 	return c.Auth.Register(ctx, req)
 }
 
-func (c *Client) CheckHealth() (bool, error) {
+func (c *Client) CheckHealth(token string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	// Добавляем токен в метаданные для аутентификации
+	if token != "" {
+		ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs("authorization", "Bearer "+token))
+	}
 
 	conn, err := grpc.NewClient(c.Config.ServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
