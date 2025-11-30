@@ -10,6 +10,7 @@ type LocalStorage interface {
 	SaveUserCredentials(login, token string) error
 	GetUserCredentials() (user, token string, err error)
 	SaveCard(cardData map[string]string) error
+	UpdateCard(cardData map[string]string) error
 	GetCards() ([]map[string]string, error)
 	SaveLastSyncTime(t time.Time) error
 	GetLastSyncTime() (time.Time, error)

@@ -27,6 +27,7 @@ type CardListModel struct {
 	table   table.Model
 	form    CardFormModel
 	storage LocalStorage
+	cards   []model.Card // Добавляем поле для хранения полных данных карт
 }
 
 func NewCardListModel(storage LocalStorage) *CardListModel {
@@ -58,7 +59,7 @@ func NewCardListModel(storage LocalStorage) *CardListModel {
 	m := &CardListModel{
 		state:   tableView,
 		storage: storage,
-		form:    NewCardForm(storage),
+		form:    NewCardForm(storage, nil),
 		table:   tbl,
 	}
 
@@ -67,19 +68,20 @@ func NewCardListModel(storage LocalStorage) *CardListModel {
 
 // Load загружает карты из хранилища и обновляет строки таблицы.
 func (m *CardListModel) Load() {
-	//m.log.Info().Msg("Loading cards into table view")
-	rows := m.loadCards()
+	rows, cards := m.loadCards()
+	m.cards = cards
 	m.table.SetRows(rows)
 }
 
-func (m *CardListModel) loadCards() []table.Row {
+func (m *CardListModel) loadCards() ([]table.Row, []model.Card) {
 	cardsData, err := m.storage.GetCards()
 	if err != nil {
 	//	m.log.Error().Err(err).Msg("get cards error")
-		return []table.Row{}
+		return []table.Row{}, []model.Card{}
 	}
 
 	rows := make([]table.Row, len(cardsData))
+	cards := make([]model.Card, len(cardsData))
 	for i, data := range cardsData {
 		card := model.Card{
 			ID:     data["id"],
@@ -89,9 +91,10 @@ func (m *CardListModel) loadCards() []table.Row {
 			CVV:    data["cvv"],
 		}
 		// Используем Title() и Description() из модели карты для консистентности
+		cards[i] = card
 		rows[i] = table.Row{card.Title(), card.Description(), card.Expiry}
 	}
-	return rows
+	return rows, cards
 }
 
 func (m *CardListModel) Init() tea.Cmd {
@@ -125,7 +128,15 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
-			m.form = NewCardForm(m.storage) // Создаем новую чистую форму
+			m.form = NewCardForm(m.storage,nil) // Создаем новую чистую форму
+			return m, m.form.Init()
+		case "e", "enter":
+			if len(m.cards) == 0 {
+				return m, nil
+			}
+			selectedCard := m.cards[m.table.Cursor()]
+			m.state = formView
+			m.form = NewCardForm(m.storage, &selectedCard) // Передаем выбранную карту в форму
 			return m, m.form.Init()
 		}
 	}

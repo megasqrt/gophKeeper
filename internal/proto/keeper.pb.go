@@ -389,7 +389,7 @@ func (b0 LoginRequest_builder) Build() *LoginRequest {
 	return m0
 }
 
-// LoginResponse содержит токен доступа после успешной аутентификации.
+// LoginResponse содержит токен доступа.
 type LoginResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Token       *string                `protobuf:"bytes,1,opt,name=token"`
@@ -468,6 +468,94 @@ func (b0 LoginResponse_builder) Build() *LoginResponse {
 	return m0
 }
 
+// PingRequest is an empty message for the Ping RPC.
+type PingRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PingRequest) Reset() {
+	*x = PingRequest{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PingRequest) ProtoMessage() {}
+
+func (x *PingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type PingRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 PingRequest_builder) Build() *PingRequest {
+	m0 := &PingRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+// PingResponse is an empty message for the Ping RPC.
+type PingResponse struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PingResponse) Reset() {
+	*x = PingResponse{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PingResponse) ProtoMessage() {}
+
+func (x *PingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type PingResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 PingResponse_builder) Build() *PingResponse {
+	m0 := &PingResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
 type DeviceInfo struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
@@ -480,7 +568,7 @@ type DeviceInfo struct {
 
 func (x *DeviceInfo) Reset() {
 	*x = DeviceInfo{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[4]
+	mi := &file_internal_proto_keeper_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -492,7 +580,7 @@ func (x *DeviceInfo) String() string {
 func (*DeviceInfo) ProtoMessage() {}
 
 func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[4]
+	mi := &file_internal_proto_keeper_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +678,7 @@ type AddDeviceRequest struct {
 
 func (x *AddDeviceRequest) Reset() {
 	*x = AddDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[5]
+	mi := &file_internal_proto_keeper_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -602,7 +690,7 @@ func (x *AddDeviceRequest) String() string {
 func (*AddDeviceRequest) ProtoMessage() {}
 
 func (x *AddDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[5]
+	mi := &file_internal_proto_keeper_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -668,7 +756,7 @@ type AddDeviceResponse struct {
 
 func (x *AddDeviceResponse) Reset() {
 	*x = AddDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[6]
+	mi := &file_internal_proto_keeper_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -680,7 +768,7 @@ func (x *AddDeviceResponse) String() string {
 func (*AddDeviceResponse) ProtoMessage() {}
 
 func (x *AddDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[6]
+	mi := &file_internal_proto_keeper_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -746,7 +834,7 @@ type RemoveDeviceRequest struct {
 
 func (x *RemoveDeviceRequest) Reset() {
 	*x = RemoveDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[7]
+	mi := &file_internal_proto_keeper_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -758,7 +846,7 @@ func (x *RemoveDeviceRequest) String() string {
 func (*RemoveDeviceRequest) ProtoMessage() {}
 
 func (x *RemoveDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[7]
+	mi := &file_internal_proto_keeper_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -821,7 +909,7 @@ type RemoveDeviceResponse struct {
 
 func (x *RemoveDeviceResponse) Reset() {
 	*x = RemoveDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[8]
+	mi := &file_internal_proto_keeper_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -833,7 +921,7 @@ func (x *RemoveDeviceResponse) String() string {
 func (*RemoveDeviceResponse) ProtoMessage() {}
 
 func (x *RemoveDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[8]
+	mi := &file_internal_proto_keeper_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -868,7 +956,7 @@ type UpdateDeviceRequest struct {
 
 func (x *UpdateDeviceRequest) Reset() {
 	*x = UpdateDeviceRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[9]
+	mi := &file_internal_proto_keeper_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -880,7 +968,7 @@ func (x *UpdateDeviceRequest) String() string {
 func (*UpdateDeviceRequest) ProtoMessage() {}
 
 func (x *UpdateDeviceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[9]
+	mi := &file_internal_proto_keeper_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +1063,7 @@ type UpdateDeviceResponse struct {
 
 func (x *UpdateDeviceResponse) Reset() {
 	*x = UpdateDeviceResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[10]
+	mi := &file_internal_proto_keeper_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -987,7 +1075,7 @@ func (x *UpdateDeviceResponse) String() string {
 func (*UpdateDeviceResponse) ProtoMessage() {}
 
 func (x *UpdateDeviceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[10]
+	mi := &file_internal_proto_keeper_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1106,7 @@ type GetDevicesRequest struct {
 
 func (x *GetDevicesRequest) Reset() {
 	*x = GetDevicesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[11]
+	mi := &file_internal_proto_keeper_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1030,7 +1118,7 @@ func (x *GetDevicesRequest) String() string {
 func (*GetDevicesRequest) ProtoMessage() {}
 
 func (x *GetDevicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[11]
+	mi := &file_internal_proto_keeper_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1062,7 +1150,7 @@ type GetDevicesResponse struct {
 
 func (x *GetDevicesResponse) Reset() {
 	*x = GetDevicesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[12]
+	mi := &file_internal_proto_keeper_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1074,7 +1162,7 @@ func (x *GetDevicesResponse) String() string {
 func (*GetDevicesResponse) ProtoMessage() {}
 
 func (x *GetDevicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[12]
+	mi := &file_internal_proto_keeper_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +1215,7 @@ type PasswordItem struct {
 
 func (x *PasswordItem) Reset() {
 	*x = PasswordItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[13]
+	mi := &file_internal_proto_keeper_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1139,7 +1227,7 @@ func (x *PasswordItem) String() string {
 func (*PasswordItem) ProtoMessage() {}
 
 func (x *PasswordItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[13]
+	mi := &file_internal_proto_keeper_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1336,7 +1424,7 @@ type AddPasswordRequest struct {
 
 func (x *AddPasswordRequest) Reset() {
 	*x = AddPasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[14]
+	mi := &file_internal_proto_keeper_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1348,7 +1436,7 @@ func (x *AddPasswordRequest) String() string {
 func (*AddPasswordRequest) ProtoMessage() {}
 
 func (x *AddPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[14]
+	mi := &file_internal_proto_keeper_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1510,7 +1598,7 @@ type AddPasswordResponse struct {
 
 func (x *AddPasswordResponse) Reset() {
 	*x = AddPasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[15]
+	mi := &file_internal_proto_keeper_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1522,7 +1610,7 @@ func (x *AddPasswordResponse) String() string {
 func (*AddPasswordResponse) ProtoMessage() {}
 
 func (x *AddPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[15]
+	mi := &file_internal_proto_keeper_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1588,7 +1676,7 @@ type RemovePasswordRequest struct {
 
 func (x *RemovePasswordRequest) Reset() {
 	*x = RemovePasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[16]
+	mi := &file_internal_proto_keeper_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1600,7 +1688,7 @@ func (x *RemovePasswordRequest) String() string {
 func (*RemovePasswordRequest) ProtoMessage() {}
 
 func (x *RemovePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[16]
+	mi := &file_internal_proto_keeper_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1663,7 +1751,7 @@ type RemovePasswordResponse struct {
 
 func (x *RemovePasswordResponse) Reset() {
 	*x = RemovePasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[17]
+	mi := &file_internal_proto_keeper_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1675,7 +1763,7 @@ func (x *RemovePasswordResponse) String() string {
 func (*RemovePasswordResponse) ProtoMessage() {}
 
 func (x *RemovePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[17]
+	mi := &file_internal_proto_keeper_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1713,7 +1801,7 @@ type UpdatePasswordRequest struct {
 
 func (x *UpdatePasswordRequest) Reset() {
 	*x = UpdatePasswordRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[18]
+	mi := &file_internal_proto_keeper_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1725,7 +1813,7 @@ func (x *UpdatePasswordRequest) String() string {
 func (*UpdatePasswordRequest) ProtoMessage() {}
 
 func (x *UpdatePasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[18]
+	mi := &file_internal_proto_keeper_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1916,7 +2004,7 @@ type UpdatePasswordResponse struct {
 
 func (x *UpdatePasswordResponse) Reset() {
 	*x = UpdatePasswordResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[19]
+	mi := &file_internal_proto_keeper_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1928,7 +2016,7 @@ func (x *UpdatePasswordResponse) String() string {
 func (*UpdatePasswordResponse) ProtoMessage() {}
 
 func (x *UpdatePasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[19]
+	mi := &file_internal_proto_keeper_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1959,7 +2047,7 @@ type GetPasswordsRequest struct {
 
 func (x *GetPasswordsRequest) Reset() {
 	*x = GetPasswordsRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[20]
+	mi := &file_internal_proto_keeper_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1971,7 +2059,7 @@ func (x *GetPasswordsRequest) String() string {
 func (*GetPasswordsRequest) ProtoMessage() {}
 
 func (x *GetPasswordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[20]
+	mi := &file_internal_proto_keeper_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2003,7 +2091,7 @@ type GetPasswordsResponse struct {
 
 func (x *GetPasswordsResponse) Reset() {
 	*x = GetPasswordsResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[21]
+	mi := &file_internal_proto_keeper_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2015,7 +2103,7 @@ func (x *GetPasswordsResponse) String() string {
 func (*GetPasswordsResponse) ProtoMessage() {}
 
 func (x *GetPasswordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[21]
+	mi := &file_internal_proto_keeper_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2066,7 +2154,7 @@ type NoteItem struct {
 
 func (x *NoteItem) Reset() {
 	*x = NoteItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[22]
+	mi := &file_internal_proto_keeper_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2078,7 +2166,7 @@ func (x *NoteItem) String() string {
 func (*NoteItem) ProtoMessage() {}
 
 func (x *NoteItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[22]
+	mi := &file_internal_proto_keeper_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2209,7 +2297,7 @@ type AddNoteRequest struct {
 
 func (x *AddNoteRequest) Reset() {
 	*x = AddNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[23]
+	mi := &file_internal_proto_keeper_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2221,7 +2309,7 @@ func (x *AddNoteRequest) String() string {
 func (*AddNoteRequest) ProtoMessage() {}
 
 func (x *AddNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[23]
+	mi := &file_internal_proto_keeper_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2319,7 +2407,7 @@ type AddNoteResponse struct {
 
 func (x *AddNoteResponse) Reset() {
 	*x = AddNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[24]
+	mi := &file_internal_proto_keeper_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2331,7 +2419,7 @@ func (x *AddNoteResponse) String() string {
 func (*AddNoteResponse) ProtoMessage() {}
 
 func (x *AddNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[24]
+	mi := &file_internal_proto_keeper_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2397,7 +2485,7 @@ type RemoveNoteRequest struct {
 
 func (x *RemoveNoteRequest) Reset() {
 	*x = RemoveNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[25]
+	mi := &file_internal_proto_keeper_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2409,7 +2497,7 @@ func (x *RemoveNoteRequest) String() string {
 func (*RemoveNoteRequest) ProtoMessage() {}
 
 func (x *RemoveNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[25]
+	mi := &file_internal_proto_keeper_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2472,7 +2560,7 @@ type RemoveNoteResponse struct {
 
 func (x *RemoveNoteResponse) Reset() {
 	*x = RemoveNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[26]
+	mi := &file_internal_proto_keeper_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2484,7 +2572,7 @@ func (x *RemoveNoteResponse) String() string {
 func (*RemoveNoteResponse) ProtoMessage() {}
 
 func (x *RemoveNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[26]
+	mi := &file_internal_proto_keeper_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2520,7 +2608,7 @@ type UpdateNoteRequest struct {
 
 func (x *UpdateNoteRequest) Reset() {
 	*x = UpdateNoteRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[27]
+	mi := &file_internal_proto_keeper_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2532,7 +2620,7 @@ func (x *UpdateNoteRequest) String() string {
 func (*UpdateNoteRequest) ProtoMessage() {}
 
 func (x *UpdateNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[27]
+	mi := &file_internal_proto_keeper_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2659,7 +2747,7 @@ type UpdateNoteResponse struct {
 
 func (x *UpdateNoteResponse) Reset() {
 	*x = UpdateNoteResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[28]
+	mi := &file_internal_proto_keeper_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2671,7 +2759,7 @@ func (x *UpdateNoteResponse) String() string {
 func (*UpdateNoteResponse) ProtoMessage() {}
 
 func (x *UpdateNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[28]
+	mi := &file_internal_proto_keeper_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2702,7 +2790,7 @@ type GetNotesRequest struct {
 
 func (x *GetNotesRequest) Reset() {
 	*x = GetNotesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[29]
+	mi := &file_internal_proto_keeper_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2714,7 +2802,7 @@ func (x *GetNotesRequest) String() string {
 func (*GetNotesRequest) ProtoMessage() {}
 
 func (x *GetNotesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[29]
+	mi := &file_internal_proto_keeper_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2746,7 +2834,7 @@ type GetNotesResponse struct {
 
 func (x *GetNotesResponse) Reset() {
 	*x = GetNotesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[30]
+	mi := &file_internal_proto_keeper_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2758,7 +2846,7 @@ func (x *GetNotesResponse) String() string {
 func (*GetNotesResponse) ProtoMessage() {}
 
 func (x *GetNotesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[30]
+	mi := &file_internal_proto_keeper_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2812,7 +2900,7 @@ type CardItem struct {
 
 func (x *CardItem) Reset() {
 	*x = CardItem{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[31]
+	mi := &file_internal_proto_keeper_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2824,7 +2912,7 @@ func (x *CardItem) String() string {
 func (*CardItem) ProtoMessage() {}
 
 func (x *CardItem) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[31]
+	mi := &file_internal_proto_keeper_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3054,7 +3142,7 @@ type AddCardRequest struct {
 
 func (x *AddCardRequest) Reset() {
 	*x = AddCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[32]
+	mi := &file_internal_proto_keeper_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3066,7 +3154,7 @@ func (x *AddCardRequest) String() string {
 func (*AddCardRequest) ProtoMessage() {}
 
 func (x *AddCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[32]
+	mi := &file_internal_proto_keeper_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3260,7 +3348,7 @@ type AddCardResponse struct {
 
 func (x *AddCardResponse) Reset() {
 	*x = AddCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[33]
+	mi := &file_internal_proto_keeper_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3272,7 +3360,7 @@ func (x *AddCardResponse) String() string {
 func (*AddCardResponse) ProtoMessage() {}
 
 func (x *AddCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[33]
+	mi := &file_internal_proto_keeper_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3338,7 +3426,7 @@ type RemoveCardRequest struct {
 
 func (x *RemoveCardRequest) Reset() {
 	*x = RemoveCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[34]
+	mi := &file_internal_proto_keeper_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3350,7 +3438,7 @@ func (x *RemoveCardRequest) String() string {
 func (*RemoveCardRequest) ProtoMessage() {}
 
 func (x *RemoveCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[34]
+	mi := &file_internal_proto_keeper_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3413,7 +3501,7 @@ type RemoveCardResponse struct {
 
 func (x *RemoveCardResponse) Reset() {
 	*x = RemoveCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[35]
+	mi := &file_internal_proto_keeper_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3425,7 +3513,7 @@ func (x *RemoveCardResponse) String() string {
 func (*RemoveCardResponse) ProtoMessage() {}
 
 func (x *RemoveCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[35]
+	mi := &file_internal_proto_keeper_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3464,7 +3552,7 @@ type UpdateCardRequest struct {
 
 func (x *UpdateCardRequest) Reset() {
 	*x = UpdateCardRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[36]
+	mi := &file_internal_proto_keeper_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3476,7 +3564,7 @@ func (x *UpdateCardRequest) String() string {
 func (*UpdateCardRequest) ProtoMessage() {}
 
 func (x *UpdateCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[36]
+	mi := &file_internal_proto_keeper_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3699,7 +3787,7 @@ type UpdateCardResponse struct {
 
 func (x *UpdateCardResponse) Reset() {
 	*x = UpdateCardResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[37]
+	mi := &file_internal_proto_keeper_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3711,7 +3799,7 @@ func (x *UpdateCardResponse) String() string {
 func (*UpdateCardResponse) ProtoMessage() {}
 
 func (x *UpdateCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[37]
+	mi := &file_internal_proto_keeper_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3742,7 +3830,7 @@ type GetCardsRequest struct {
 
 func (x *GetCardsRequest) Reset() {
 	*x = GetCardsRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[38]
+	mi := &file_internal_proto_keeper_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3754,7 +3842,7 @@ func (x *GetCardsRequest) String() string {
 func (*GetCardsRequest) ProtoMessage() {}
 
 func (x *GetCardsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[38]
+	mi := &file_internal_proto_keeper_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3786,7 +3874,7 @@ type GetCardsResponse struct {
 
 func (x *GetCardsResponse) Reset() {
 	*x = GetCardsResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[39]
+	mi := &file_internal_proto_keeper_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3798,7 +3886,7 @@ func (x *GetCardsResponse) String() string {
 func (*GetCardsResponse) ProtoMessage() {}
 
 func (x *GetCardsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[39]
+	mi := &file_internal_proto_keeper_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3849,7 +3937,7 @@ type FileInfo struct {
 
 func (x *FileInfo) Reset() {
 	*x = FileInfo{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[40]
+	mi := &file_internal_proto_keeper_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3861,7 +3949,7 @@ func (x *FileInfo) String() string {
 func (*FileInfo) ProtoMessage() {}
 
 func (x *FileInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[40]
+	mi := &file_internal_proto_keeper_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3993,7 +4081,7 @@ type AddFileRequest struct {
 
 func (x *AddFileRequest) Reset() {
 	*x = AddFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[41]
+	mi := &file_internal_proto_keeper_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4005,7 +4093,7 @@ func (x *AddFileRequest) String() string {
 func (*AddFileRequest) ProtoMessage() {}
 
 func (x *AddFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[41]
+	mi := &file_internal_proto_keeper_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4135,7 +4223,7 @@ type AddFileResponse struct {
 
 func (x *AddFileResponse) Reset() {
 	*x = AddFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[42]
+	mi := &file_internal_proto_keeper_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4147,7 +4235,7 @@ func (x *AddFileResponse) String() string {
 func (*AddFileResponse) ProtoMessage() {}
 
 func (x *AddFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[42]
+	mi := &file_internal_proto_keeper_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4213,7 +4301,7 @@ type RemoveFileRequest struct {
 
 func (x *RemoveFileRequest) Reset() {
 	*x = RemoveFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[43]
+	mi := &file_internal_proto_keeper_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4225,7 +4313,7 @@ func (x *RemoveFileRequest) String() string {
 func (*RemoveFileRequest) ProtoMessage() {}
 
 func (x *RemoveFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[43]
+	mi := &file_internal_proto_keeper_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4288,7 +4376,7 @@ type RemoveFileResponse struct {
 
 func (x *RemoveFileResponse) Reset() {
 	*x = RemoveFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[44]
+	mi := &file_internal_proto_keeper_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4300,7 +4388,7 @@ func (x *RemoveFileResponse) String() string {
 func (*RemoveFileResponse) ProtoMessage() {}
 
 func (x *RemoveFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[44]
+	mi := &file_internal_proto_keeper_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4337,7 +4425,7 @@ type UpdateFileRequest struct {
 
 func (x *UpdateFileRequest) Reset() {
 	*x = UpdateFileRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[45]
+	mi := &file_internal_proto_keeper_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4349,7 +4437,7 @@ func (x *UpdateFileRequest) String() string {
 func (*UpdateFileRequest) ProtoMessage() {}
 
 func (x *UpdateFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[45]
+	mi := &file_internal_proto_keeper_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4508,7 +4596,7 @@ type UpdateFileResponse struct {
 
 func (x *UpdateFileResponse) Reset() {
 	*x = UpdateFileResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[46]
+	mi := &file_internal_proto_keeper_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4520,7 +4608,7 @@ func (x *UpdateFileResponse) String() string {
 func (*UpdateFileResponse) ProtoMessage() {}
 
 func (x *UpdateFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[46]
+	mi := &file_internal_proto_keeper_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4551,7 +4639,7 @@ type GetFilesRequest struct {
 
 func (x *GetFilesRequest) Reset() {
 	*x = GetFilesRequest{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[47]
+	mi := &file_internal_proto_keeper_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4563,7 +4651,7 @@ func (x *GetFilesRequest) String() string {
 func (*GetFilesRequest) ProtoMessage() {}
 
 func (x *GetFilesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[47]
+	mi := &file_internal_proto_keeper_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4595,7 +4683,7 @@ type GetFilesResponse struct {
 
 func (x *GetFilesResponse) Reset() {
 	*x = GetFilesResponse{}
-	mi := &file_internal_proto_keeper_proto_msgTypes[48]
+	mi := &file_internal_proto_keeper_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4607,7 +4695,7 @@ func (x *GetFilesResponse) String() string {
 func (*GetFilesResponse) ProtoMessage() {}
 
 func (x *GetFilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_keeper_proto_msgTypes[48]
+	mi := &file_internal_proto_keeper_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4661,7 +4749,9 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"0\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"\r\n" +
+	"\vPingRequest\"\x0e\n" +
+	"\fPingResponse\"0\n" +
 	"\n" +
 	"DeviceInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
@@ -4776,10 +4866,11 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"\x12UpdateFileResponse\"\x11\n" +
 	"\x0fGetFilesRequest\"9\n" +
 	"\x10GetFilesResponse\x12%\n" +
-	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files2~\n" +
+	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files2\xaf\x01\n" +
 	"\vAuthService\x12;\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x122\n" +
-	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse2\x9d\x02\n" +
+	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse\x12/\n" +
+	"\x04Ping\x12\x12.proto.PingRequest\x1a\x13.proto.PingResponse2\x9d\x02\n" +
 	"\x06Device\x12>\n" +
 	"\tAddDevice\x12\x17.proto.AddDeviceRequest\x1a\x18.proto.AddDeviceResponse\x12G\n" +
 	"\fRemoveDevice\x12\x1a.proto.RemoveDeviceRequest\x1a\x1b.proto.RemoveDeviceResponse\x12G\n" +
@@ -4813,110 +4904,114 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"UpdateFile\x12\x18.proto.UpdateFileRequest\x1a\x19.proto.UpdateFileResponse\x12;\n" +
 	"\bGetFiles\x12\x16.proto.GetFilesRequest\x1a\x17.proto.GetFilesResponseB\x1bZ\x19gophKeeper/internal/protob\beditionsp\xe8\a"
 
-var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
 var file_internal_proto_keeper_proto_goTypes = []any{
 	(*RegisterRequest)(nil),        // 0: proto.RegisterRequest
 	(*RegisterResponse)(nil),       // 1: proto.RegisterResponse
 	(*LoginRequest)(nil),           // 2: proto.LoginRequest
 	(*LoginResponse)(nil),          // 3: proto.LoginResponse
-	(*DeviceInfo)(nil),             // 4: proto.DeviceInfo
-	(*AddDeviceRequest)(nil),       // 5: proto.AddDeviceRequest
-	(*AddDeviceResponse)(nil),      // 6: proto.AddDeviceResponse
-	(*RemoveDeviceRequest)(nil),    // 7: proto.RemoveDeviceRequest
-	(*RemoveDeviceResponse)(nil),   // 8: proto.RemoveDeviceResponse
-	(*UpdateDeviceRequest)(nil),    // 9: proto.UpdateDeviceRequest
-	(*UpdateDeviceResponse)(nil),   // 10: proto.UpdateDeviceResponse
-	(*GetDevicesRequest)(nil),      // 11: proto.GetDevicesRequest
-	(*GetDevicesResponse)(nil),     // 12: proto.GetDevicesResponse
-	(*PasswordItem)(nil),           // 13: proto.PasswordItem
-	(*AddPasswordRequest)(nil),     // 14: proto.AddPasswordRequest
-	(*AddPasswordResponse)(nil),    // 15: proto.AddPasswordResponse
-	(*RemovePasswordRequest)(nil),  // 16: proto.RemovePasswordRequest
-	(*RemovePasswordResponse)(nil), // 17: proto.RemovePasswordResponse
-	(*UpdatePasswordRequest)(nil),  // 18: proto.UpdatePasswordRequest
-	(*UpdatePasswordResponse)(nil), // 19: proto.UpdatePasswordResponse
-	(*GetPasswordsRequest)(nil),    // 20: proto.GetPasswordsRequest
-	(*GetPasswordsResponse)(nil),   // 21: proto.GetPasswordsResponse
-	(*NoteItem)(nil),               // 22: proto.NoteItem
-	(*AddNoteRequest)(nil),         // 23: proto.AddNoteRequest
-	(*AddNoteResponse)(nil),        // 24: proto.AddNoteResponse
-	(*RemoveNoteRequest)(nil),      // 25: proto.RemoveNoteRequest
-	(*RemoveNoteResponse)(nil),     // 26: proto.RemoveNoteResponse
-	(*UpdateNoteRequest)(nil),      // 27: proto.UpdateNoteRequest
-	(*UpdateNoteResponse)(nil),     // 28: proto.UpdateNoteResponse
-	(*GetNotesRequest)(nil),        // 29: proto.GetNotesRequest
-	(*GetNotesResponse)(nil),       // 30: proto.GetNotesResponse
-	(*CardItem)(nil),               // 31: proto.CardItem
-	(*AddCardRequest)(nil),         // 32: proto.AddCardRequest
-	(*AddCardResponse)(nil),        // 33: proto.AddCardResponse
-	(*RemoveCardRequest)(nil),      // 34: proto.RemoveCardRequest
-	(*RemoveCardResponse)(nil),     // 35: proto.RemoveCardResponse
-	(*UpdateCardRequest)(nil),      // 36: proto.UpdateCardRequest
-	(*UpdateCardResponse)(nil),     // 37: proto.UpdateCardResponse
-	(*GetCardsRequest)(nil),        // 38: proto.GetCardsRequest
-	(*GetCardsResponse)(nil),       // 39: proto.GetCardsResponse
-	(*FileInfo)(nil),               // 40: proto.FileInfo
-	(*AddFileRequest)(nil),         // 41: proto.AddFileRequest
-	(*AddFileResponse)(nil),        // 42: proto.AddFileResponse
-	(*RemoveFileRequest)(nil),      // 43: proto.RemoveFileRequest
-	(*RemoveFileResponse)(nil),     // 44: proto.RemoveFileResponse
-	(*UpdateFileRequest)(nil),      // 45: proto.UpdateFileRequest
-	(*UpdateFileResponse)(nil),     // 46: proto.UpdateFileResponse
-	(*GetFilesRequest)(nil),        // 47: proto.GetFilesRequest
-	(*GetFilesResponse)(nil),       // 48: proto.GetFilesResponse
+	(*PingRequest)(nil),            // 4: proto.PingRequest
+	(*PingResponse)(nil),           // 5: proto.PingResponse
+	(*DeviceInfo)(nil),             // 6: proto.DeviceInfo
+	(*AddDeviceRequest)(nil),       // 7: proto.AddDeviceRequest
+	(*AddDeviceResponse)(nil),      // 8: proto.AddDeviceResponse
+	(*RemoveDeviceRequest)(nil),    // 9: proto.RemoveDeviceRequest
+	(*RemoveDeviceResponse)(nil),   // 10: proto.RemoveDeviceResponse
+	(*UpdateDeviceRequest)(nil),    // 11: proto.UpdateDeviceRequest
+	(*UpdateDeviceResponse)(nil),   // 12: proto.UpdateDeviceResponse
+	(*GetDevicesRequest)(nil),      // 13: proto.GetDevicesRequest
+	(*GetDevicesResponse)(nil),     // 14: proto.GetDevicesResponse
+	(*PasswordItem)(nil),           // 15: proto.PasswordItem
+	(*AddPasswordRequest)(nil),     // 16: proto.AddPasswordRequest
+	(*AddPasswordResponse)(nil),    // 17: proto.AddPasswordResponse
+	(*RemovePasswordRequest)(nil),  // 18: proto.RemovePasswordRequest
+	(*RemovePasswordResponse)(nil), // 19: proto.RemovePasswordResponse
+	(*UpdatePasswordRequest)(nil),  // 20: proto.UpdatePasswordRequest
+	(*UpdatePasswordResponse)(nil), // 21: proto.UpdatePasswordResponse
+	(*GetPasswordsRequest)(nil),    // 22: proto.GetPasswordsRequest
+	(*GetPasswordsResponse)(nil),   // 23: proto.GetPasswordsResponse
+	(*NoteItem)(nil),               // 24: proto.NoteItem
+	(*AddNoteRequest)(nil),         // 25: proto.AddNoteRequest
+	(*AddNoteResponse)(nil),        // 26: proto.AddNoteResponse
+	(*RemoveNoteRequest)(nil),      // 27: proto.RemoveNoteRequest
+	(*RemoveNoteResponse)(nil),     // 28: proto.RemoveNoteResponse
+	(*UpdateNoteRequest)(nil),      // 29: proto.UpdateNoteRequest
+	(*UpdateNoteResponse)(nil),     // 30: proto.UpdateNoteResponse
+	(*GetNotesRequest)(nil),        // 31: proto.GetNotesRequest
+	(*GetNotesResponse)(nil),       // 32: proto.GetNotesResponse
+	(*CardItem)(nil),               // 33: proto.CardItem
+	(*AddCardRequest)(nil),         // 34: proto.AddCardRequest
+	(*AddCardResponse)(nil),        // 35: proto.AddCardResponse
+	(*RemoveCardRequest)(nil),      // 36: proto.RemoveCardRequest
+	(*RemoveCardResponse)(nil),     // 37: proto.RemoveCardResponse
+	(*UpdateCardRequest)(nil),      // 38: proto.UpdateCardRequest
+	(*UpdateCardResponse)(nil),     // 39: proto.UpdateCardResponse
+	(*GetCardsRequest)(nil),        // 40: proto.GetCardsRequest
+	(*GetCardsResponse)(nil),       // 41: proto.GetCardsResponse
+	(*FileInfo)(nil),               // 42: proto.FileInfo
+	(*AddFileRequest)(nil),         // 43: proto.AddFileRequest
+	(*AddFileResponse)(nil),        // 44: proto.AddFileResponse
+	(*RemoveFileRequest)(nil),      // 45: proto.RemoveFileRequest
+	(*RemoveFileResponse)(nil),     // 46: proto.RemoveFileResponse
+	(*UpdateFileRequest)(nil),      // 47: proto.UpdateFileRequest
+	(*UpdateFileResponse)(nil),     // 48: proto.UpdateFileResponse
+	(*GetFilesRequest)(nil),        // 49: proto.GetFilesRequest
+	(*GetFilesResponse)(nil),       // 50: proto.GetFilesResponse
 }
 var file_internal_proto_keeper_proto_depIdxs = []int32{
-	4,  // 0: proto.GetDevicesResponse.devices:type_name -> proto.DeviceInfo
-	13, // 1: proto.GetPasswordsResponse.passwords:type_name -> proto.PasswordItem
-	22, // 2: proto.GetNotesResponse.notes:type_name -> proto.NoteItem
-	31, // 3: proto.GetCardsResponse.cards:type_name -> proto.CardItem
-	40, // 4: proto.GetFilesResponse.files:type_name -> proto.FileInfo
+	6,  // 0: proto.GetDevicesResponse.devices:type_name -> proto.DeviceInfo
+	15, // 1: proto.GetPasswordsResponse.passwords:type_name -> proto.PasswordItem
+	24, // 2: proto.GetNotesResponse.notes:type_name -> proto.NoteItem
+	33, // 3: proto.GetCardsResponse.cards:type_name -> proto.CardItem
+	42, // 4: proto.GetFilesResponse.files:type_name -> proto.FileInfo
 	0,  // 5: proto.AuthService.Register:input_type -> proto.RegisterRequest
 	2,  // 6: proto.AuthService.Login:input_type -> proto.LoginRequest
-	5,  // 7: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
-	7,  // 8: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
-	9,  // 9: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
-	11, // 10: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
-	14, // 11: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
-	16, // 12: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
-	18, // 13: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
-	20, // 14: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
-	23, // 15: proto.Note.AddNote:input_type -> proto.AddNoteRequest
-	25, // 16: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
-	27, // 17: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
-	29, // 18: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
-	32, // 19: proto.Card.AddCard:input_type -> proto.AddCardRequest
-	34, // 20: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
-	36, // 21: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
-	38, // 22: proto.Card.GetCards:input_type -> proto.GetCardsRequest
-	41, // 23: proto.File.AddFile:input_type -> proto.AddFileRequest
-	43, // 24: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
-	45, // 25: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
-	47, // 26: proto.File.GetFiles:input_type -> proto.GetFilesRequest
-	1,  // 27: proto.AuthService.Register:output_type -> proto.RegisterResponse
-	3,  // 28: proto.AuthService.Login:output_type -> proto.LoginResponse
-	6,  // 29: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
-	8,  // 30: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
-	10, // 31: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
-	12, // 32: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
-	15, // 33: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
-	17, // 34: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
-	19, // 35: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
-	21, // 36: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
-	24, // 37: proto.Note.AddNote:output_type -> proto.AddNoteResponse
-	26, // 38: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
-	28, // 39: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
-	30, // 40: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
-	33, // 41: proto.Card.AddCard:output_type -> proto.AddCardResponse
-	35, // 42: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
-	37, // 43: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
-	39, // 44: proto.Card.GetCards:output_type -> proto.GetCardsResponse
-	42, // 45: proto.File.AddFile:output_type -> proto.AddFileResponse
-	44, // 46: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
-	46, // 47: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
-	48, // 48: proto.File.GetFiles:output_type -> proto.GetFilesResponse
-	27, // [27:49] is the sub-list for method output_type
-	5,  // [5:27] is the sub-list for method input_type
+	4,  // 7: proto.AuthService.Ping:input_type -> proto.PingRequest
+	7,  // 8: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
+	9,  // 9: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
+	11, // 10: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
+	13, // 11: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
+	16, // 12: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
+	18, // 13: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
+	20, // 14: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
+	22, // 15: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
+	25, // 16: proto.Note.AddNote:input_type -> proto.AddNoteRequest
+	27, // 17: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
+	29, // 18: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
+	31, // 19: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
+	34, // 20: proto.Card.AddCard:input_type -> proto.AddCardRequest
+	36, // 21: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
+	38, // 22: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
+	40, // 23: proto.Card.GetCards:input_type -> proto.GetCardsRequest
+	43, // 24: proto.File.AddFile:input_type -> proto.AddFileRequest
+	45, // 25: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
+	47, // 26: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
+	49, // 27: proto.File.GetFiles:input_type -> proto.GetFilesRequest
+	1,  // 28: proto.AuthService.Register:output_type -> proto.RegisterResponse
+	3,  // 29: proto.AuthService.Login:output_type -> proto.LoginResponse
+	5,  // 30: proto.AuthService.Ping:output_type -> proto.PingResponse
+	8,  // 31: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
+	10, // 32: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
+	12, // 33: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
+	14, // 34: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
+	17, // 35: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
+	19, // 36: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
+	21, // 37: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
+	23, // 38: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
+	26, // 39: proto.Note.AddNote:output_type -> proto.AddNoteResponse
+	28, // 40: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
+	30, // 41: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
+	32, // 42: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
+	35, // 43: proto.Card.AddCard:output_type -> proto.AddCardResponse
+	37, // 44: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
+	39, // 45: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
+	41, // 46: proto.Card.GetCards:output_type -> proto.GetCardsResponse
+	44, // 47: proto.File.AddFile:output_type -> proto.AddFileResponse
+	46, // 48: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
+	48, // 49: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
+	50, // 50: proto.File.GetFiles:output_type -> proto.GetFilesResponse
+	28, // [28:51] is the sub-list for method output_type
+	5,  // [5:28] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -4933,7 +5028,7 @@ func file_internal_proto_keeper_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_keeper_proto_rawDesc), len(file_internal_proto_keeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   49,
+			NumMessages:   51,
 			NumExtensions: 0,
 			NumServices:   6,
 		},

@@ -25,15 +25,18 @@ message LoginRequest {
   string password = 2;
 }
 
-// LoginResponse содержит токен доступа после успешной аутентификации.
+// LoginResponse содержит токен доступа.
 message LoginResponse {
-    string token = 1;
+  string token = 1;
 }
 
-// AuthService предоставляет методы для регистрации и аутентификации.
+// AuthService определяет методы для аутентификации.
 service AuthService {
-    rpc Register (RegisterRequest) returns (RegisterResponse);
-    rpc Login (LoginRequest) returns (LoginResponse);
+  // Register регистрирует нового пользователя.
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+
+  // Login аутентифицирует пользователя и возвращает токен.
+  rpc Login (LoginRequest) returns (LoginResponse);
 }
 
 // --- DEVICE ---

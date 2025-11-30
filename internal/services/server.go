@@ -10,6 +10,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/health"
+    "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 // Server представляет собой обертку для gRPC-сервера.
@@ -17,6 +19,7 @@ type Server struct {
 	server  *grpc.Server
 	log     zerolog.Logger
 	address string
+	grpc_health_v1.UnimplementedHealthServer
 }
 
 // New создает новый gRPC-сервер.
@@ -34,6 +37,10 @@ func New(log zerolog.Logger, authService pb.AuthServiceServer, cfg config.Config
 		grpc.Creds(creds),
 	)
 
+	healthServer := health.NewServer()
+    grpc_health_v1.RegisterHealthServer(s, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	
 	// Регистрируем нашу реализацию сервиса на gRPC-сервере.
 	pb.RegisterAuthServiceServer(s, authService)
 	// TODO: Зарегистрировать здесь остальные сервисы (Device, Password и т.д.), когда они будут реализованы.

@@ -33,7 +33,7 @@ func (a *App) Stop() {
 func NewApp(ctx context.Context) *App {
 
 	cfg := config.NewConfig()
-	log := logger.NewZerologLogger()
+	log := logger.NewСonsoleLogger()
 
 	helper.BuildInfoPrint()
 

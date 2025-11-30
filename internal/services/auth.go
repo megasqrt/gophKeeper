@@ -14,6 +14,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rs/zerolog"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Claims определяет структуру данных, которые будут храниться в JWT.
@@ -78,7 +80,7 @@ func (s *Service) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Re
 			// Проверяем пароль
 			if err := bcrypt.CompareHashAndPassword([]byte(existingUser.PasswordHash), []byte(req.GetPassword())); err != nil {
 				s.log.Warn().Str("login", req.GetLogin()).Msg("Invalid password for existing user on registration attempt")
-				return nil, errors.New("invalid credentials") // Неверный пароль
+				return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 			}
 
 			// Пароль верный, используем существующего пользователя
@@ -124,13 +126,13 @@ func (s *Service) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 	user, err := s.userRepo.FindByLogin(ctx, req.GetLogin())
 	if err != nil {
 		s.log.Warn().Err(err).Str("login", req.GetLogin()).Msg("Failed to find user during login")
-		return nil, errors.New("invalid credentials") // Используем общую ошибку, чтобы не раскрывать, существует ли пользователь
+		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
 	// Проверяем пароль
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.GetPassword())); err != nil {
 		s.log.Warn().Str("login", req.GetLogin()).Msg("Invalid password during login")
-		return nil, errors.New("invalid credentials")
+		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
 	// TODO: В будущем здесь можно будет получать ID устройства из запроса или создавать новое.
@@ -150,6 +152,10 @@ func (s *Service) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 
 	s.log.Info().Str("login", req.GetLogin()).Msg("User logged in successfully")
 	return pb.LoginResponse_builder{Token: &token}.Build(), nil
+}
+
+func (s *Service) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+	return &pb.PingResponse{}, nil
 }
 
 func (s *Service) generateJWT(userID uuid.UUID, deviceID string) (string, error) {

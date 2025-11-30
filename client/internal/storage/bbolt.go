@@ -275,6 +275,31 @@ func (s *BboltStorage) SaveCard(cardData map[string]string) error {
 	})
 }
 
+// UpdateCard обновляет данные существующей карты.
+func (s *BboltStorage) UpdateCard(cardData map[string]string) error {
+	cardID, ok := cardData["id"]
+	if !ok || cardID == "" {
+		return errors.New("card ID is missing for update")
+	}
+
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(cardsBucket)
+
+		jsonData, err := json.Marshal(cardData)
+		if err != nil {
+			return fmt.Errorf("could not marshal card data for update: %w", err)
+		}
+
+		encryptedData, err := s.encrypt(jsonData)
+		if err != nil {
+			return fmt.Errorf("could not encrypt card data for update: %w", err)
+		}
+
+		s.log.Info().Str("card_id", cardID).Msg("Updating card")
+		return b.Put([]byte(cardID), encryptedData)
+	})
+}
+
 // GetCards извлекает все сохраненные карты.
 func (s *BboltStorage) GetCards() ([]map[string]string, error) {
 	var cards []map[string]string
