@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"gophKeeper/client/internal/domain/model"
+	"io"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -12,6 +13,35 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
+
+var (
+	listTitleStyle       = lipgloss.NewStyle().MarginLeft(2).Bold(true).Foreground(lipgloss.Color("63"))
+	itemStyle            = lipgloss.NewStyle().PaddingLeft(4)
+	selectedItemStyle    = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
+	itemDescriptionStyle = lipgloss.NewStyle().Faint(true).PaddingLeft(2)
+)
+
+type textItemDelegate struct{}
+
+func (d textItemDelegate) Height() int                               { return 1 }
+func (d textItemDelegate) Spacing() int                              { return 0 }
+func (d textItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+func (d textItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(textItem)
+	if !ok {
+		return
+	}
+
+	str := i.Title()
+
+	if index == m.Index() {
+		title := selectedItemStyle.Render("> " + str)
+		fmt.Fprint(w, title)
+	} else {
+		title := itemStyle.Render(str)
+		fmt.Fprint(w, title)
+	}
+}
 
 type textItem struct {
 	model.TextData
@@ -49,8 +79,14 @@ type TextEditModel struct {
 
 func NewTextEditModel(storage LocalStorage) *TextEditModel {
 	// 1. Создаем список (list)
-	l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l := list.New([]list.Item{}, textItemDelegate{}, 0, 15)
 	l.Title = "Your Secure Notes"
+	l.Styles.Title = listTitleStyle
+	l.SetShowStatusBar(true)
+	l.SetShowPagination(true)
+	l.SetStatusBarItemName("note", "notes")
+
+	// Убираем стандартную справку
 	l.SetShowHelp(false)
 
 	// 2. Создаем текстовый редактор (textarea)
@@ -159,13 +195,13 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
-		listWidth := msg.Width / 3
+		listWidth := int(float64(msg.Width) * 0.4) // 40% ширины для списка
 		editorWidth := msg.Width - listWidth
 		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
 		m.list.SetWidth(listWidth)
 		m.titleInput.Width = editorWidth - 4 // отступы
 		m.editor.SetWidth(editorWidth)
-		m.editor.SetHeight(msg.Height - 2)
+		m.editor.SetHeight(msg.Height - 6) // Оставляем место для поля заголовка и отступов
 		return m, nil
 
 	case tea.KeyMsg:
@@ -260,16 +296,17 @@ func (m *TextEditModel) View() string {
 
 	help := m.helpView()
 
-	// if m.err != nil {
-	// 	errorText := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
-	// 	return lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
-	// }
-
 	// Соединяем все части вместе
-	return lipgloss.JoinVertical(lipgloss.Left,
+	mainView := lipgloss.JoinVertical(lipgloss.Left,
 		lipgloss.JoinHorizontal(lipgloss.Top, listView, rightPane),
 		help,
 	)
+
+	if m.err != nil {
+		errorText := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
+		return lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
+	}
+	return mainView
 }
 
 func (m *TextEditModel) helpView() string {

@@ -36,12 +36,12 @@ type item string
 
 func (i item) FilterValue() string { return "" }
 
-type itemDelegate struct{}
+type mainMenuDelegate struct{}
 
-func (d itemDelegate) Height() int                               { return 1 }
-func (d itemDelegate) Spacing() int                              { return 0 }
-func (d itemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (d mainMenuDelegate) Height() int                               { return 1 }
+func (d mainMenuDelegate) Spacing() int                              { return 0 }
+func (d mainMenuDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+func (d mainMenuDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	i, ok := listItem.(item)
 	if !ok {
 		return
@@ -78,7 +78,7 @@ type MainViewModel struct {
 type serverStatusMsg struct{ online bool }
 type checkNowMsg struct{}
 
-func NewMainViewModel( cfg *config.Config, storage LocalStorage) *MainViewModel {
+func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 	items := []list.Item{
 		item("Credit Cards"),
 		item("Passwords"),
@@ -87,9 +87,7 @@ func NewMainViewModel( cfg *config.Config, storage LocalStorage) *MainViewModel 
 		item("Settings"), // This will now trigger the check
 	}
 
-	
-
-	l := list.New(items, itemDelegate{}, DefaulListtWidth, DefaultlistHeight)
+	l := list.New(items, mainMenuDelegate{}, DefaulListtWidth, DefaultlistHeight)
 	l.Title = "GophKeeper Main Menu"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
