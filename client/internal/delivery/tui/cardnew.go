@@ -2,23 +2,14 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 	"gophKeeper/client/internal/domain/model"
+	"strings"
+
+	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"strconv"
-)
-
-const (
-	hotPink  = lipgloss.Color("#FF06B7")
-	darkGray = lipgloss.Color("#767676")
-)
-
-var (
-	inputStyle    = lipgloss.NewStyle().Foreground(hotPink)
-	continueStyle = lipgloss.NewStyle().Foreground(darkGray)
 )
 
 type cardFormSavedMsg struct {
@@ -28,22 +19,21 @@ type cardFormSavedMsg struct {
 type cardFormBackMsg struct{}
 
 type CardFormModel struct {
-	focusIndex int
-	inputs     []textinput.Model
-	storage    LocalStorage
-	cardID     string // ID для редактируемой карты
+	formModel
+	storage LocalStorage
+	cardID  string // ID для редактируемой карты
 }
 
 func NewCardForm(storage LocalStorage, card *model.Card) CardFormModel {
 	m := CardFormModel{
-		inputs:  make([]textinput.Model, 4),
-		storage: storage,
+		storage:   storage,
+		formModel: newFormModel(),
 	}
 
-	var t textinput.Model
-	for i := range m.inputs {
-		t = textinput.New()
-		t.Cursor.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	inputs := make([]textinput.Model, 4)
+	for i := range inputs {
+		t := textinput.New()
+		t.Cursor.Style = focusedStyle
 		t.CharLimit = 32
 		t.Prompt = ""
 
@@ -54,8 +44,6 @@ func NewCardForm(storage LocalStorage, card *model.Card) CardFormModel {
 			t.CharLimit = 20
 			t.Validate = ccnValidator
 			t.Width = 30
-			//t.PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-			//t.TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 		case 1:
 			t.Placeholder = "MM/YY "
 			t.CharLimit = 5
@@ -72,8 +60,9 @@ func NewCardForm(storage LocalStorage, card *model.Card) CardFormModel {
 			t.CharLimit = 64
 		}
 
-		m.inputs[i] = t
+		inputs[i] = t
 	}
+	m.setInputs(inputs)
 
 	if card != nil {
 		m.cardID = card.ID
@@ -83,6 +72,7 @@ func NewCardForm(storage LocalStorage, card *model.Card) CardFormModel {
 		m.inputs[3].SetValue(card.Holder)
 	}
 
+	m.updateFocus()
 	return m
 }
 
@@ -103,7 +93,7 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s := msg.String()
 
 			// Нажатие Enter на последнем поле или на кнопке "Submit"
-			if s == "enter" && m.focusIndex == len(m.inputs) {
+			if s == "enter" && m.submitFocused() {
 				cardData := map[string]string{
 					"number": m.inputs[0].Value(),
 					"holder": m.inputs[3].Value(),
@@ -127,92 +117,50 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Переключение фокуса
 			if s == "up" || s == "shift+tab" {
-				m.focusIndex--
+				m.prevInput()
 			} else {
-				m.focusIndex++
+				m.nextInput()
 			}
 
-			if m.focusIndex > len(m.inputs) {
-				m.focusIndex = 0
-			} else if m.focusIndex < 0 {
-				m.focusIndex = len(m.inputs)
-			}
-
-			cmds := make([]tea.Cmd, len(m.inputs))
-			for i := 0; i <= len(m.inputs)-1; i++ {
-				if i == m.focusIndex {
-					cmds[i] = m.inputs[i].Focus()
-					m.inputs[i].PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-					m.inputs[i].TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-					continue
-				}
-				m.inputs[i].Blur()
-				m.inputs[i].PromptStyle = lipgloss.NewStyle()
-				m.inputs[i].TextStyle = lipgloss.NewStyle()
-			}
-
-			return m, tea.Batch(cmds...)
+			return m, m.updateFocus()
 		}
 	}
 
 	// Обновляем только то поле, которое в фокусе
 	var cmd tea.Cmd
-	if m.focusIndex < len(m.inputs) {
-		m.inputs[m.focusIndex], cmd = m.inputs[m.focusIndex].Update(msg)
-	}
-
+	cmd = m.updateInputs(msg)
 	return m, cmd
 }
 
-// func (m CardFormModel) View() string {
-// 	var b strings.Builder
-
-// 	b.WriteString("Enter New Credit Card Details\n\n")
-
-// 	for i := range m.inputs {
-// 		b.WriteString(m.inputs[i].View())
-// 		if i < len(m.inputs)-1 {
-// 			b.WriteRune('\n')
-// 		}
-// 	}
-
-// 	button := "\n\n[ Submit ]"
-// 	if m.focusIndex == len(m.inputs) {
-// 		button = "\n\n> [ Submit ]"
-// 	}
-
-// 	b.WriteString(button)
-
-// 	b.WriteString(fmt.Sprintf("\n\n%s", helpStyle.Render("(esc) back to list | (s) save")))
-
-// 	return b.String()
-// }
-
 func (m CardFormModel) View() string {
-	return fmt.Sprintf(
-		` Total: $21.50:
+	var b strings.Builder
 
- %s
- %s
+	b.WriteString(titleStyle.Render("Credit Card Details"))
+	b.WriteString("\n\n")
 
- %s  %s
- %s  %s
+	// Поля ввода
+	b.WriteString(focusedStyle.Render("Card Number") + "\n")
+	b.WriteString(m.inputs[0].View() + "\n\n")
 
- %s
- %s
+	expAndCvv := lipgloss.JoinHorizontal(lipgloss.Top,
+		lipgloss.JoinVertical(lipgloss.Left,
+			focusedStyle.Render("Expiry"),
+			m.inputs[1].View(),
+		),
+		lipgloss.JoinVertical(lipgloss.Left,
+			focusedStyle.Render("CVV"),
+			m.inputs[2].View(),
+		),
+	)
+	b.WriteString(expAndCvv + "\n\n")
 
- %s
-`,
-		inputStyle.Width(30).Render("Card Number"),
-		m.inputs[0].View(),
-		inputStyle.Width(6).Render("EXP"),
-		inputStyle.Width(6).Render("CVV"),
-		m.inputs[1].View(),
-		m.inputs[2].View(),
-		inputStyle.Width(64).Render("Card Holder"),
-		m.inputs[3].View(),
-		continueStyle.Render("Continue ->"),
-	) + "\n"
+	b.WriteString(focusedStyle.Render("Card Holder") + "\n")
+	b.WriteString(m.inputs[3].View() + "\n\n")
+
+	// Кнопка
+	b.WriteString(blurredStyle.Render("[ Submit ]"))
+
+	return docStyle.Render(b.String())
 }
 func ccnValidator(s string) error {
 	// Credit Card Number should a string less than 20 digits

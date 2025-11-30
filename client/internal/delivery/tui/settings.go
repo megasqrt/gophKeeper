@@ -24,6 +24,7 @@ type SettingsModel struct {
 	keys       []string // Для сохранения порядка ключей
 	focusIndex int
 	err        error
+	infoMsg    string
 	keysMap    settingsKeyMap
 	width      int
 }
@@ -82,6 +83,8 @@ func (m *SettingsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keysMap.Save):
+			m.err = nil
+			m.infoMsg = ""
 			newSettings := make(map[string]interface{})
 			for i, k := range m.keys {
 				newSettings[k] = m.inputs[i].Value()
@@ -89,7 +92,7 @@ func (m *SettingsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if err := config.UpdateSettings(newSettings); err != nil {
 				m.err = err
 			} else {
-				m.err = fmt.Errorf("Settings saved successfully!") // Используем err для инфо-сообщений
+				m.infoMsg = "✅ Settings saved successfully!"
 			}
 			return m, nil
 
@@ -154,13 +157,14 @@ func (m *SettingsModel) View() string {
 	)
 	b.WriteString("\n" + helpStyle.Render(help))
 
-	// Error/Info message
+	// Сообщения об ошибках и успехе
 	if m.err != nil {
-		msgStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
-		if strings.Contains(m.err.Error(), "successfully") {
-			msgStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
-		}
-		b.WriteString("\n" + msgStyle.Render(m.err.Error()))
+		errorMsg := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
+		b.WriteString("\n" + errorMsg)
+	}
+	if m.infoMsg != "" {
+		infoMsg := lipgloss.NewStyle().Foreground(lipgloss.Color("10")).Render(m.infoMsg)
+		b.WriteString("\n" + infoMsg)
 	}
 
 	return docStyle.Render(b.String())

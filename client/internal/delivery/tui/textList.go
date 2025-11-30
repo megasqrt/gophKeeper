@@ -43,14 +43,6 @@ type textItem struct {
 func (i textItem) Title() string       { return i.TextData.Title }
 func (i textItem) FilterValue() string { return i.TextData.Title }
 
-type focusState int
-
-const (
-	listFocused  focusState = iota // 0
-	titleFocused                   // 1
-	editorFocused
-)
-
 type keyMap struct {
 	SwitchFocus key.Binding
 	Save        key.Binding
@@ -64,7 +56,7 @@ type TextEditModel struct {
 	editor        textarea.Model
 	titleInput    textinput.Model
 	storage       LocalStorage
-	focus         focusState
+	state         viewState
 	width, height int
 	err           error
 	keys          keyMap
@@ -108,7 +100,7 @@ func NewTextEditModel(storage LocalStorage) *TextEditModel {
 		list:       l,
 		editor:     t,
 		storage:    storage,
-		focus:      listFocused, // По умолчанию фокус на списке
+		state:      tableView, // По умолчанию фокус на списке
 		keys:       keys,
 	}
 
@@ -203,23 +195,17 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keys.SwitchFocus):
-			if m.focus == listFocused {
-				m.focus = titleFocused
-				m.editor.Blur()
-				cmd = m.titleInput.Focus()
-				cmds = append(cmds, cmd)
-			} else if m.focus == titleFocused {
-				m.focus = editorFocused
+			// Простое переключение между списком и формой (редактором)
+			if m.state == tableView {
+				m.state = formView
+				cmd = m.titleInput.Focus() // Фокус на заголовок при переходе в форму
+			} else { // formView
+				m.state = tableView
 				m.titleInput.Blur()
-				cmd = m.editor.Focus()
-				cmds = append(cmds, cmd)
-			} else {
-				// АВТОСОХРАНЕНИЕ: когда фокус уходит из редактора по Tab
-				m.saveNote()
-				m.focus = listFocused
 				m.editor.Blur()
-				m.titleInput.Blur()
+				m.saveNote() // Автосохранение при выходе из формы
 			}
+			cmds = append(cmds, cmd)
 
 		case key.Matches(msg, m.keys.Save):
 			m.saveNote()
@@ -229,11 +215,11 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.list.InsertItem(0, newItem)
 			m.list.Select(0)
 			m.syncEditor()
-			m.focus = titleFocused
+			m.state = formView
 			return m, m.titleInput.Focus()
 
 		case key.Matches(msg, m.keys.DeleteItem):
-			if m.focus == listFocused {
+			if m.state == tableView {
 				selectedItem, ok := m.list.SelectedItem().(textItem)
 				if ok && selectedItem.ID != "" {
 					err := m.storage.DeleteText(selectedItem.ID)
@@ -248,17 +234,17 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Передаем сообщения компоненту в фокусе
-	if m.focus == titleFocused {
-		m.titleInput, cmd = m.titleInput.Update(msg)
-		cmds = append(cmds, cmd)
-	} else if m.focus == listFocused {
+	// Обновляем компоненты в зависимости от состояния
+	if m.state == tableView {
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 		m.syncEditor() // Обновляем редактор при навигации по списку
 	} else {
-		m.editor, cmd = m.editor.Update(msg)
+		// В режиме формы обновляем оба поля ввода
+		m.titleInput, cmd = m.titleInput.Update(msg)
 		cmds = append(cmds, cmd)
+		m.editor, cmd = m.editor.Update(msg)
+		cmds = append(cmds, cmd) // cmd будет перезаписан, но это нормально
 	}
 
 	return m, tea.Batch(cmds...)
@@ -273,18 +259,10 @@ func (m *TextEditModel) View() string {
 	)
 
 	// Добавляем рамку к компоненту в фокусе
-	if m.focus == titleFocused {
+	if m.state == formView {
 		rightPane = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(rightPane)
-		m.titleInput.PromptStyle = lipgloss.NewStyle()
-		m.titleInput.TextStyle = lipgloss.NewStyle()
-	} else if m.focus == editorFocused { // editor
-		rightPane = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(rightPane)
-		m.titleInput.PromptStyle = lipgloss.NewStyle() // Сбрасываем стиль, когда не в фокусе
-		m.titleInput.TextStyle = lipgloss.NewStyle()
 	} else {
 		listView = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(listView)
-		m.titleInput.PromptStyle = lipgloss.NewStyle() // Сбрасываем стиль, когда не в фокусе
-		m.titleInput.TextStyle = lipgloss.NewStyle()
 	}
 
 	help := m.helpView()
@@ -304,9 +282,6 @@ func (m *TextEditModel) View() string {
 
 func (m *TextEditModel) helpView() string {
 	var parts []string
-	if m.focus == listFocused {
-		parts = append(parts, m.list.Help.View(m.list))
-	}
 	parts = append(parts, m.keys.NewItem.Help().Key+" "+m.keys.NewItem.Help().Desc)
 	parts = append(parts, m.keys.DeleteItem.Help().Key+" "+m.keys.DeleteItem.Help().Desc)
 	parts = append(parts, m.keys.SwitchFocus.Help().Key+" "+m.keys.SwitchFocus.Help().Desc)

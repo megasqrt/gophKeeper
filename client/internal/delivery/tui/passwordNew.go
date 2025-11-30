@@ -1,12 +1,11 @@
 package tui
 
 import (
-	"fmt"
 	"gophKeeper/client/internal/domain/model"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type passFormSavedMsg struct {
@@ -16,22 +15,21 @@ type passFormSavedMsg struct {
 type passFormBackMsg struct{}
 
 type PassFormModel struct {
-	focusIndex int
-	inputs     []textinput.Model
-	storage    LocalStorage
-	passID     string // ID для редактируемой карты
+	formModel
+	storage LocalStorage
+	passID  string // ID для редактируемой карты
 }
 
 func NewPassForm(storage LocalStorage, pass *model.Password) PassFormModel {
 	m := PassFormModel{
-		inputs:  make([]textinput.Model, 3),
-		storage: storage,
+		storage:   storage,
+		formModel: newFormModel(),
 	}
 
-	var t textinput.Model
-	for i := range m.inputs {
-		t = textinput.New()
-		t.Cursor.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	inputs := make([]textinput.Model, 3)
+	for i := range inputs {
+		t := textinput.New()
+		t.Cursor.Style = focusedStyle
 		t.CharLimit = 32
 		t.Prompt = ""
 
@@ -51,8 +49,9 @@ func NewPassForm(storage LocalStorage, pass *model.Password) PassFormModel {
 			t.Width = 64
 		}
 
-		m.inputs[i] = t
+		inputs[i] = t
 	}
+	m.setInputs(inputs)
 
 	if pass != nil {
 		m.passID = pass.ID
@@ -61,6 +60,7 @@ func NewPassForm(storage LocalStorage, pass *model.Password) PassFormModel {
 		m.inputs[2].SetValue(pass.Description)
 	}
 
+	m.updateFocus()
 	return m
 }
 
@@ -81,10 +81,10 @@ func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			s := msg.String()
 
 			// Нажатие Enter на последнем поле или на кнопке "Submit"
-			if s == "enter" && m.focusIndex == len(m.inputs) {
+			if s == "enter" && m.submitFocused() {
 				passData := map[string]string{
-					"login": m.inputs[0].Value(),
-					"password": m.inputs[1].Value(),
+					"login":       m.inputs[0].Value(),
+					"password":    m.inputs[1].Value(),
 					"description": m.inputs[2].Value(),
 				}
 				var err error
@@ -104,64 +104,42 @@ func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Переключение фокуса
 			if s == "up" || s == "shift+tab" {
-				m.focusIndex--
+				m.prevInput()
 			} else {
-				m.focusIndex++
+				m.nextInput()
 			}
 
-			if m.focusIndex > len(m.inputs) {
-				m.focusIndex = 0
-			} else if m.focusIndex < 0 {
-				m.focusIndex = len(m.inputs)
-			}
-
-			cmds := make([]tea.Cmd, len(m.inputs))
-			for i := 0; i <= len(m.inputs)-1; i++ {
-				if i == m.focusIndex {
-					cmds[i] = m.inputs[i].Focus()
-					m.inputs[i].PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-					m.inputs[i].TextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
-					continue
-				}
-				m.inputs[i].Blur()
-				m.inputs[i].PromptStyle = lipgloss.NewStyle()
-				m.inputs[i].TextStyle = lipgloss.NewStyle()
-			}
-
-			return m, tea.Batch(cmds...)
+			return m, m.updateFocus()
 		}
 	}
 
 	// Обновляем только то поле, которое в фокусе
 	var cmd tea.Cmd
-	if m.focusIndex < len(m.inputs) {
-		m.inputs[m.focusIndex], cmd = m.inputs[m.focusIndex].Update(msg)
-	}
-
+	cmd = m.updateInputs(msg)
 	return m, cmd
 }
 
 func (m PassFormModel) View() string {
-	return fmt.Sprintf(
-		` Total: $21.50:
+	var b strings.Builder
 
- %s
- %s
+	b.WriteString(titleStyle.Render("Password Details"))
+	b.WriteString("\n\n")
 
- %s
- %s
+	b.WriteString(focusedStyle.Render("Login") + "\n")
+	b.WriteString(m.inputs[0].View() + "\n\n")
 
- %s
- %s
+	b.WriteString(focusedStyle.Render("Password") + "\n")
+	b.WriteString(m.inputs[1].View() + "\n\n")
 
- %s
-`,
-		inputStyle.Width(30).Render("Login"),
-		m.inputs[0].View(),
-		inputStyle.Width(30).Render("Password"),
-		m.inputs[1].View(),
-		inputStyle.Width(64).Render("Description"),
-		m.inputs[2].View(),
-		continueStyle.Render("Continue ->"),
-	) + "\n"
+	b.WriteString(focusedStyle.Render("Description") + "\n")
+	b.WriteString(m.inputs[2].View() + "\n\n")
+
+	// Кнопка
+	submitButton := blurredStyle.Render("[ Submit ]")
+	if m.submitFocused() {
+		submitButton = focusedStyle.Render("> [ Submit ]")
+	}
+	b.WriteString(submitButton)
+
+	return docStyle.Render(b.String())
 }

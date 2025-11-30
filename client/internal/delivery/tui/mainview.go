@@ -43,11 +43,11 @@ func (d mainMenuDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 		return
 	}
 
-	str := fmt.Sprintf("%d. %s", index+1, i)
+	str := string(i)
 
 	fn := lipgloss.NewStyle().PaddingLeft(4).Render
 	if index == m.Index() {
-		fn = func(s ...string) string {
+		fn = func(s ...string) string { // Active item
 			return lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170")).Render("> " + strings.Join(s, " "))
 		}
 	}
@@ -56,12 +56,12 @@ func (d mainMenuDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 }
 
 type MainViewModel struct {
-	state     mainViewState
-	menu      list.Model
-	cardModel tea.Model
-	passModel tea.Model
-	textModel tea.Model
-	fileModel tea.Model
+	state         mainViewState
+	menu          list.Model
+	cardModel     tea.Model
+	passModel     tea.Model
+	textModel     tea.Model
+	fileModel     tea.Model
 	settingsModel tea.Model
 	// Другие модели для паролей, заметок и т.д.
 
@@ -79,11 +79,11 @@ type checkNowMsg struct{}
 
 func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 	items := []list.Item{
-		item("Credit Cards"),
-		item("Passwords"),
-		item("Text Notes"),
-		item("Binary Data"),
-		item("Settings"), // This will now trigger the check
+		item("💳 Credit Cards"),
+		item("🔑 Passwords"),
+		item("📝 Text Notes"),
+		item("📦 Binary Data"),
+		item("⚙️ Settings"),
 	}
 
 	l := list.New(items, mainMenuDelegate{}, DefaulListtWidth, DefaultlistHeight)
@@ -94,15 +94,15 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 	l.Styles.HelpStyle = helpStyle
 
 	return &MainViewModel{
-		state:        mainMenu,
-		menu:         l,
-		serverOnline: transport.IsOnline(), // Initialize with status from transport layer
-		cfg:          cfg,
-		storage:      storage,
-		cardModel:    NewCardListModel(storage),
-		passModel:    NewPassListModel(storage),
-		textModel:    NewTextEditModel(storage),
-		fileModel:    NewFileUploadModel(storage),
+		state:         mainMenu,
+		menu:          l,
+		serverOnline:  transport.IsOnline(), // Initialize with status from transport layer
+		cfg:           cfg,
+		storage:       storage,
+		cardModel:     NewCardListModel(storage),
+		passModel:     NewPassListModel(storage),
+		textModel:     NewTextEditModel(storage),
+		fileModel:     NewFileUploadModel(storage),
 		settingsModel: NewSettingsModel(),
 	}
 }
@@ -158,31 +158,31 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, ok := m.menu.SelectedItem().(item)
 			if ok {
 				switch i {
-				case "Credit Cards":
+				case "💳 Credit Cards":
 					m.state = cardView
 					if cardVM, ok := m.cardModel.(*CardListModel); ok {
 						cardVM.Load()
 					}
 					return m, nil
-				case "Passwords":
+				case "🔑 Passwords":
 					m.state = passView
 					if passVM, ok := m.passModel.(*PassListModel); ok {
 						passVM.Load()
 					}
 					return m, nil
-				case "Text Notes":
+				case "📝 Text Notes":
 					m.state = textView
 					if textVM, ok := m.textModel.(*TextEditModel); ok {
 						textVM.Load()
 					}
 					return m, nil
-				case "Binary Data":
+				case "📦 Binary Data":
 					m.state = fileView
 					if fileVM, ok := m.fileModel.(*FileUploadModel); ok {
 						return m, fileVM.Load()
 					}
 					return m, nil
-				case "Settings":
+				case "⚙️ Settings":
 					m.state = settingsView
 					return m, nil
 				}
