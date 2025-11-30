@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -106,6 +107,7 @@ type FileUploadModel struct {
 	storage        LocalStorage
 	width, height  int
 	err            error
+	infoMsg        string
 	uploading      bool
 	uploadProgress float64
 	currentFile    *FileItem
@@ -297,10 +299,12 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(append(cmds, m.loadFiles)...) // Перезагружаем список
 
 	case DownloadCompleteMsg:
+		m.err = nil     // Сбрасываем предыдущую ошибку
+		m.infoMsg = ""  // Сбрасываем предыдущее инфо-сообщение
 		if msg.Error != nil {
 			m.err = msg.Error
 		} else {
-			m.err = fmt.Errorf("File '%s' saved to %s", msg.FileName, msg.SavePath) // Используем err для отображения инфо
+			m.infoMsg = fmt.Sprintf("✅ File '%s' saved to %s", msg.FileName, msg.SavePath)
 		}
 
 	case []list.Item:
@@ -374,6 +378,13 @@ func (m *FileUploadModel) View() string {
 			Foreground(lipgloss.Color("9")).
 			Render("Error: " + m.err.Error())
 		sections = append(sections, errorSection)
+	}
+	// Информационные сообщения
+	if m.infoMsg != "" {
+		infoSection := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("10")). // Зеленый цвет для успеха
+			Render(m.infoMsg)
+		sections = append(sections, infoSection)
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, sections...)
@@ -496,9 +507,9 @@ func (m *FileUploadModel) downloadSelectedFile(file FileItem) tea.Cmd {
 			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("invalid data format in storage")}
 		}
 
-		fileContent, err := os.ReadFile(fileContentBase64)
+		fileContent, err := base64.StdEncoding.DecodeString(fileContentBase64)
 		if err != nil {
-			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("could not decode file content: %w", err)}
+			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("could not decode base64 file content: %w", err)}
 		}
 
 		// Сохраняем в /tmp/

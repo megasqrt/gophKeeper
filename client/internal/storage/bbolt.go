@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -193,4 +194,93 @@ func (s *BboltStorage) decrypt(data []byte) ([]byte, error) {
 	}
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	return gcm.Open(nil, nonce, ciphertext, nil)
+}
+
+// saveItem — это универсальный метод для сохранения или обновления элемента в бакете.
+// Если isNew=true, генерируется новый ID. В качестве ключа используется ID.
+func (s *BboltStorage) saveItem(bucketName []byte, itemData map[string]interface{}, isNew bool) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		var itemID string
+
+		if isNew {
+			id, _ := b.NextSequence()
+			itemID = fmt.Sprintf("%d", id)
+			itemData["id"] = itemID
+		} else {
+			id, ok := itemData["id"].(string)
+			if !ok || id == "" {
+				return fmt.Errorf("item ID is missing for update in bucket %s", bucketName)
+			}
+			itemID = id
+		}
+
+		jsonData, err := json.Marshal(itemData)
+		if err != nil {
+			return fmt.Errorf("could not marshal item data for bucket %s: %w", bucketName, err)
+		}
+
+		encryptedData, err := s.encrypt(jsonData)
+		if err != nil {
+			return fmt.Errorf("could not encrypt item data for bucket %s: %w", bucketName, err)
+		}
+
+		return b.Put([]byte(itemID), encryptedData)
+	})
+}
+
+// getAllItems — это универсальный метод для получения всех элементов из бакета.
+func (s *BboltStorage) getAllItems(bucketName []byte) ([]map[string]interface{}, error) {
+	var items []map[string]interface{}
+
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		return b.ForEach(func(k, v []byte) error {
+			decryptedData, err := s.decrypt(v)
+			if err != nil {
+				s.log.Error().Err(err).Bytes("key", k).Msgf("Could not decrypt data in bucket %s", bucketName)
+				return fmt.Errorf("could not decrypt data for key %s in bucket %s: %w", k, bucketName, err)
+			}
+
+			var itemData map[string]interface{}
+			if err := json.Unmarshal(decryptedData, &itemData); err != nil {
+				s.log.Error().Err(err).Bytes("key", k).Msgf("Could not unmarshal data in bucket %s", bucketName)
+				return fmt.Errorf("could not unmarshal data for key %s in bucket %s: %w", k, bucketName, err)
+			}
+
+			// Специальная обработка для файлов, чтобы не загружать их содержимое
+			if string(bucketName) == string(binaryBucket) {
+				delete(itemData, "data")
+			}
+
+			items = append(items, itemData)
+			return nil
+		})
+	})
+
+	if err != nil {
+		s.log.Error().Err(err).Msgf("Failed to get all items from bucket %s", bucketName)
+	}
+	return items, err
+}
+
+// getItemByID — это универсальный метод для получения одного элемента по ID.
+func (s *BboltStorage) getItemByID(bucketName []byte, id string) (map[string]interface{}, error) {
+	var itemData map[string]interface{}
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		encryptedData := b.Get([]byte(id))
+		if encryptedData == nil {
+			return fmt.Errorf("item with id '%s' not found in bucket %s", id, bucketName)
+		}
+		decryptedData, err := s.decrypt(encryptedData)
+		if err != nil {
+			return fmt.Errorf("could not decrypt item data for id '%s': %w", id, err)
+		}
+		if err := json.Unmarshal(decryptedData, &itemData); err != nil {
+			return fmt.Errorf("could not unmarshal item data for id '%s': %w", id, err)
+		}
+		return nil
+	})
+	return itemData, err
 }
