@@ -3,6 +3,7 @@ package tui
 import (
 	"encoding/base64"
 	"fmt"
+	"gophKeeper/client/internal/domain"
 	"io"
 	"os"
 	"path/filepath"
@@ -104,7 +105,7 @@ type FileUploadModel struct {
 	list           list.Model
 	viewport       viewport.Model
 	progress       progress.Model
-	storage        LocalStorage
+	storage        domain.LocalStorage
 	width, height  int
 	err            error
 	infoMsg        string
@@ -117,7 +118,7 @@ type FileUploadModel struct {
 	browser        fileBrowserModel
 }
 
-func NewFileUploadModel(storage LocalStorage) *FileUploadModel {
+func NewFileUploadModel(storage domain.LocalStorage) *FileUploadModel {
 	// Настройка списка файлов
 	l := list.New([]list.Item{}, fileItemDelegate{}, 0, 15)
 	l.Title = "📁 File Manager"
@@ -299,8 +300,8 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(append(cmds, m.loadFiles)...) // Перезагружаем список
 
 	case DownloadCompleteMsg:
-		m.err = nil     // Сбрасываем предыдущую ошибку
-		m.infoMsg = ""  // Сбрасываем предыдущее инфо-сообщение
+		m.err = nil    // Сбрасываем предыдущую ошибку
+		m.infoMsg = "" // Сбрасываем предыдущее инфо-сообщение
 		if msg.Error != nil {
 			m.err = msg.Error
 		} else {

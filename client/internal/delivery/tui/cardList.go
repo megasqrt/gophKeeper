@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"time"
 
@@ -23,11 +24,11 @@ type CardListModel struct {
 	state   viewState
 	table   table.Model
 	form    CardFormModel
-	storage LocalStorage
+	storage domain.LocalStorage
 	cards   []model.Card // Добавляем поле для хранения полных данных карт
 }
 
-func NewCardListModel(storage LocalStorage) *CardListModel {
+func NewCardListModel(storage domain.LocalStorage) *CardListModel {
 	columns := []table.Column{
 		{Title: "Card Number", Width: 20},
 		{Title: "Holder", Width: 25},
@@ -128,7 +129,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "esc":
+		case "esc":
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
@@ -154,6 +155,6 @@ func (m *CardListModel) View() string {
 		return m.form.View()
 	}
 
-	help := helpStyle.Render("(↑/↓) navigate | (a) add new card | (q) back to menu")
+	help := helpStyle.Render("(↑/↓) navigate | (a) add new card | (esc) back to menu")
 	return baseStyle.Render(m.table.View()) + "\n" + help
 }

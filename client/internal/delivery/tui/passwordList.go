@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"time"
 
@@ -9,16 +10,15 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-
 type PassListModel struct {
 	state   viewState
 	table   table.Model
 	form    PassFormModel
-	storage LocalStorage
+	storage domain.LocalStorage
 	passs   []model.Password // Добавляем поле для хранения полных данных карт
 }
 
-func NewPassListModel(storage LocalStorage) *PassListModel {
+func NewPassListModel(storage domain.LocalStorage) *PassListModel {
 	columns := []table.Column{
 		{Title: "Login", Width: 20},
 		{Title: "Password", Width: 25},
@@ -119,11 +119,11 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "q", "esc":
+		case "esc":
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
-			m.form = NewPassForm(m.storage,nil) // Создаем новую чистую форму
+			m.form = NewPassForm(m.storage, nil) // Создаем новую чистую форму
 			return m, m.form.Init()
 		case "e", "enter":
 			if len(m.passs) == 0 {
@@ -145,6 +145,6 @@ func (m *PassListModel) View() string {
 		return m.form.View()
 	}
 
-	help := helpStyle.Render("(↑/↓) navigate | (a) add new pass | (q) back to menu")
+	help := helpStyle.Render("(↑/↓) navigate | (a) add new pass | (esc) back to menu")
 	return baseStyle.Render(m.table.View()) + "\n" + help
 }

@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/domain"
 
 	//"gophKeeper/client/internal/transport"
 	"strings"
@@ -17,7 +18,7 @@ type loginOk struct{}
 
 type LoginModel struct {
 	cfg           *config.Config
-	storage       LocalStorage
+	storage       domain.LocalStorage
 	passwordInput textinput.Model
 	focusIndex    int
 	err           error
@@ -28,7 +29,7 @@ type LoginModel struct {
 	//attemptsLeft  int
 }
 
-func NewLoginModel(storage LocalStorage, cfg *config.Config) tea.Model {
+func NewLoginModel(storage domain.LocalStorage, cfg *config.Config) tea.Model {
 	m := LoginModel{
 		cfg:     cfg,
 		storage: storage,
@@ -175,7 +176,7 @@ func (m LoginModel) View() string {
 	return b.String()
 }
 
-func performLogin(cfg *config.Config, storage LocalStorage, password string) tea.Cmd {
+func performLogin(cfg *config.Config, storage domain.LocalStorage, password string) tea.Cmd {
 	return func() tea.Msg {
 		if password == "" {
 			return errMsg(fmt.Errorf("password cannot be empty"))
@@ -191,7 +192,7 @@ func performLogin(cfg *config.Config, storage LocalStorage, password string) tea
 	}
 }
 
-func performRegister(cfg *config.Config, storage LocalStorage, password string) tea.Cmd {
+func performRegister(cfg *config.Config, storage domain.LocalStorage, password string) tea.Cmd {
 	return func() tea.Msg {
 		if password == "" {
 			return errMsg(fmt.Errorf("login and password cannot be empty"))

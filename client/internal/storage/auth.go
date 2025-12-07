@@ -6,7 +6,7 @@ import (
 	"go.etcd.io/bbolt"
 )
 
-// SaveUserCredentials сохраняет пароль пользователя.
+// LocalRegister сохраняет пароль для локального пользователя и инициализирует ключ шифрования.
 func (s *BboltStorage) LocalRegister(user, password string) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
@@ -27,25 +27,45 @@ func (s *BboltStorage) LocalRegister(user, password string) error {
 		if err = b.Put(userKey, encryptedUser); err != nil {
 			s.log.Error().Err(err).Msg("Failed to save login")
 		}
-		
+
 		return b.Put(passwordKey, encryptedPassword)
 	})
 }
 
-// SaveUserCredentials сохраняет токен пользователя.
-func (s *BboltStorage) SaveUserCredentials(login, token string) error {
+// SaveUserCredentials сохраняет токен, удаленный логин и ID устройства пользователя.
+func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
+
+		// Сохраняем токен
 		encryptedToken, err := s.encrypt([]byte(token))
 		if err != nil {
 			return fmt.Errorf("could not encrypt token: %w", err)
 		}
-		return b.Put(tokenKey, encryptedToken)
+		if err := b.Put(tokenKey, encryptedToken); err != nil {
+			return fmt.Errorf("failed to save token: %w", err)
+		}
+
+		// Сохраняем и удаленный логин, чтобы не запрашивать его каждый раз
+		encryptedLogin, err := s.encrypt([]byte(login))
+		if err != nil {
+			return fmt.Errorf("could not encrypt remote login: %w", err)
+		}
+		if err := b.Put(loginKey, encryptedLogin); err != nil {
+			return fmt.Errorf("failed to save remote login: %w", err)
+		}
+
+		// Сохраняем ID устройства
+		encryptedDeviceID, err := s.encrypt([]byte(deviceID))
+		if err != nil {
+			return fmt.Errorf("could not encrypt device id: %w", err)
+		}
+		return b.Put(deviceKey, encryptedDeviceID)
 	})
 }
 
-// GetUserCredentials извлекает токен пользователя.
-func (s *BboltStorage) GetUserCredentials() (user,token string, err error) {
+// GetUserCredentials извлекает удаленный логин и токен пользователя.
+func (s *BboltStorage) GetUserCredentials() (login, token, device string, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 
@@ -58,16 +78,25 @@ func (s *BboltStorage) GetUserCredentials() (user,token string, err error) {
 			}
 			token = string(decryptedToken)
 		}
-		userBytes := b.Get(userKey)
-		if len(userBytes) > 0 {
-			decryptedLogin, err := s.decrypt(userBytes)	
-			if err!= nil {
+		loginBytes := b.Get(loginKey)
+		if len(loginBytes) > 0 {
+			decryptedLogin, err := s.decrypt(loginBytes)
+			if err != nil {
 				return fmt.Errorf("could not decrypt login: %w", err)
 			}
-			user = string(decryptedLogin)
+			login = string(decryptedLogin)
+		}
+
+		deviceBytes := b.Get(deviceKey)
+		if len(deviceBytes) > 0 {
+			decryptedDevice, err := s.decrypt(deviceBytes)
+			if err != nil {
+				return fmt.Errorf("could not decrypt device: %w", err)
+			}
+			device = string(decryptedDevice)
 		}
 		return nil
 	})
-	s.log.Info().Str("user", user).Str("token", token).Msg("Retrieved user credentials")
-	return user,token, nil
+	s.log.Info().Str("Login", login).Bool("hasToken", token != "").Msg("Retrieved user credentials")
+	return login, token, device, err
 }

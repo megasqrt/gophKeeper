@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/delivery/tui"
+	"gophKeeper/client/internal/services"
 	"gophKeeper/client/internal/storage"
 	"gophKeeper/client/internal/transport"
 	logger "gophKeeper/pkg/logger"
@@ -45,9 +46,12 @@ func NewApp(ctx context.Context) *App {
 	}
 
 	// Initialize the transport layer.
-	if err := transport.Init(ctx, cfg); err != nil {
+	if err := transport.Init(ctx, cfg, log); err != nil {
 		log.Warn().Err(err).Msg("Failed to initialize transport layer; starting in offline mode")
 	}
+
+	// Инициализируем сервис синхронизации
+	syncService := services.NewSyncService(store, log)
 
 	app := &App{
 		Logger:  log,
@@ -55,7 +59,7 @@ func NewApp(ctx context.Context) *App {
 	}
 
 	// 1. Создаем модель без указателя на программу.
-	rootModel := tui.NewRootModel(store, cfg)
+	rootModel := tui.NewRootModel(store, cfg, syncService)
 	// 2. Создаем программу с этой моделью.
 	p := tea.NewProgram(rootModel)
 	// 3. Теперь, когда программа создана, устанавливаем указатель на нее в модели.

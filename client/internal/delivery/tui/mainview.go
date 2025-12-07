@@ -1,8 +1,11 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/domain"
+	"gophKeeper/client/internal/services"
 	"gophKeeper/client/internal/transport"
 	"io"
 	"strings"
@@ -69,22 +72,26 @@ type MainViewModel struct {
 	fileModel     tea.Model
 	settingsModel tea.Model
 	registerModel tea.Model
-	// Другие модели для паролей, заметок и т.д.
 
 	login        string
 	serverOnline bool
 	tokenIsValid bool
+	isSyncing    bool
 	cfg          *config.Config
 	program      *tea.Program
-	storage      LocalStorage
+	storage      domain.LocalStorage
 	width        int
 	height       int
 }
 
 type serverStatusMsg struct{ tokenValid bool }
+type syncStartMsg struct{}
+type syncFinishMsg struct{ err error }
 type checkNowMsg struct{}
 
-func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
+// NewMainViewModel создает главную модель представления.
+// syncer - это сервис для синхронизации данных.
+func NewMainViewModel(cfg *config.Config, storage domain.LocalStorage, syncer *services.SyncService) *MainViewModel {
 	items := []list.Item{
 		item("💳 Credit Cards"),
 		item("🔑 Passwords"),
@@ -106,6 +113,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		menu:          l,
 		serverOnline:  transport.IsOnline(), // Initialize with status from transport layer
 		tokenIsValid:  false,                // Assume token is invalid at start, will be checked
+		isSyncing:     false,
 		cfg:           cfg,
 		storage:       storage,
 		cardModel:     NewCardListModel(storage),
@@ -113,7 +121,7 @@ func NewMainViewModel(cfg *config.Config, storage LocalStorage) *MainViewModel {
 		textModel:     NewTextEditModel(storage),
 		fileModel:     NewFileUploadModel(storage),
 		settingsModel: NewSettingsModel(),
-		registerModel: InitialModel(storage, cfg),
+		registerModel: InitialModel(storage, cfg, syncer),
 	}
 }
 
@@ -143,6 +151,19 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case serverStatusMsg:
 		m.tokenIsValid = msg.tokenValid
+		if m.tokenIsValid {
+			// Если токен валиден, запускаем синхронизацию
+			return m, func() tea.Msg { return syncStartMsg{} }
+		}
+		return m, nil
+
+	case syncStartMsg:
+		m.isSyncing = true
+		return m, performSync(m.registerModel.(*regmodel).syncer)
+
+	case syncFinishMsg:
+		m.isSyncing = false
+		// TODO: Обработать msg.err, если нужно показать ошибку пользователю
 		return m, nil
 
 	case checkNowMsg:
@@ -197,6 +218,10 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				case "🚀 Register to server", "☁️ Sync with server":
 					m.state = registerView
+					if m.tokenIsValid {
+						// Если мы уже авторизованы, "Sync" просто запускает синхронизацию
+						return m, func() tea.Msg { return syncStartMsg{} }
+					}
 					return m, m.registerModel.Init()
 				}
 			}
@@ -253,25 +278,43 @@ func (m *MainViewModel) View() string {
 		if m.tokenIsValid {
 			// Используем AdaptiveColor для надежного отображения цвета
 			green := lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
-			statusText := "Authorization"
+			statusText := "Authorized"
 			status = lipgloss.NewStyle().Foreground(green).Render(statusText)
 		} else {
 			// Используем AdaptiveColor для надежного отображения цвета
 			red := lipgloss.AdaptiveColor{Light: "#FF5B5B", Dark: "#FF6B6B"}
-			statusText := "Register to server"
+			statusText := "Offline / Not Registered"
 			status = lipgloss.NewStyle().Foreground(red).Render(statusText)
+		}
+
+		// Добавляем статус синхронизации
+		if m.isSyncing {
+			syncStatus := lipgloss.NewStyle().
+				Foreground(lipgloss.Color("213")). // Оранжевый
+				Render("  Syncing...")
+			status += syncStatus
 		}
 		return docStyle.Render(m.menu.View() + "\n" + status)
 	}
 }
 
 // checkServer returns a command that pings the server and returns a serverStatusMsg.
-func checkServer(storage LocalStorage) tea.Cmd {
+func checkServer(storage domain.LocalStorage) tea.Cmd {
 	return func() tea.Msg {
-		_, token, err := storage.GetUserCredentials()
+		_, token, _, err := storage.GetUserCredentials()
 		if err != nil {
 			return serverStatusMsg{tokenValid: false}
 		}
 		return serverStatusMsg{tokenValid: transport.Ping(token)}
+	}
+}
+
+// performSync запускает процесс синхронизации в фоновом режиме.
+func performSync(syncer *services.SyncService) tea.Cmd {
+	return func() tea.Msg {
+		// Запускаем синхронизацию в горутине, чтобы не блокировать UI
+		err := syncer.Sync(context.Background())
+		// Возвращаем сообщение о завершении
+		return syncFinishMsg{err: err}
 	}
 }

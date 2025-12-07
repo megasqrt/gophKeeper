@@ -2,6 +2,8 @@ package tui
 
 import (
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/domain"
+	"gophKeeper/client/internal/services"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -19,7 +21,7 @@ type RootModel struct {
 	state   sessionState
 	login   tea.Model
 	main    tea.Model
-	storage LocalStorage
+	storage domain.LocalStorage
 	program *tea.Program // Ссылка на программу для отправки сообщений
 	cfg     *config.Config
 	width   int
@@ -27,14 +29,13 @@ type RootModel struct {
 }
 
 // NewRootModel создает корневую модель.
-func NewRootModel(storage LocalStorage, cfg *config.Config) RootModel {
+func NewRootModel(storage domain.LocalStorage, cfg *config.Config, syncer *services.SyncService) RootModel {
 
 	// Всегда начинаем с экрана входа, чтобы получить пароль для ключа.
 	//login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
 
 	// lastSync и deviceName будут получены после успешного входа.
-	// Поэтому передаем пустые значения в NewMainViewModel.
-	mainViewModel := NewMainViewModel(cfg, storage)
+	mainViewModel := NewMainViewModel(cfg, storage, syncer)
 
 	return RootModel{
 		state:   unauthorizedState, // Всегда начинаем с этого состояния

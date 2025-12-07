@@ -41,7 +41,7 @@ func Init() (*Config, error) {
 	}
 
 	// Устанавливаем значения по умолчанию
-	viper.SetDefault("server_address", "localhost:9090")
+	viper.SetDefault("server_address", "localhost:8080")
 	viper.SetDefault("db_path", filepath.Join(configDir, "gophkeeper.db"))
 	viper.SetDefault("ca_cert_path", filepath.Join(configDir, "certs/ca.crt"))
 	viper.SetDefault("log_path", filepath.Join(configDir, "client.log"))

@@ -4,9 +4,13 @@ import (
 	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
+	"gophKeeper/client/internal/domain"
+	"gophKeeper/client/internal/services"
 	"gophKeeper/client/internal/transport"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -24,7 +28,7 @@ type (
 
 type regmodel struct {
 	cfg           *config.Config
-	storage       LocalStorage
+	storage       domain.LocalStorage
 	loginInput    textinput.Model
 	passwordInput textinput.Model
 	emailInput    textinput.Model
@@ -35,13 +39,15 @@ type regmodel struct {
 	registered    bool
 	token         string
 	attemptsLeft  int
+	syncer        *services.SyncService
 	width         int
 }
 
-func InitialModel(storage LocalStorage, cfg *config.Config) regmodel {
-	m := regmodel{
+func InitialModel(storage domain.LocalStorage, cfg *config.Config, syncer *services.SyncService) *regmodel {
+	m := &regmodel{
 		cfg:          cfg,
 		storage:      storage,
+		syncer:       syncer,
 		attemptsLeft: 3, // Устанавливаем 3 попытки
 	}
 
@@ -70,11 +76,11 @@ func InitialModel(storage LocalStorage, cfg *config.Config) regmodel {
 	return m
 }
 
-func (m regmodel) Init() tea.Cmd {
+func (m *regmodel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -82,7 +88,7 @@ func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
-			return m, tea.Quit
+			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
@@ -153,7 +159,7 @@ func (m regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.token = msg.token
 		// После успешной регистрации сохраняем учетные данные и выходим.
 		// Сохранение токена теперь происходит внутри performRegistration
-		return m, tea.Quit
+		return m, func() tea.Msg { return backToMenuMsg{} }
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -175,7 +181,7 @@ func (m *regmodel) updateInputs(msg tea.Msg) tea.Cmd {
 	return tea.Batch(cmds...)
 }
 
-func (m regmodel) View() string {
+func (m *regmodel) View() string {
 	if m.loading {
 		return fmt.Sprintf("%s Registering...", m.spinner.View())
 	}
@@ -218,7 +224,7 @@ func (m regmodel) View() string {
 	return b.String()
 }
 
-func performRegistration(cfg *config.Config, login, password, email string, storage LocalStorage) tea.Cmd {
+func performRegistration(cfg *config.Config, login, password, email string, storage domain.LocalStorage) tea.Cmd {
 	return func() tea.Msg {
 		if login == "" || password == "" {
 			return errMsg(fmt.Errorf("login and password cannot be empty"))
@@ -229,14 +235,15 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 			return errMsg(err)
 		}
 
-		// Сохраняем токен
-		if err := storage.SaveUserCredentials(login, res.GetToken()); err != nil {
-			return errMsg(fmt.Errorf("failed to save credentials: %w", err))
+		// Извлекаем deviceID из токена
+		deviceID, err := getDeviceIDFromToken(res.GetToken())
+		if err != nil {
+			return errMsg(fmt.Errorf("failed to parse token: %w", err))
 		}
 
-		// "Открываем" хранилище с новым паролем, чтобы зашифровать время
-		if err := storage.Unlock(login, password); err != nil {
-			return errMsg(fmt.Errorf("failed to unlock storage after registration: %w", err))
+		// Сохраняем токен
+		if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID); err != nil {
+			return errMsg(fmt.Errorf("failed to save credentials: %w", err))
 		}
 
 		// Сохраняем время успешной операции
@@ -246,4 +253,29 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 
 		return registrationOk{token: res.GetToken()}
 	}
+}
+
+// getDeviceIDFromToken парсит JWT и извлекает из него device_id.
+func getDeviceIDFromToken(tokenString string) (string, error) {
+	// JWT состоит из 3 частей, разделенных точками. Нам нужна вторая часть (payload).
+	parts := strings.Split(tokenString, ".")
+	if len(parts) != 3 {
+		return "", fmt.Errorf("invalid token format")
+	}
+
+	// Нам не нужно проверять подпись на клиенте, поэтому используем `jwt.ParseUnverified`.
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
+	if err != nil {
+		return "", fmt.Errorf("failed to parse token: %w", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		deviceID, ok := claims["device_id"].(string)
+		if !ok {
+			return "", fmt.Errorf("device_id not found or not a string in token claims")
+		}
+		return deviceID, nil
+	}
+
+	return "", fmt.Errorf("invalid token claims")
 }

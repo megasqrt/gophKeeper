@@ -35,6 +35,7 @@ var (
 	userKey     = []byte("user")
 	passwordKey = []byte("password")
 	tokenKey    = []byte("token")
+	deviceKey	= []byte("device")	
 	lastSyncKey = []byte("lastSync")
 )
 
@@ -127,7 +128,7 @@ func encriptPassword(user, password string) ([]byte, error) {
 
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
-	_, token, err := s.GetUserCredentials()
+	_,token, _, err := s.GetUserCredentials()
 	return err == nil && token != ""
 }
 

@@ -5257,6 +5257,1620 @@ func (b0 GetFilesResponse_builder) Build() *GetFilesResponse {
 	return m0
 }
 
+type TextData struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Title       *string                `protobuf:"bytes,2,opt,name=title"`
+	xxx_hidden_Text        *string                `protobuf:"bytes,3,opt,name=text"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,4,opt,name=change_time,json=changeTime"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TextData) Reset() {
+	*x = TextData{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TextData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TextData) ProtoMessage() {}
+
+func (x *TextData) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TextData) GetId() string {
+	if x != nil {
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *TextData) GetTitle() string {
+	if x != nil {
+		if x.xxx_hidden_Title != nil {
+			return *x.xxx_hidden_Title
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *TextData) GetText() string {
+	if x != nil {
+		if x.xxx_hidden_Text != nil {
+			return *x.xxx_hidden_Text
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *TextData) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *TextData) SetId(v string) {
+	x.xxx_hidden_Id = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+}
+
+func (x *TextData) SetTitle(v string) {
+	x.xxx_hidden_Title = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+}
+
+func (x *TextData) SetText(v string) {
+	x.xxx_hidden_Text = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+}
+
+func (x *TextData) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+}
+
+func (x *TextData) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *TextData) HasTitle() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *TextData) HasText() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *TextData) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *TextData) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *TextData) ClearTitle() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Title = nil
+}
+
+func (x *TextData) ClearText() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Text = nil
+}
+
+func (x *TextData) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+type TextData_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id         *string
+	Title      *string
+	Text       *string
+	ChangeTime *int64
+}
+
+func (b0 TextData_builder) Build() *TextData {
+	m0 := &TextData{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		x.xxx_hidden_Id = b.Id
+	}
+	if b.Title != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_Title = b.Title
+	}
+	if b.Text != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_Text = b.Text
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	return m0
+}
+
+type TextDataList struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*TextData           `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *TextDataList) Reset() {
+	*x = TextDataList{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TextDataList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TextDataList) ProtoMessage() {}
+
+func (x *TextDataList) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TextDataList) GetItems() []*TextData {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *TextDataList) SetItems(v []*TextData) {
+	x.xxx_hidden_Items = &v
+}
+
+type TextDataList_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*TextData
+}
+
+func (b0 TextDataList_builder) Build() *TextDataList {
+	m0 := &TextDataList{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type CardData struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Number      *string                `protobuf:"bytes,2,opt,name=number"`
+	xxx_hidden_Holder      *string                `protobuf:"bytes,3,opt,name=holder"`
+	xxx_hidden_Expiry      *string                `protobuf:"bytes,4,opt,name=expiry"`
+	xxx_hidden_Cvv         *string                `protobuf:"bytes,5,opt,name=cvv"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,6,opt,name=change_time,json=changeTime"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *CardData) Reset() {
+	*x = CardData{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CardData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CardData) ProtoMessage() {}
+
+func (x *CardData) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *CardData) GetId() string {
+	if x != nil {
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *CardData) GetNumber() string {
+	if x != nil {
+		if x.xxx_hidden_Number != nil {
+			return *x.xxx_hidden_Number
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *CardData) GetHolder() string {
+	if x != nil {
+		if x.xxx_hidden_Holder != nil {
+			return *x.xxx_hidden_Holder
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *CardData) GetExpiry() string {
+	if x != nil {
+		if x.xxx_hidden_Expiry != nil {
+			return *x.xxx_hidden_Expiry
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *CardData) GetCvv() string {
+	if x != nil {
+		if x.xxx_hidden_Cvv != nil {
+			return *x.xxx_hidden_Cvv
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *CardData) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *CardData) SetId(v string) {
+	x.xxx_hidden_Id = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+}
+
+func (x *CardData) SetNumber(v string) {
+	x.xxx_hidden_Number = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+}
+
+func (x *CardData) SetHolder(v string) {
+	x.xxx_hidden_Holder = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+}
+
+func (x *CardData) SetExpiry(v string) {
+	x.xxx_hidden_Expiry = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+}
+
+func (x *CardData) SetCvv(v string) {
+	x.xxx_hidden_Cvv = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+}
+
+func (x *CardData) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+}
+
+func (x *CardData) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *CardData) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *CardData) HasHolder() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *CardData) HasExpiry() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *CardData) HasCvv() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *CardData) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *CardData) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *CardData) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Number = nil
+}
+
+func (x *CardData) ClearHolder() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Holder = nil
+}
+
+func (x *CardData) ClearExpiry() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Expiry = nil
+}
+
+func (x *CardData) ClearCvv() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Cvv = nil
+}
+
+func (x *CardData) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+type CardData_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id         *string
+	Number     *string
+	Holder     *string
+	Expiry     *string
+	Cvv        *string
+	ChangeTime *int64
+}
+
+func (b0 CardData_builder) Build() *CardData {
+	m0 := &CardData{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_Id = b.Id
+	}
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		x.xxx_hidden_Number = b.Number
+	}
+	if b.Holder != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		x.xxx_hidden_Holder = b.Holder
+	}
+	if b.Expiry != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		x.xxx_hidden_Expiry = b.Expiry
+	}
+	if b.Cvv != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_Cvv = b.Cvv
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	return m0
+}
+
+type CardDataList struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*CardData           `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CardDataList) Reset() {
+	*x = CardDataList{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CardDataList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CardDataList) ProtoMessage() {}
+
+func (x *CardDataList) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *CardDataList) GetItems() []*CardData {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *CardDataList) SetItems(v []*CardData) {
+	x.xxx_hidden_Items = &v
+}
+
+type CardDataList_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*CardData
+}
+
+func (b0 CardDataList_builder) Build() *CardDataList {
+	m0 := &CardDataList{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type PasswordData struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Site        *string                `protobuf:"bytes,2,opt,name=site"`
+	xxx_hidden_Login       *string                `protobuf:"bytes,3,opt,name=login"`
+	xxx_hidden_Password    *string                `protobuf:"bytes,4,opt,name=password"`
+	xxx_hidden_Metadata    *string                `protobuf:"bytes,5,opt,name=metadata"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,6,opt,name=change_time,json=changeTime"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *PasswordData) Reset() {
+	*x = PasswordData{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasswordData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasswordData) ProtoMessage() {}
+
+func (x *PasswordData) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *PasswordData) GetId() string {
+	if x != nil {
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *PasswordData) GetSite() string {
+	if x != nil {
+		if x.xxx_hidden_Site != nil {
+			return *x.xxx_hidden_Site
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *PasswordData) GetLogin() string {
+	if x != nil {
+		if x.xxx_hidden_Login != nil {
+			return *x.xxx_hidden_Login
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *PasswordData) GetPassword() string {
+	if x != nil {
+		if x.xxx_hidden_Password != nil {
+			return *x.xxx_hidden_Password
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *PasswordData) GetMetadata() string {
+	if x != nil {
+		if x.xxx_hidden_Metadata != nil {
+			return *x.xxx_hidden_Metadata
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *PasswordData) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *PasswordData) SetId(v string) {
+	x.xxx_hidden_Id = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+}
+
+func (x *PasswordData) SetSite(v string) {
+	x.xxx_hidden_Site = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+}
+
+func (x *PasswordData) SetLogin(v string) {
+	x.xxx_hidden_Login = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+}
+
+func (x *PasswordData) SetPassword(v string) {
+	x.xxx_hidden_Password = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+}
+
+func (x *PasswordData) SetMetadata(v string) {
+	x.xxx_hidden_Metadata = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+}
+
+func (x *PasswordData) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+}
+
+func (x *PasswordData) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *PasswordData) HasSite() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *PasswordData) HasLogin() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *PasswordData) HasPassword() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *PasswordData) HasMetadata() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *PasswordData) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *PasswordData) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *PasswordData) ClearSite() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Site = nil
+}
+
+func (x *PasswordData) ClearLogin() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Login = nil
+}
+
+func (x *PasswordData) ClearPassword() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Password = nil
+}
+
+func (x *PasswordData) ClearMetadata() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Metadata = nil
+}
+
+func (x *PasswordData) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+type PasswordData_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id         *string
+	Site       *string
+	Login      *string
+	Password   *string
+	Metadata   *string
+	ChangeTime *int64
+}
+
+func (b0 PasswordData_builder) Build() *PasswordData {
+	m0 := &PasswordData{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_Id = b.Id
+	}
+	if b.Site != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		x.xxx_hidden_Site = b.Site
+	}
+	if b.Login != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		x.xxx_hidden_Login = b.Login
+	}
+	if b.Password != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		x.xxx_hidden_Password = b.Password
+	}
+	if b.Metadata != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	return m0
+}
+
+type PasswordDataList struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*PasswordData       `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *PasswordDataList) Reset() {
+	*x = PasswordDataList{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasswordDataList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasswordDataList) ProtoMessage() {}
+
+func (x *PasswordDataList) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *PasswordDataList) GetItems() []*PasswordData {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *PasswordDataList) SetItems(v []*PasswordData) {
+	x.xxx_hidden_Items = &v
+}
+
+type PasswordDataList_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*PasswordData
+}
+
+func (b0 PasswordDataList_builder) Build() *PasswordDataList {
+	m0 := &PasswordDataList{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+// Для файлов мы будем синхронизировать только метаданные.
+// Сами данные будут передаваться по запросу через отдельный стриминговый RPC.
+type FileData struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Metadata    *string                `protobuf:"bytes,3,opt,name=metadata"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,4,opt,name=size"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,5,opt,name=change_time,json=changeTime"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *FileData) Reset() {
+	*x = FileData{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileData) ProtoMessage() {}
+
+func (x *FileData) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FileData) GetId() string {
+	if x != nil {
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *FileData) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *FileData) GetMetadata() string {
+	if x != nil {
+		if x.xxx_hidden_Metadata != nil {
+			return *x.xxx_hidden_Metadata
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *FileData) GetSize() int64 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
+}
+
+func (x *FileData) GetChangeTime() int64 {
+	if x != nil {
+		return x.xxx_hidden_ChangeTime
+	}
+	return 0
+}
+
+func (x *FileData) SetId(v string) {
+	x.xxx_hidden_Id = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+}
+
+func (x *FileData) SetName(v string) {
+	x.xxx_hidden_Name = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+}
+
+func (x *FileData) SetMetadata(v string) {
+	x.xxx_hidden_Metadata = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+}
+
+func (x *FileData) SetSize(v int64) {
+	x.xxx_hidden_Size = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *FileData) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+}
+
+func (x *FileData) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *FileData) HasName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *FileData) HasMetadata() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *FileData) HasSize() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *FileData) HasChangeTime() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *FileData) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *FileData) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Name = nil
+}
+
+func (x *FileData) ClearMetadata() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Metadata = nil
+}
+
+func (x *FileData) ClearSize() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Size = 0
+}
+
+func (x *FileData) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_ChangeTime = 0
+}
+
+type FileData_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id         *string
+	Name       *string
+	Metadata   *string
+	Size       *int64
+	ChangeTime *int64
+}
+
+func (b0 FileData_builder) Build() *FileData {
+	m0 := &FileData{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		x.xxx_hidden_Id = b.Id
+	}
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		x.xxx_hidden_Name = b.Name
+	}
+	if b.Metadata != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.Size != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		x.xxx_hidden_Size = *b.Size
+	}
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
+	return m0
+}
+
+type FileDataList struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*FileData           `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *FileDataList) Reset() {
+	*x = FileDataList{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileDataList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileDataList) ProtoMessage() {}
+
+func (x *FileDataList) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FileDataList) GetItems() []*FileData {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *FileDataList) SetItems(v []*FileData) {
+	x.xxx_hidden_Items = &v
+}
+
+type FileDataList_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*FileData
+}
+
+func (b0 FileDataList_builder) Build() *FileDataList {
+	m0 := &FileDataList{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type SyncRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data isSyncRequest_Data     `protobuf_oneof:"data"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SyncRequest) Reset() {
+	*x = SyncRequest{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncRequest) ProtoMessage() {}
+
+func (x *SyncRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SyncRequest) GetTexts() *TextDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncRequest_Texts); ok {
+			return x.Texts
+		}
+	}
+	return nil
+}
+
+func (x *SyncRequest) GetCards() *CardDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncRequest_Cards); ok {
+			return x.Cards
+		}
+	}
+	return nil
+}
+
+func (x *SyncRequest) GetPasswords() *PasswordDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncRequest_Passwords); ok {
+			return x.Passwords
+		}
+	}
+	return nil
+}
+
+func (x *SyncRequest) GetFiles() *FileDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncRequest_Files); ok {
+			return x.Files
+		}
+	}
+	return nil
+}
+
+func (x *SyncRequest) SetTexts(v *TextDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncRequest_Texts{v}
+}
+
+func (x *SyncRequest) SetCards(v *CardDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncRequest_Cards{v}
+}
+
+func (x *SyncRequest) SetPasswords(v *PasswordDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncRequest_Passwords{v}
+}
+
+func (x *SyncRequest) SetFiles(v *FileDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncRequest_Files{v}
+}
+
+func (x *SyncRequest) HasData() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Data != nil
+}
+
+func (x *SyncRequest) HasTexts() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncRequest_Texts)
+	return ok
+}
+
+func (x *SyncRequest) HasCards() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncRequest_Cards)
+	return ok
+}
+
+func (x *SyncRequest) HasPasswords() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncRequest_Passwords)
+	return ok
+}
+
+func (x *SyncRequest) HasFiles() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncRequest_Files)
+	return ok
+}
+
+func (x *SyncRequest) ClearData() {
+	x.xxx_hidden_Data = nil
+}
+
+func (x *SyncRequest) ClearTexts() {
+	if _, ok := x.xxx_hidden_Data.(*syncRequest_Texts); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncRequest) ClearCards() {
+	if _, ok := x.xxx_hidden_Data.(*syncRequest_Cards); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncRequest) ClearPasswords() {
+	if _, ok := x.xxx_hidden_Data.(*syncRequest_Passwords); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncRequest) ClearFiles() {
+	if _, ok := x.xxx_hidden_Data.(*syncRequest_Files); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+const SyncRequest_Data_not_set_case case_SyncRequest_Data = 0
+const SyncRequest_Texts_case case_SyncRequest_Data = 1
+const SyncRequest_Cards_case case_SyncRequest_Data = 2
+const SyncRequest_Passwords_case case_SyncRequest_Data = 3
+const SyncRequest_Files_case case_SyncRequest_Data = 4
+
+func (x *SyncRequest) WhichData() case_SyncRequest_Data {
+	if x == nil {
+		return SyncRequest_Data_not_set_case
+	}
+	switch x.xxx_hidden_Data.(type) {
+	case *syncRequest_Texts:
+		return SyncRequest_Texts_case
+	case *syncRequest_Cards:
+		return SyncRequest_Cards_case
+	case *syncRequest_Passwords:
+		return SyncRequest_Passwords_case
+	case *syncRequest_Files:
+		return SyncRequest_Files_case
+	default:
+		return SyncRequest_Data_not_set_case
+	}
+}
+
+type SyncRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Data:
+	Texts     *TextDataList
+	Cards     *CardDataList
+	Passwords *PasswordDataList
+	Files     *FileDataList
+	// -- end of xxx_hidden_Data
+}
+
+func (b0 SyncRequest_builder) Build() *SyncRequest {
+	m0 := &SyncRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Texts != nil {
+		x.xxx_hidden_Data = &syncRequest_Texts{b.Texts}
+	}
+	if b.Cards != nil {
+		x.xxx_hidden_Data = &syncRequest_Cards{b.Cards}
+	}
+	if b.Passwords != nil {
+		x.xxx_hidden_Data = &syncRequest_Passwords{b.Passwords}
+	}
+	if b.Files != nil {
+		x.xxx_hidden_Data = &syncRequest_Files{b.Files}
+	}
+	return m0
+}
+
+type case_SyncRequest_Data protoreflect.FieldNumber
+
+func (x case_SyncRequest_Data) String() string {
+	md := file_internal_proto_keeper_proto_msgTypes[57].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isSyncRequest_Data interface {
+	isSyncRequest_Data()
+}
+
+type syncRequest_Texts struct {
+	Texts *TextDataList `protobuf:"bytes,1,opt,name=texts,oneof"`
+}
+
+type syncRequest_Cards struct {
+	Cards *CardDataList `protobuf:"bytes,2,opt,name=cards,oneof"`
+}
+
+type syncRequest_Passwords struct {
+	Passwords *PasswordDataList `protobuf:"bytes,3,opt,name=passwords,oneof"` // Раскомментировано
+}
+
+type syncRequest_Files struct {
+	Files *FileDataList `protobuf:"bytes,4,opt,name=files,oneof"` // Раскомментировано
+}
+
+func (*syncRequest_Texts) isSyncRequest_Data() {}
+
+func (*syncRequest_Cards) isSyncRequest_Data() {}
+
+func (*syncRequest_Passwords) isSyncRequest_Data() {}
+
+func (*syncRequest_Files) isSyncRequest_Data() {}
+
+type SyncResponse struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data isSyncResponse_Data    `protobuf_oneof:"data"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *SyncResponse) Reset() {
+	*x = SyncResponse{}
+	mi := &file_internal_proto_keeper_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncResponse) ProtoMessage() {}
+
+func (x *SyncResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_internal_proto_keeper_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SyncResponse) GetTexts() *TextDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncResponse_Texts); ok {
+			return x.Texts
+		}
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetCards() *CardDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncResponse_Cards); ok {
+			return x.Cards
+		}
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetPasswords() *PasswordDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncResponse_Passwords); ok {
+			return x.Passwords
+		}
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetFiles() *FileDataList {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*syncResponse_Files); ok {
+			return x.Files
+		}
+	}
+	return nil
+}
+
+func (x *SyncResponse) SetTexts(v *TextDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncResponse_Texts{v}
+}
+
+func (x *SyncResponse) SetCards(v *CardDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncResponse_Cards{v}
+}
+
+func (x *SyncResponse) SetPasswords(v *PasswordDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncResponse_Passwords{v}
+}
+
+func (x *SyncResponse) SetFiles(v *FileDataList) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &syncResponse_Files{v}
+}
+
+func (x *SyncResponse) HasData() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Data != nil
+}
+
+func (x *SyncResponse) HasTexts() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncResponse_Texts)
+	return ok
+}
+
+func (x *SyncResponse) HasCards() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncResponse_Cards)
+	return ok
+}
+
+func (x *SyncResponse) HasPasswords() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncResponse_Passwords)
+	return ok
+}
+
+func (x *SyncResponse) HasFiles() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*syncResponse_Files)
+	return ok
+}
+
+func (x *SyncResponse) ClearData() {
+	x.xxx_hidden_Data = nil
+}
+
+func (x *SyncResponse) ClearTexts() {
+	if _, ok := x.xxx_hidden_Data.(*syncResponse_Texts); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncResponse) ClearCards() {
+	if _, ok := x.xxx_hidden_Data.(*syncResponse_Cards); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncResponse) ClearPasswords() {
+	if _, ok := x.xxx_hidden_Data.(*syncResponse_Passwords); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *SyncResponse) ClearFiles() {
+	if _, ok := x.xxx_hidden_Data.(*syncResponse_Files); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+const SyncResponse_Data_not_set_case case_SyncResponse_Data = 0
+const SyncResponse_Texts_case case_SyncResponse_Data = 1
+const SyncResponse_Cards_case case_SyncResponse_Data = 2
+const SyncResponse_Passwords_case case_SyncResponse_Data = 3
+const SyncResponse_Files_case case_SyncResponse_Data = 4
+
+func (x *SyncResponse) WhichData() case_SyncResponse_Data {
+	if x == nil {
+		return SyncResponse_Data_not_set_case
+	}
+	switch x.xxx_hidden_Data.(type) {
+	case *syncResponse_Texts:
+		return SyncResponse_Texts_case
+	case *syncResponse_Cards:
+		return SyncResponse_Cards_case
+	case *syncResponse_Passwords:
+		return SyncResponse_Passwords_case
+	case *syncResponse_Files:
+		return SyncResponse_Files_case
+	default:
+		return SyncResponse_Data_not_set_case
+	}
+}
+
+type SyncResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Data:
+	Texts     *TextDataList
+	Cards     *CardDataList
+	Passwords *PasswordDataList
+	Files     *FileDataList
+	// -- end of xxx_hidden_Data
+}
+
+func (b0 SyncResponse_builder) Build() *SyncResponse {
+	m0 := &SyncResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Texts != nil {
+		x.xxx_hidden_Data = &syncResponse_Texts{b.Texts}
+	}
+	if b.Cards != nil {
+		x.xxx_hidden_Data = &syncResponse_Cards{b.Cards}
+	}
+	if b.Passwords != nil {
+		x.xxx_hidden_Data = &syncResponse_Passwords{b.Passwords}
+	}
+	if b.Files != nil {
+		x.xxx_hidden_Data = &syncResponse_Files{b.Files}
+	}
+	return m0
+}
+
+type case_SyncResponse_Data protoreflect.FieldNumber
+
+func (x case_SyncResponse_Data) String() string {
+	md := file_internal_proto_keeper_proto_msgTypes[58].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isSyncResponse_Data interface {
+	isSyncResponse_Data()
+}
+
+type syncResponse_Texts struct {
+	Texts *TextDataList `protobuf:"bytes,1,opt,name=texts,oneof"`
+}
+
+type syncResponse_Cards struct {
+	Cards *CardDataList `protobuf:"bytes,2,opt,name=cards,oneof"`
+}
+
+type syncResponse_Passwords struct {
+	Passwords *PasswordDataList `protobuf:"bytes,3,opt,name=passwords,oneof"` // Раскомментировано
+}
+
+type syncResponse_Files struct {
+	Files *FileDataList `protobuf:"bytes,4,opt,name=files,oneof"` // Раскомментировано
+}
+
+func (*syncResponse_Texts) isSyncResponse_Data() {}
+
+func (*syncResponse_Cards) isSyncResponse_Data() {}
+
+func (*syncResponse_Passwords) isSyncResponse_Data() {}
+
+func (*syncResponse_Files) isSyncResponse_Data() {}
+
 var File_internal_proto_keeper_proto protoreflect.FileDescriptor
 
 const file_internal_proto_keeper_proto_rawDesc = "" +
@@ -5420,7 +7034,56 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"\x12UpdateFileResponse\"\x11\n" +
 	"\x0fGetFilesRequest\"9\n" +
 	"\x10GetFilesResponse\x12%\n" +
-	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files2~\n" +
+	"\x05files\x18\x01 \x03(\v2\x0f.proto.FileInfoR\x05files\"e\n" +
+	"\bTextData\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12\x1f\n" +
+	"\vchange_time\x18\x04 \x01(\x03R\n" +
+	"changeTime\"5\n" +
+	"\fTextDataList\x12%\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.proto.TextDataR\x05items\"\x95\x01\n" +
+	"\bCardData\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\tR\x06number\x12\x16\n" +
+	"\x06holder\x18\x03 \x01(\tR\x06holder\x12\x16\n" +
+	"\x06expiry\x18\x04 \x01(\tR\x06expiry\x12\x10\n" +
+	"\x03cvv\x18\x05 \x01(\tR\x03cvv\x12\x1f\n" +
+	"\vchange_time\x18\x06 \x01(\x03R\n" +
+	"changeTime\"5\n" +
+	"\fCardDataList\x12%\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.proto.CardDataR\x05items\"\xa1\x01\n" +
+	"\fPasswordData\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04site\x18\x02 \x01(\tR\x04site\x12\x14\n" +
+	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
+	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x1a\n" +
+	"\bmetadata\x18\x05 \x01(\tR\bmetadata\x12\x1f\n" +
+	"\vchange_time\x18\x06 \x01(\x03R\n" +
+	"changeTime\"=\n" +
+	"\x10PasswordDataList\x12)\n" +
+	"\x05items\x18\x01 \x03(\v2\x13.proto.PasswordDataR\x05items\"\x7f\n" +
+	"\bFileData\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bmetadata\x18\x03 \x01(\tR\bmetadata\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x03R\x04size\x12\x1f\n" +
+	"\vchange_time\x18\x05 \x01(\x03R\n" +
+	"changeTime\"5\n" +
+	"\fFileDataList\x12%\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.proto.FileDataR\x05items\"\xd5\x01\n" +
+	"\vSyncRequest\x12+\n" +
+	"\x05texts\x18\x01 \x01(\v2\x13.proto.TextDataListH\x00R\x05texts\x12+\n" +
+	"\x05cards\x18\x02 \x01(\v2\x13.proto.CardDataListH\x00R\x05cards\x127\n" +
+	"\tpasswords\x18\x03 \x01(\v2\x17.proto.PasswordDataListH\x00R\tpasswords\x12+\n" +
+	"\x05files\x18\x04 \x01(\v2\x13.proto.FileDataListH\x00R\x05filesB\x06\n" +
+	"\x04data\"\xd6\x01\n" +
+	"\fSyncResponse\x12+\n" +
+	"\x05texts\x18\x01 \x01(\v2\x13.proto.TextDataListH\x00R\x05texts\x12+\n" +
+	"\x05cards\x18\x02 \x01(\v2\x13.proto.CardDataListH\x00R\x05cards\x127\n" +
+	"\tpasswords\x18\x03 \x01(\v2\x17.proto.PasswordDataListH\x00R\tpasswords\x12+\n" +
+	"\x05files\x18\x04 \x01(\v2\x13.proto.FileDataListH\x00R\x05filesB\x06\n" +
+	"\x04data2~\n" +
 	"\vAuthService\x12;\n" +
 	"\bRegister\x12\x16.proto.RegisterRequest\x1a\x17.proto.RegisterResponse\x122\n" +
 	"\x05Login\x12\x13.proto.LoginRequest\x1a\x14.proto.LoginResponse2\x9d\x02\n" +
@@ -5455,9 +7118,11 @@ const file_internal_proto_keeper_proto_rawDesc = "" +
 	"RemoveFile\x12\x18.proto.RemoveFileRequest\x1a\x19.proto.RemoveFileResponse\x12A\n" +
 	"\n" +
 	"UpdateFile\x12\x18.proto.UpdateFileRequest\x1a\x19.proto.UpdateFileResponse\x12;\n" +
-	"\bGetFiles\x12\x16.proto.GetFilesRequest\x1a\x17.proto.GetFilesResponseB\x1bZ\x19gophKeeper/internal/protob\beditionsp\xe8\a"
+	"\bGetFiles\x12\x16.proto.GetFilesRequest\x1a\x17.proto.GetFilesResponse27\n" +
+	"\x04Sync\x12/\n" +
+	"\x04Sync\x12\x12.proto.SyncRequest\x1a\x13.proto.SyncResponseB\x1bZ\x19gophKeeper/internal/protob\beditionsp\xe8\a"
 
-var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_internal_proto_keeper_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_internal_proto_keeper_proto_goTypes = []any{
 	(*RegisterRequest)(nil),        // 0: proto.RegisterRequest
 	(*RegisterResponse)(nil),       // 1: proto.RegisterResponse
@@ -5508,6 +7173,16 @@ var file_internal_proto_keeper_proto_goTypes = []any{
 	(*UpdateFileResponse)(nil),     // 46: proto.UpdateFileResponse
 	(*GetFilesRequest)(nil),        // 47: proto.GetFilesRequest
 	(*GetFilesResponse)(nil),       // 48: proto.GetFilesResponse
+	(*TextData)(nil),               // 49: proto.TextData
+	(*TextDataList)(nil),           // 50: proto.TextDataList
+	(*CardData)(nil),               // 51: proto.CardData
+	(*CardDataList)(nil),           // 52: proto.CardDataList
+	(*PasswordData)(nil),           // 53: proto.PasswordData
+	(*PasswordDataList)(nil),       // 54: proto.PasswordDataList
+	(*FileData)(nil),               // 55: proto.FileData
+	(*FileDataList)(nil),           // 56: proto.FileDataList
+	(*SyncRequest)(nil),            // 57: proto.SyncRequest
+	(*SyncResponse)(nil),           // 58: proto.SyncResponse
 }
 var file_internal_proto_keeper_proto_depIdxs = []int32{
 	4,  // 0: proto.GetDevicesResponse.devices:type_name -> proto.DeviceInfo
@@ -5515,55 +7190,69 @@ var file_internal_proto_keeper_proto_depIdxs = []int32{
 	22, // 2: proto.GetNotesResponse.notes:type_name -> proto.NoteItem
 	31, // 3: proto.GetCardsResponse.cards:type_name -> proto.CardItem
 	40, // 4: proto.GetFilesResponse.files:type_name -> proto.FileInfo
-	0,  // 5: proto.AuthService.Register:input_type -> proto.RegisterRequest
-	2,  // 6: proto.AuthService.Login:input_type -> proto.LoginRequest
-	5,  // 7: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
-	7,  // 8: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
-	9,  // 9: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
-	11, // 10: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
-	14, // 11: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
-	16, // 12: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
-	18, // 13: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
-	20, // 14: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
-	23, // 15: proto.Note.AddNote:input_type -> proto.AddNoteRequest
-	25, // 16: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
-	27, // 17: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
-	29, // 18: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
-	32, // 19: proto.Card.AddCard:input_type -> proto.AddCardRequest
-	34, // 20: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
-	36, // 21: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
-	38, // 22: proto.Card.GetCards:input_type -> proto.GetCardsRequest
-	41, // 23: proto.File.AddFile:input_type -> proto.AddFileRequest
-	43, // 24: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
-	45, // 25: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
-	47, // 26: proto.File.GetFiles:input_type -> proto.GetFilesRequest
-	1,  // 27: proto.AuthService.Register:output_type -> proto.RegisterResponse
-	3,  // 28: proto.AuthService.Login:output_type -> proto.LoginResponse
-	6,  // 29: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
-	8,  // 30: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
-	10, // 31: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
-	12, // 32: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
-	15, // 33: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
-	17, // 34: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
-	19, // 35: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
-	21, // 36: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
-	24, // 37: proto.Note.AddNote:output_type -> proto.AddNoteResponse
-	26, // 38: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
-	28, // 39: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
-	30, // 40: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
-	33, // 41: proto.Card.AddCard:output_type -> proto.AddCardResponse
-	35, // 42: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
-	37, // 43: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
-	39, // 44: proto.Card.GetCards:output_type -> proto.GetCardsResponse
-	42, // 45: proto.File.AddFile:output_type -> proto.AddFileResponse
-	44, // 46: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
-	46, // 47: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
-	48, // 48: proto.File.GetFiles:output_type -> proto.GetFilesResponse
-	27, // [27:49] is the sub-list for method output_type
-	5,  // [5:27] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	49, // 5: proto.TextDataList.items:type_name -> proto.TextData
+	51, // 6: proto.CardDataList.items:type_name -> proto.CardData
+	53, // 7: proto.PasswordDataList.items:type_name -> proto.PasswordData
+	55, // 8: proto.FileDataList.items:type_name -> proto.FileData
+	50, // 9: proto.SyncRequest.texts:type_name -> proto.TextDataList
+	52, // 10: proto.SyncRequest.cards:type_name -> proto.CardDataList
+	54, // 11: proto.SyncRequest.passwords:type_name -> proto.PasswordDataList
+	56, // 12: proto.SyncRequest.files:type_name -> proto.FileDataList
+	50, // 13: proto.SyncResponse.texts:type_name -> proto.TextDataList
+	52, // 14: proto.SyncResponse.cards:type_name -> proto.CardDataList
+	54, // 15: proto.SyncResponse.passwords:type_name -> proto.PasswordDataList
+	56, // 16: proto.SyncResponse.files:type_name -> proto.FileDataList
+	0,  // 17: proto.AuthService.Register:input_type -> proto.RegisterRequest
+	2,  // 18: proto.AuthService.Login:input_type -> proto.LoginRequest
+	5,  // 19: proto.Device.AddDevice:input_type -> proto.AddDeviceRequest
+	7,  // 20: proto.Device.RemoveDevice:input_type -> proto.RemoveDeviceRequest
+	9,  // 21: proto.Device.UpdateDevice:input_type -> proto.UpdateDeviceRequest
+	11, // 22: proto.Device.GetDevices:input_type -> proto.GetDevicesRequest
+	14, // 23: proto.Password.AddPassword:input_type -> proto.AddPasswordRequest
+	16, // 24: proto.Password.RemovePassword:input_type -> proto.RemovePasswordRequest
+	18, // 25: proto.Password.UpdatePassword:input_type -> proto.UpdatePasswordRequest
+	20, // 26: proto.Password.GetPasswords:input_type -> proto.GetPasswordsRequest
+	23, // 27: proto.Note.AddNote:input_type -> proto.AddNoteRequest
+	25, // 28: proto.Note.RemoveNote:input_type -> proto.RemoveNoteRequest
+	27, // 29: proto.Note.UpdateNote:input_type -> proto.UpdateNoteRequest
+	29, // 30: proto.Note.GetNotes:input_type -> proto.GetNotesRequest
+	32, // 31: proto.Card.AddCard:input_type -> proto.AddCardRequest
+	34, // 32: proto.Card.RemoveCard:input_type -> proto.RemoveCardRequest
+	36, // 33: proto.Card.UpdateCard:input_type -> proto.UpdateCardRequest
+	38, // 34: proto.Card.GetCards:input_type -> proto.GetCardsRequest
+	41, // 35: proto.File.AddFile:input_type -> proto.AddFileRequest
+	43, // 36: proto.File.RemoveFile:input_type -> proto.RemoveFileRequest
+	45, // 37: proto.File.UpdateFile:input_type -> proto.UpdateFileRequest
+	47, // 38: proto.File.GetFiles:input_type -> proto.GetFilesRequest
+	57, // 39: proto.Sync.Sync:input_type -> proto.SyncRequest
+	1,  // 40: proto.AuthService.Register:output_type -> proto.RegisterResponse
+	3,  // 41: proto.AuthService.Login:output_type -> proto.LoginResponse
+	6,  // 42: proto.Device.AddDevice:output_type -> proto.AddDeviceResponse
+	8,  // 43: proto.Device.RemoveDevice:output_type -> proto.RemoveDeviceResponse
+	10, // 44: proto.Device.UpdateDevice:output_type -> proto.UpdateDeviceResponse
+	12, // 45: proto.Device.GetDevices:output_type -> proto.GetDevicesResponse
+	15, // 46: proto.Password.AddPassword:output_type -> proto.AddPasswordResponse
+	17, // 47: proto.Password.RemovePassword:output_type -> proto.RemovePasswordResponse
+	19, // 48: proto.Password.UpdatePassword:output_type -> proto.UpdatePasswordResponse
+	21, // 49: proto.Password.GetPasswords:output_type -> proto.GetPasswordsResponse
+	24, // 50: proto.Note.AddNote:output_type -> proto.AddNoteResponse
+	26, // 51: proto.Note.RemoveNote:output_type -> proto.RemoveNoteResponse
+	28, // 52: proto.Note.UpdateNote:output_type -> proto.UpdateNoteResponse
+	30, // 53: proto.Note.GetNotes:output_type -> proto.GetNotesResponse
+	33, // 54: proto.Card.AddCard:output_type -> proto.AddCardResponse
+	35, // 55: proto.Card.RemoveCard:output_type -> proto.RemoveCardResponse
+	37, // 56: proto.Card.UpdateCard:output_type -> proto.UpdateCardResponse
+	39, // 57: proto.Card.GetCards:output_type -> proto.GetCardsResponse
+	42, // 58: proto.File.AddFile:output_type -> proto.AddFileResponse
+	44, // 59: proto.File.RemoveFile:output_type -> proto.RemoveFileResponse
+	46, // 60: proto.File.UpdateFile:output_type -> proto.UpdateFileResponse
+	48, // 61: proto.File.GetFiles:output_type -> proto.GetFilesResponse
+	58, // 62: proto.Sync.Sync:output_type -> proto.SyncResponse
+	40, // [40:63] is the sub-list for method output_type
+	17, // [17:40] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_internal_proto_keeper_proto_init() }
@@ -5571,15 +7260,27 @@ func file_internal_proto_keeper_proto_init() {
 	if File_internal_proto_keeper_proto != nil {
 		return
 	}
+	file_internal_proto_keeper_proto_msgTypes[57].OneofWrappers = []any{
+		(*syncRequest_Texts)(nil),
+		(*syncRequest_Cards)(nil),
+		(*syncRequest_Passwords)(nil),
+		(*syncRequest_Files)(nil),
+	}
+	file_internal_proto_keeper_proto_msgTypes[58].OneofWrappers = []any{
+		(*syncResponse_Texts)(nil),
+		(*syncResponse_Cards)(nil),
+		(*syncResponse_Passwords)(nil),
+		(*syncResponse_Files)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_keeper_proto_rawDesc), len(file_internal_proto_keeper_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   49,
+			NumMessages:   59,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   7,
 		},
 		GoTypes:           file_internal_proto_keeper_proto_goTypes,
 		DependencyIndexes: file_internal_proto_keeper_proto_depIdxs,

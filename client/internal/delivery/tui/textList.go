@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"io"
 	"strings"
@@ -56,14 +57,15 @@ type TextEditModel struct {
 	list          list.Model
 	editor        textarea.Model
 	titleInput    textinput.Model
-	storage       LocalStorage
+	storage       domain.LocalStorage
 	state         viewState
+	focusIndex    int // 0 = title, 1 = editor
 	width, height int
 	err           error
 	keys          keyMap
 }
 
-func NewTextEditModel(storage LocalStorage) *TextEditModel {
+func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
 	// 1. Создаем список (list)
 	l := list.New([]list.Item{}, textItemDelegate{}, 0, 15)
 	l.Title = "Your Secure Notes"
@@ -102,6 +104,7 @@ func NewTextEditModel(storage LocalStorage) *TextEditModel {
 		editor:     t,
 		storage:    storage,
 		state:      tableView, // По умолчанию фокус на списке
+		focusIndex: 0,
 		keys:       keys,
 	}
 
@@ -197,19 +200,31 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.keys.Back) || msg.String() == "q":
+		case key.Matches(msg, m.keys.Back):
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keys.SwitchFocus):
-			// Простое переключение между списком и формой (редактором)
 			if m.state == tableView {
 				m.state = formView
-				cmd = m.titleInput.Focus() // Фокус на заголовок при переходе в форму
-			} else { // formView
-				m.state = tableView
-				m.titleInput.Blur()
-				m.editor.Blur()
-				m.saveNote() // Автосохранение при выходе из формы
+				m.focusIndex = 0 // Начинаем с заголовка
+				cmd = m.titleInput.Focus()
+			} else { // formView - переключаем фокус внутри формы
+				m.focusIndex = (m.focusIndex + 1) % 2 // 0 -> 1, 1 -> 0
+				if m.focusIndex == 0 {
+					m.editor.Blur()
+					cmd = m.titleInput.Focus()
+				} else {
+					m.titleInput.Blur()
+					cmd = m.editor.Focus()
+				}
+			}
+			cmds = append(cmds, cmd)
+
+		// Новое поведение для выхода из режима редактирования
+		case msg.String() == "shift+tab":
+			if m.state == formView && m.focusIndex == 0 {
+				m.state = tableView // Возвращаемся к списку
+				m.saveNote()
 			}
 			cmds = append(cmds, cmd)
 
@@ -246,11 +261,14 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 		m.syncEditor() // Обновляем редактор при навигации по списку
 	} else {
-		// В режиме формы обновляем оба поля ввода
-		m.titleInput, cmd = m.titleInput.Update(msg)
-		cmds = append(cmds, cmd)
-		m.editor, cmd = m.editor.Update(msg)
-		cmds = append(cmds, cmd) // cmd будет перезаписан, но это нормально
+		// В режиме формы обновляем только компонент в фокусе
+		if m.focusIndex == 0 {
+			m.titleInput, cmd = m.titleInput.Update(msg)
+			cmds = append(cmds, cmd)
+		} else {
+			m.editor, cmd = m.editor.Update(msg)
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return m, tea.Batch(cmds...)

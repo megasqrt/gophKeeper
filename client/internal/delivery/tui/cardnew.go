@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"strings"
 
@@ -20,11 +21,11 @@ type cardFormBackMsg struct{}
 
 type CardFormModel struct {
 	formModel
-	storage LocalStorage
+	storage domain.LocalStorage
 	cardID  string // ID для редактируемой карты
 }
 
-func NewCardForm(storage LocalStorage, card *model.Card) CardFormModel {
+func NewCardForm(storage domain.LocalStorage, card *model.Card) CardFormModel {
 	m := CardFormModel{
 		storage:   storage,
 		formModel: newFormModel(),

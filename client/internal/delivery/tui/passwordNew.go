@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"strings"
 
@@ -16,11 +17,11 @@ type passFormBackMsg struct{}
 
 type PassFormModel struct {
 	formModel
-	storage LocalStorage
+	storage domain.LocalStorage
 	passID  string // ID для редактируемой карты
 }
 
-func NewPassForm(storage LocalStorage, pass *model.Password) PassFormModel {
+func NewPassForm(storage domain.LocalStorage, pass *model.Password) PassFormModel {
 	m := PassFormModel{
 		storage:   storage,
 		formModel: newFormModel(),

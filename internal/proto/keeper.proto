@@ -296,3 +296,81 @@ message GetFilesRequest {}
 message GetFilesResponse {
     repeated FileInfo files = 1;
 }
+
+// --- SYNC ---
+
+service Sync {
+    // Универсальный метод для синхронизации
+    rpc Sync (SyncRequest) returns (SyncResponse);
+}
+
+// Сообщения для синхронизации
+
+message TextData {
+    string id = 1;
+    string title = 2;
+    string text = 3;
+    int64 change_time = 4;
+}
+
+message TextDataList {
+    repeated TextData items = 1;
+}
+
+message CardData {
+    string id = 1;
+    string number = 2;
+    string holder = 3;
+    string expiry = 4;
+    string cvv = 5;
+    int64 change_time = 6;
+}
+
+message CardDataList {
+    repeated CardData items = 1;
+}
+
+message PasswordData {
+    string id = 1;
+    string site = 2;
+    string login = 3;
+    string password = 4;
+    string metadata = 5;
+    int64 change_time = 6;
+}
+
+message PasswordDataList {
+    repeated PasswordData items = 1;
+}
+
+// Для файлов мы будем синхронизировать только метаданные.
+// Сами данные будут передаваться по запросу через отдельный стриминговый RPC.
+message FileData {
+    string id = 1;
+    string name = 2;
+    string metadata = 3;
+    int64 size = 4;
+    int64 change_time = 5;
+}
+
+message FileDataList {
+    repeated FileData items = 1;
+}
+
+message SyncRequest {
+    oneof data {
+        TextDataList texts = 1;
+        CardDataList cards = 2;
+        PasswordDataList passwords = 3; // Раскомментировано
+        FileDataList files = 4;         // Раскомментировано
+    }
+}
+
+message SyncResponse {
+    oneof data {
+        TextDataList texts = 1;
+        CardDataList cards = 2;
+        PasswordDataList passwords = 3; // Раскомментировано
+        FileDataList files = 4;         // Раскомментировано
+    }
+}

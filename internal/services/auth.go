@@ -154,10 +154,6 @@ func (s *Service) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 	return pb.LoginResponse_builder{Token: &token}.Build(), nil
 }
 
-func (s *Service) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
-	return &pb.PingResponse{}, nil
-}
-
 func (s *Service) generateJWT(userID uuid.UUID, deviceID string) (string, error) {
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{

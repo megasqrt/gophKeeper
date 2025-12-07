@@ -1,4 +1,4 @@
-SERVER_PORT=9090
+SERVER_PORT=8080
 ADDRESS=localhost:${SERVER_PORT}
 TEMP_FILE=$(random tempfile)
 KEY=secretKey
