@@ -6,7 +6,6 @@ import (
 	"gophKeeper/client/internal/domain/model"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -113,26 +112,15 @@ func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
 
 // Load данные из хранилища и обновляет список.
 func (m *TextEditModel) Load() {
-	textsData, err := m.storage.GetTexts()
+	texts, err := m.storage.GetTexts()
 	if err != nil {
 		m.err = fmt.Errorf("could not load notes: %w", err)
 		m.list.SetItems(nil)
 		return
 	}
 
-	items := make([]list.Item, len(textsData))
-	for i, data := range textsData {
-		textData := model.TextData{
-			ID:    data["id"],
-			Title: data["title"],
-			Text:  data["text"],
-		}
-		if changeTimeStr, ok := data["changeTime"]; ok {
-			textData.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		if syncTimeStr, ok := data["syncTime"]; ok {
-			textData.SyncTime, _ = time.Parse(time.RFC3339Nano, syncTimeStr)
-		}
+	items := make([]list.Item, len(texts))
+	for i, textData := range texts {
 		items[i] = textItem{textData}
 	}
 	m.list.SetItems(items)
@@ -149,7 +137,7 @@ func (m *TextEditModel) syncEditor() {
 	}
 
 	m.titleInput.SetValue(selectedItem.Title())
-	m.editor.SetValue(selectedItem.Text)
+	m.editor.SetValue(selectedItem.TextData.Text)
 }
 
 func (m *TextEditModel) saveNote() {
@@ -158,16 +146,15 @@ func (m *TextEditModel) saveNote() {
 		return
 	}
 
-	data := map[string]string{
-		"id":    selectedItem.ID,
-		"title": m.titleInput.Value(),
-		"text":  m.editor.Value(),
-	}
+	// Обновляем данные прямо в модели
+	selectedItem.TextData.Title = m.titleInput.Value()
+	selectedItem.TextData.Text = m.editor.Value()
+
 	var err error
-	if selectedItem.ID == "" { // Новый элемент без ID
-		err = m.storage.SaveText(data)
+	if selectedItem.LocalID == "" { // Новый элемент без ID
+		err = m.storage.SaveText(&selectedItem.TextData)
 	} else {
-		err = m.storage.UpdateText(data)
+		err = m.storage.UpdateText(&selectedItem.TextData)
 	}
 	if err == nil {
 		m.err = nil // Сбрасываем ошибку при успехе
@@ -232,7 +219,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.saveNote()
 
 		case key.Matches(msg, m.keys.NewItem):
-			newItem := textItem{model.TextData{ID: "", Title: "Новая заметка", Text: ""}}
+			newItem := textItem{model.TextData{Title: "Новая заметка", Text: ""}}
 			m.list.InsertItem(0, newItem)
 			m.list.Select(0)
 			m.syncEditor()
@@ -242,8 +229,8 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.DeleteItem):
 			if m.state == tableView {
 				selectedItem, ok := m.list.SelectedItem().(textItem)
-				if ok && selectedItem.ID != "" {
-					err := m.storage.DeleteText(selectedItem.ID)
+				if ok && selectedItem.LocalID != "" {
+					err := m.storage.DeleteText(selectedItem.LocalID)
 					if err == nil {
 						m.err = nil
 						m.Load()

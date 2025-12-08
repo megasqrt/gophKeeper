@@ -1,33 +1,44 @@
 package storage
 
-import "time"
+import (
+	"gophKeeper/client/internal/domain/model"
+	"time"
+)
 
 // SaveCard сохраняет данные карты в хранилище.
-func (s *BboltStorage) SaveCard(cardData map[string]string) error {
+func (s *BboltStorage) SaveCard(cardData *model.Card) error {
 	s.log.Info().Msg("Saving new card")
-	cardData["changeTime"] = time.Now().Format(time.RFC3339Nano)
-	return s.saveItem(cardsBucket, StringMapToInterfaceMap(cardData), true)
+	cardData.ChangeTime = time.Now()
+	return s.saveItem(cardsBucket, cardData, true)
 }
 
 // UpdateCard обновляет данные существующей карты.
-func (s *BboltStorage) UpdateCard(cardData map[string]string) error {
-	s.log.Info().Str("card_id", cardData["id"]).Msg("Updating card")
-	cardData["changeTime"] = time.Now().Format(time.RFC3339Nano)
-	return s.saveItem(cardsBucket, StringMapToInterfaceMap(cardData), false)
+func (s *BboltStorage) UpdateCard(cardData *model.Card) error {
+	s.log.Info().Str("card_id", cardData.LocalID).Msg("Updating card")
+	cardData.ChangeTime = time.Now()
+	return s.saveItem(cardsBucket, cardData, false)
 }
 
 // GetCards извлекает все сохраненные карты.
-func (s *BboltStorage) GetCards() ([]map[string]string, error) {
+func (s *BboltStorage) GetCards() ([]model.Card, error) {
 	s.log.Info().Msg("Retrieving all cards from storage")
-	items, err := s.getAllItems(cardsBucket)
+	items, err := s.getAllItems(cardsBucket, func(data map[string]interface{}) (interface{}, error) {
+		return model.FromMapCard(data)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Конвертируем обратно в []map[string]string
-	var cards []map[string]string
+	var cards []model.Card
 	for _, item := range items {
-		cards = append(cards, InterfaceMapToStringMap(item))
+		cards = append(cards, item.(model.Card))
 	}
 	return cards, nil
+}
+
+// DeleteCard помечает карту как удаленную.
+func (s *BboltStorage) DeleteCard(id string) error {
+	return s.markAsDeleted(cardsBucket, id, func(data map[string]interface{}) (interface{}, error) {
+		return model.FromMapCard(data)
+	})
 }

@@ -1,0 +1,44 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/internal/proto/gen";
+
+import "common.proto";
+
+message FileItem {
+    string local_id = 1;
+    string server_id = 2;
+    string name = 3;
+    string metadata = 4;
+    int64 size = 5;
+    TimeMap timemap = 6;
+    bool deleted = 7;
+}
+
+message FileResponse {
+    string server_id = 1;
+}
+
+message RemoveFileRequest {
+    string local_id = 1;
+}
+
+message RemoveFileResponse {}
+
+message GetFilesRequest {}
+
+message GetFilesResponse {
+    repeated FileItem files = 1;
+}
+
+message FilesSyncRequest {
+    repeated FileItem files = 1;
+}
+
+service FileService {
+    rpc UpdateFile(FileItem) returns (FileResponse);
+    rpc RemoveFile(RemoveFileRequest) returns (RemoveFileResponse);
+    rpc GetFiles(GetFilesRequest) returns (GetFilesResponse);
+    rpc FilesSync(FilesSyncRequest) returns (GetFilesResponse);
+}

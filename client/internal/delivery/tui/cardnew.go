@@ -13,9 +13,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type cardFormSavedMsg struct {
-	data map[string]string
-}
+type cardFormSavedMsg struct{}
 
 type cardFormBackMsg struct{}
 
@@ -66,7 +64,7 @@ func NewCardForm(storage domain.LocalStorage, card *model.Card) CardFormModel {
 	m.setInputs(inputs)
 
 	if card != nil {
-		m.cardID = card.ID
+		m.cardID = card.LocalID
 		m.inputs[0].SetValue(card.Number)
 		m.inputs[1].SetValue(card.Expiry)
 		m.inputs[2].SetValue(card.CVV)
@@ -95,15 +93,16 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Нажатие Enter на последнем поле или на кнопке "Submit"
 			if s == "enter" && m.submitFocused() {
-				cardData := map[string]string{
-					"number": m.inputs[0].Value(),
-					"holder": m.inputs[3].Value(),
-					"expiry": m.inputs[1].Value(),
-					"cvv":    m.inputs[2].Value(),
+				cardData := &model.Card{
+					LocalID: m.cardID,
+					Number:  m.inputs[0].Value(),
+					Expiry:  m.inputs[1].Value(),
+					CVV:     m.inputs[2].Value(),
+					Holder:  m.inputs[3].Value(),
 				}
+
 				var err error
 				if m.cardID != "" { // Если есть ID, обновляем
-					cardData["id"] = m.cardID
 					err = m.storage.UpdateCard(cardData)
 				} else { // Иначе создаем новую
 					err = m.storage.SaveCard(cardData)
@@ -111,9 +110,10 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				if err != nil {
 					// TODO: обработать ошибку
+					return m, nil
 				}
 				// Отправляем сообщение об успешном сохранении
-				return m, func() tea.Msg { return cardFormSavedMsg{data: cardData} }
+				return m, func() tea.Msg { return cardFormSavedMsg{} }
 			}
 
 			// Переключение фокуса

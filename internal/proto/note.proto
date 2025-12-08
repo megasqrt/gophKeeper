@@ -1,0 +1,43 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/internal/proto/gen";
+
+import "common.proto";
+
+message NoteItem {
+    string local_id = 1;
+    string server_id = 2;
+    string title = 3;
+    string text = 4;
+    TimeMap timemap = 5;
+    bool deleted = 6;
+}
+
+message NoteResponse {
+    string server_id = 1;
+}
+
+message RemoveNoteRequest {
+    string local_id = 1;
+}
+
+message RemoveNoteResponse {}
+
+message GetNotesRequest {}
+
+message GetNotesResponse {
+    repeated NoteItem notes = 1;
+}
+
+message NotesSyncRequest {
+    repeated NoteItem notes = 1;
+}
+
+service NoteService {
+    rpc UpdateNote(NoteItem) returns (NoteResponse);
+    rpc RemoveNote(RemoveNoteRequest) returns (RemoveNoteResponse);
+    rpc GetNotes(GetNotesRequest) returns (GetNotesResponse);
+    rpc NotesSync(NotesSyncRequest) returns (GetNotesResponse);
+}

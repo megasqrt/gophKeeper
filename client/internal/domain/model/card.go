@@ -8,14 +8,21 @@ import (
 
 // Card представляет собой данные кредитной карты.
 type Card struct {
-	ID         string
+	LocalID    string
+	ServerID   string
 	Number     string
 	Holder     string
 	Expiry     string
 	CVV        string
 	ChangeTime time.Time
 	SyncTime   time.Time
+	Deleted    bool
 }
+
+func (c Card) GetLocalID() string       { return c.LocalID }
+func (c Card) GetServerID() string      { return c.ServerID }
+func (c Card) GetChangeTime() time.Time { return c.ChangeTime }
+func (c *Card) SetLocalID(id string)    { c.LocalID = id }
 
 // Title возвращает заголовок для элемента списка (номер карты).
 func (c Card) Title() string {
@@ -31,4 +38,3 @@ func (c Card) Description() string { return strings.ToUpper(c.Holder) }
 
 // FilterValue используется для фильтрации списка.
 func (c Card) FilterValue() string { return c.Title() + " " + c.Description() }
-

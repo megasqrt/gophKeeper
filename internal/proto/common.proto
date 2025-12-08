@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/internal/proto/gen";
+
+message TimeMap {
+    int64 change_time = 1;
+    int64 sync_time = 2;
+}

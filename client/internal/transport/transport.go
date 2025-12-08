@@ -6,7 +6,7 @@ import (
 	"gophKeeper/client/internal/domain/model"
 	"gophKeeper/client/internal/transport/grpc"
 
-	pb "gophKeeper/internal/proto"
+	pb "gophKeeper/internal/proto/gen"
 
 	"google.golang.org/grpc/metadata"
 
@@ -39,7 +39,7 @@ func Init(ctx context.Context, cfg *config.Config, log *zerolog.Logger) error {
 func Login(ctx context.Context, login, password string) (*pb.LoginResponse, error) {
 	if client == nil {
 		isOnline = false
-		return nil, grpc.ErrClientNotInitialized
+		return nil, ErrClientNotInitialized
 	}
 	// Attempt to login
 	res, err := client.Login(ctx, login, password)
@@ -72,7 +72,7 @@ func IsOnline() bool {
 // It proxies the call to the underlying gRPC client's method.
 func Register(ctx context.Context, login, password, email string) (*pb.RegisterResponse, error) {
 	if client == nil {
-		return nil, grpc.ErrClientNotInitialized
+		return nil, ErrClientNotInitialized
 	}
 	return client.Register(ctx, login, password, email)
 }
@@ -80,7 +80,7 @@ func Register(ctx context.Context, login, password, email string) (*pb.RegisterR
 // SyncTexts проксирует вызов к gRPC клиенту.
 func SyncTexts(ctx context.Context, token, deviceID string, localTexts []model.TextData) ([]model.TextData, error) {
 	if client == nil {
-		return nil, grpc.ErrClientNotInitialized
+		return nil, ErrClientNotInitialized
 	}
 	ctx = withAuth(ctx, token, deviceID)
 	return client.SyncTexts(ctx, localTexts)
@@ -101,7 +101,7 @@ func SyncPasswords(ctx context.Context, token, deviceID string, localPasswords [
 // SyncFiles проксирует вызов к gRPC клиенту для синхронизации метаданных файлов.
 func SyncFiles(ctx context.Context, token, deviceID string, localFiles []model.FileData) ([]model.FileData, error) {
 	if client == nil {
-		return nil, grpc.ErrClientNotInitialized
+		return nil, ErrClientNotInitialized
 	}
 	ctx = withAuth(ctx, token, deviceID)
 	return client.SyncFiles(ctx, localFiles)

@@ -1,36 +1,39 @@
 package storage
 
 import (
+	"gophKeeper/client/internal/domain/model"
 	"time"
 
 	"go.etcd.io/bbolt"
 )
 
 // SaveText сохраняет текстовые данные в хранилище.
-func (s *BboltStorage) SaveText(textData map[string]string) error {
-	s.log.Info().Str("title", textData["title"]).Msg("Saving new text data")
-	textData["changeTime"] = time.Now().Format(time.RFC3339Nano)
-	return s.saveItem(textBucket, StringMapToInterfaceMap(textData), true)
+func (s *BboltStorage) SaveText(textData *model.TextData) error {
+	s.log.Info().Str("title", textData.Title).Msg("Saving new text data")
+	textData.ChangeTime = time.Now()
+	return s.saveItem(textBucket, textData, true)
 }
 
 // UpdateText обновляет данные существующей текстовой записи.
-func (s *BboltStorage) UpdateText(textData map[string]string) error {
-	s.log.Info().Str("text_id", textData["id"]).Msg("Updating text data")
-	textData["changeTime"] = time.Now().Format(time.RFC3339Nano)
-	return s.saveItem(textBucket, StringMapToInterfaceMap(textData), false)
+func (s *BboltStorage) UpdateText(textData *model.TextData) error {
+	s.log.Info().Str("text_id", textData.LocalID).Msg("Updating text data")
+	textData.ChangeTime = time.Now()
+	return s.saveItem(textBucket, textData, false)
 }
 
 // GetTexts извлекает все сохраненные текстовые записи.
-func (s *BboltStorage) GetTexts() ([]map[string]string, error) {
+func (s *BboltStorage) GetTexts() ([]model.TextData, error) {
 	s.log.Info().Msg("Retrieving all texts from storage")
-	items, err := s.getAllItems(textBucket)
+	items, err := s.getAllItems(textBucket, func(data map[string]interface{}) (interface{}, error) {
+		return model.FromMapText(data)
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	var texts []map[string]string
+	var texts []model.TextData
 	for _, item := range items {
-		texts = append(texts, InterfaceMapToStringMap(item))
+		texts = append(texts, item.(model.TextData))
 	}
 	return texts, nil
 }

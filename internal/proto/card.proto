@@ -1,0 +1,46 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/internal/proto/gen";
+
+import "common.proto";
+
+message CardItem {
+    string local_id = 1;
+    string server_id = 2;
+    string number = 3;
+    string holder = 4;
+    string expiry = 5;
+    string cvv = 6;
+    string metadata = 7;
+    TimeMap timemap = 8;
+    bool deleted = 9;
+}
+
+message CardResponse {
+    string server_id = 1;
+}
+
+message RemoveCardRequest {
+    string local_id = 1;
+}
+
+message RemoveCardResponse {}
+
+message GetCardsRequest {}
+
+message GetCardsResponse {
+    repeated CardItem cards = 1;
+}
+
+message CardsSyncRequest {
+    repeated CardItem cards = 1;
+}
+
+service CardService {
+    rpc UpdateCard(CardItem) returns (CardResponse);
+    rpc RemoveCard(RemoveCardRequest) returns (RemoveCardResponse);
+    rpc GetCards(GetCardsRequest) returns (GetCardsResponse);
+    rpc CardsSync(CardsSyncRequest) returns (GetCardsResponse);
+}

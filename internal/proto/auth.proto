@@ -1,0 +1,30 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/internal/proto/gen";
+
+message RegisterRequest {
+    string login = 1;
+    string password = 2;
+    string email = 3;
+    string phone = 4;
+}
+
+message RegisterResponse {
+    string token = 1;
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+}

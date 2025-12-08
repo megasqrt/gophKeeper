@@ -6,7 +6,7 @@ import (
 	"gophKeeper/internal/config"
 	"gophKeeper/internal/domain/model"
 	"gophKeeper/internal/domain/repository"
-	pb "gophKeeper/internal/proto"
+	pb "gophKeeper/internal/proto/gen"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

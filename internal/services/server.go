@@ -4,7 +4,7 @@ import (
 	"gophKeeper/internal/config"
 	"net"
 
-	pb "gophKeeper/internal/proto"
+	pb "gophKeeper/internal/proto/gen"
 
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"

@@ -9,9 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type passFormSavedMsg struct {
-	data map[string]string
-}
+type passFormSavedMsg struct{}
 
 type passFormBackMsg struct{}
 
@@ -55,7 +53,7 @@ func NewPassForm(storage domain.LocalStorage, pass *model.Password) PassFormMode
 	m.setInputs(inputs)
 
 	if pass != nil {
-		m.passID = pass.ID
+		m.passID = pass.LocalID
 		m.inputs[0].SetValue(pass.Login)
 		m.inputs[1].SetValue(pass.Password)
 		m.inputs[2].SetValue(pass.Description)
@@ -83,24 +81,25 @@ func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Нажатие Enter на последнем поле или на кнопке "Submit"
 			if s == "enter" && m.submitFocused() {
-				passData := map[string]string{
-					"login":       m.inputs[0].Value(),
-					"password":    m.inputs[1].Value(),
-					"description": m.inputs[2].Value(),
+				passData := &model.Password{
+					LocalID:     m.passID,
+					Login:       m.inputs[0].Value(),
+					Password:    m.inputs[1].Value(),
+					Description: m.inputs[2].Value(),
 				}
 				var err error
 				if m.passID != "" { // Если есть ID, обновляем
-					passData["id"] = m.passID
 					err = m.storage.UpdatePass(passData)
 				} else { // Иначе создаем новую
 					err = m.storage.SavePass(passData)
 				}
 
 				if err != nil {
-					// TODO: обработать ошибку
+					//TODO обработка ошибок
+					return m, nil
 				}
 				// Отправляем сообщение об успешном сохранении
-				return m, func() tea.Msg { return passFormSavedMsg{data: passData} }
+				return m, func() tea.Msg { return passFormSavedMsg{} }
 			}
 
 			// Переключение фокуса

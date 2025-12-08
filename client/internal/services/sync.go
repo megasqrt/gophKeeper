@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
 	"gophKeeper/client/internal/transport"
@@ -12,8 +13,9 @@ import (
 
 // SyncService отвечает за двустороннюю синхронизацию данных с сервером.
 type SyncService struct {
-	storage domain.LocalStorage
-	log     *zerolog.Logger
+	storage      domain.LocalStorage
+	log          *zerolog.Logger
+	lastSyncTime time.Time // Время последней успешной синхронизации
 }
 
 // NewSyncService создает новый экземпляр сервиса синхронизации.
@@ -28,11 +30,12 @@ func NewSyncService(storage domain.LocalStorage, log *zerolog.Logger) *SyncServi
 func (s *SyncService) Sync(ctx context.Context) error {
 	s.log.Info().Msg("Starting full data synchronization")
 
-	lastSyncTime, err := s.storage.GetLastSyncTime()
+	var err error
+	s.lastSyncTime, err = s.storage.GetLastSyncTime()
 	if err != nil {
 		s.log.Warn().Err(err).Msg("Could not get last sync time, performing full sync")
 		// Если времени нет, используем нулевое время, чтобы синхронизировать все.
-		lastSyncTime = time.Time{}
+		s.lastSyncTime = time.Time{}
 	}
 
 	// Получаем учетные данные для запросов
@@ -42,23 +45,20 @@ func (s *SyncService) Sync(ctx context.Context) error {
 	}
 
 	// Синхронизация текстовых заметок
-	if err := s.syncTexts(ctx, token, deviceID, lastSyncTime); err != nil {
+	if err := s.syncTexts(ctx, token, deviceID); err != nil {
 		s.log.Error().Err(err).Msg("Text sync failed")
-		// Можно либо прервать всю синхронизацию, либо продолжить с другими типами данных.
-		// Пока что продолжим.
 	}
 
-	if err := s.syncCards(ctx, token, deviceID, lastSyncTime); err != nil {
+	if err := s.syncCards(ctx, token, deviceID); err != nil {
 		s.log.Error().Err(err).Msg("Card sync failed")
 	}
-	if err := s.syncPasswords(ctx, token, deviceID, lastSyncTime); err != nil { 
+	if err := s.syncPasswords(ctx, token, deviceID); err != nil {
 		s.log.Error().Err(err).Msg("Password sync failed")
 	}
-	if err := s.syncFiles(ctx, token, deviceID, lastSyncTime); err != nil {
+	if err := s.syncFiles(ctx, token, deviceID); err != nil {
 		s.log.Error().Err(err).Msg("File metadata sync failed")
 	}
 
-	// Если все прошло успешно, обновляем время последней синхронизации.
 	if err := s.storage.SaveLastSyncTime(time.Now()); err != nil {
 		s.log.Error().Err(err).Msg("Failed to save last sync time")
 		return err
@@ -68,26 +68,13 @@ func (s *SyncService) Sync(ctx context.Context) error {
 	return nil
 }
 
-func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string, lastSync time.Time) error {
+func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing text notes...")
 
 	// 1. Получаем все локальные тексты
-	localTextsData, err := s.storage.GetTexts()
+	localTexts, err := s.storage.GetTexts()
 	if err != nil {
 		return err
-	}
-	// Конвертируем данные из хранилища в доменную модель
-	localTexts := make([]model.TextData, len(localTextsData))
-	for i, data := range localTextsData {
-		textData := model.TextData{
-			ID:    data["id"],
-			Title: data["title"],
-			Text:  data["text"],
-		}
-		if changeTimeStr, ok := data["changeTime"]; ok {
-			textData.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		localTexts[i] = textData
 	}
 
 	// 2. Отправляем на сервер
@@ -97,247 +84,263 @@ func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string, las
 	}
 
 	// 3. Обрабатываем ответ сервера
-	for _, serverText := range serverTexts {
-		// Ищем соответствующую локальную запись
-		var foundLocal *model.TextData
-		for i := range localTexts {
-			if localTexts[i].ID == serverText.ID {
-				foundLocal = &localTexts[i]
-				break
-			}
-		}
-
-		if foundLocal == nil {
-			// Записи нет локально, создаем ее
-			s.log.Info().Str("id", serverText.ID).Str("title", serverText.Title).Msg("Creating new local text from server")
-			textMap := map[string]string{
-				"id":         serverText.ID,
-				"title":      serverText.Title,
-				"text":       serverText.Text,
-				"changeTime": serverText.ChangeTime.Format(time.RFC3339Nano),
-			}
-			if err := s.storage.SaveText(textMap); err != nil {
-				s.log.Error().Err(err).Str("id", serverText.ID).Msg("Failed to save new local text")
-			}
-		} else {
-			// Запись есть, сравниваем время изменения
-			if serverText.ChangeTime.After(foundLocal.ChangeTime) {
-				// На сервере новее, обновляем локальную
-				textMap := map[string]string{
-					"id":         serverText.ID,
-					"title":      serverText.Title,
-					"text":       serverText.Text,
-					"changeTime": serverText.ChangeTime.Format(time.RFC3339Nano),
-				}
-				s.log.Info().Str("id", serverText.ID).Str("title", serverText.Title).Msg("Updating local text from server")
-				if err := s.storage.UpdateText(textMap); err != nil {
-					s.log.Error().Err(err).Str("id", serverText.ID).Msg("Failed to update local text")
-				}
-			}
-			// Если локальная новее, мы уже отправили ее на шаге 2, и сервер должен был ее обновить.
-			// Ничего делать не нужно.
-		}
+	localSyncables := make([]domain.Syncable, len(localTexts))
+	for i := range localTexts {
+		localSyncables[i] = &localTexts[i]
+	}
+	serverSyncables := make([]domain.Syncable, len(serverTexts))
+	for i := range serverTexts {
+		serverSyncables[i] = &serverTexts[i]
 	}
 
-	// 4. Проверяем, не были ли какие-то записи удалены на сервере
-	// (Сервер мог бы вернуть список ID, которые нужно удалить)
-	// Это более сложная логика, пока пропустим.
+	saveTextFunc := func(data map[string]interface{}) error {
+		text, err := model.FromMapText(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to text model on save: %w", err)
+		}
+		return s.storage.SaveText(&text)
+	}
+	updateTextFunc := func(data map[string]interface{}) error {
+		text, err := model.FromMapText(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to text model on update: %w", err)
+		}
+		return s.storage.UpdateText(&text)
+	}
+
+	s.processSyncResults(localSyncables, serverSyncables, saveTextFunc, updateTextFunc,
+		s.storage.DeleteText,
+		"text",
+	)
 
 	s.log.Info().Msg("Text notes sync finished.")
 	return nil
 }
 
-func (s *SyncService) syncCards(ctx context.Context, token, deviceID string, lastSync time.Time) error {
+func (s *SyncService) syncCards(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing credit cards...")
 
-	// 1. Получаем все локальные карты
-	localCardsData, err := s.storage.GetCards()
+	// 1. Получаем все локальные карты уже в виде доменных моделей
+	localCards, err := s.storage.GetCards()
 	if err != nil {
 		return err
 	}
 
-	localCards := make([]model.Card, len(localCardsData))
-	for i, data := range localCardsData {
-		card := model.Card{
-			ID:     data["id"],
-			Number: data["number"],
-			Holder: data["holder"],
-			Expiry: data["expiry"],
-			CVV:    data["cvv"],
+	// Фильтруем удаленные записи перед отправкой на сервер
+	activeLocalCards := make([]model.Card, 0, len(localCards))
+	for _, card := range localCards {
+		if card.Deleted {
+			continue
 		}
-		if changeTimeStr, ok := data["changeTime"]; ok {
-			card.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		localCards[i] = card
+		card.SyncTime = s.lastSyncTime
+		activeLocalCards = append(activeLocalCards, card)
 	}
 
 	// 2. Отправляем на сервер (этот метод нужно будет создать в transport и grpc клиенте)
-	serverCards, err := transport.SyncCards(ctx, token, deviceID, localCards)
+	serverCards, err := transport.SyncCards(ctx, token, deviceID, activeLocalCards)
 	if err != nil {
 		return err
 	}
 
 	// 3. Обрабатываем ответ сервера
-	for _, serverCard := range serverCards {
-		var foundLocal *model.Card
-		for i := range localCards {
-			if localCards[i].ID == serverCard.ID {
-				foundLocal = &localCards[i]
-				break
-			}
-		}
-
-		cardMap := map[string]string{
-			"id":         serverCard.ID,
-			"number":     serverCard.Number,
-			"holder":     serverCard.Holder,
-			"expiry":     serverCard.Expiry,
-			"cvv":        serverCard.CVV,
-			"changeTime": serverCard.ChangeTime.Format(time.RFC3339Nano),
-		}
-
-		if foundLocal == nil {
-			s.log.Info().Str("id", serverCard.ID).Msg("Creating new local card from server")
-			s.storage.SaveCard(cardMap)
-		} else if serverCard.ChangeTime.After(foundLocal.ChangeTime) {
-			s.log.Info().Str("id", serverCard.ID).Msg("Updating local card from server")
-			s.storage.UpdateCard(cardMap)
-		}
+	localSyncables := make([]domain.Syncable, len(localCards))
+	for i := range localCards {
+		localSyncables[i] = &localCards[i]
 	}
+	serverSyncables := make([]domain.Syncable, len(serverCards))
+	for i := range serverCards {
+		serverSyncables[i] = &serverCards[i]
+	}
+
+	saveCardFunc := func(data map[string]interface{}) error {
+		card, err := model.FromMapCard(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to card model on save: %w", err)
+		}
+		return s.storage.SaveCard(&card)
+	}
+	updateCardFunc := func(data map[string]interface{}) error {
+		card, err := model.FromMapCard(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to card model on update: %w", err)
+		}
+		return s.storage.UpdateCard(&card)
+	}
+
+	s.processSyncResults(localSyncables, serverSyncables, saveCardFunc, updateCardFunc,
+		s.storage.DeleteCard,
+		"card",
+	)
 
 	s.log.Info().Msg("Credit cards sync finished.")
 	return nil
 }
 
-func (s *SyncService) syncPasswords(ctx context.Context, token, deviceID string, lastSync time.Time) error {
+func (s *SyncService) syncPasswords(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing passwords...")
 
-	// 1. Получаем все локальные пароли
-	localPassData, err := s.storage.GetPasss()
+	// 1. Получаем все локальные пароли уже в виде доменных моделей
+	localPass, err := s.storage.GetPasss()
 	if err != nil {
 		return err
 	}
 
-	localPass := make([]model.Password, len(localPassData))
-	for i, data := range localPassData {
-		pass := model.Password{
-			ID:          data["id"],
-			Login:       data["login"],
-			Password:    data["password"],
-			Description: data["description"],
+	activeLocalPass := make([]model.Password, 0, len(localPass))
+	for _, pass := range localPass {
+		if pass.Deleted {
+			continue
 		}
-		if changeTimeStr, ok := data["changeTime"]; ok {
-			pass.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		localPass[i] = pass
+		pass.SyncTime = s.lastSyncTime
+		activeLocalPass = append(activeLocalPass, pass)
 	}
 
 	// 2. Отправляем на сервер
-	serverPass, err := transport.SyncPasswords(ctx, token, deviceID, localPass)
+	serverPass, err := transport.SyncPasswords(ctx, token, deviceID, activeLocalPass)
 	if err != nil {
 		return err
 	}
 
 	// 3. Обрабатываем ответ сервера
-	for _, sp := range serverPass {
-		var foundLocal *model.Password
-		for i := range localPass {
-			if localPass[i].ID == sp.ID {
-				foundLocal = &localPass[i]
-				break
-			}
-		}
-
-		passMap := map[string]string{
-			"id":          sp.ID,
-			"login":       sp.Login,
-			"password":    sp.Password,
-			"description": sp.Description,
-			"changeTime":  sp.ChangeTime.Format(time.RFC3339Nano),
-		}
-
-		if foundLocal == nil {
-			s.log.Info().Str("id", sp.ID).Msg("Creating new local password from server")
-			if err := s.storage.SavePass(passMap); err != nil {
-				s.log.Error().Err(err).Str("id", sp.ID).Msg("Failed to save new local password")
-			}
-		} else if sp.ChangeTime.After(foundLocal.ChangeTime) {
-			s.log.Info().Str("id", sp.ID).Msg("Updating local password from server")
-			if err := s.storage.UpdatePass(passMap); err != nil {
-				s.log.Error().Err(err).Str("id", sp.ID).Msg("Failed to update local password")
-			}
-		}
+	localSyncables := make([]domain.Syncable, len(localPass))
+	for i := range localPass {
+		localSyncables[i] = &localPass[i]
 	}
+	serverSyncables := make([]domain.Syncable, len(serverPass))
+	for i := range serverPass {
+		serverSyncables[i] = &serverPass[i]
+	}
+
+	savePassFunc := func(data map[string]interface{}) error {
+		pass, err := model.FromMapPassword(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to password model on save: %w", err)
+		}
+		return s.storage.SavePass(&pass)
+	}
+	updatePassFunc := func(data map[string]interface{}) error {
+		pass, err := model.FromMapPassword(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to password model on update: %w", err)
+		}
+		return s.storage.UpdatePass(&pass)
+	}
+
+	s.processSyncResults(localSyncables, serverSyncables, savePassFunc, updatePassFunc,
+		s.storage.DeletePass,
+		"password",
+	)
 
 	s.log.Info().Msg("Passwords sync finished.")
 	return nil
 }
 
-func (s *SyncService) syncFiles(ctx context.Context, token, deviceID string, lastSync time.Time) error {
+func (s *SyncService) syncFiles(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing file metadata...")
 
-	// 1. Получаем все локальные метаданные файлов
-	localFilesData, err := s.storage.GetFiles()
+	// 1. Получаем все локальные метаданные файлов уже в виде доменных моделей
+	localFiles, err := s.storage.GetFiles()
 	if err != nil {
 		return err
 	}
 
-	localFiles := make([]model.FileData, len(localFilesData))
-	for i, data := range localFilesData {
-		file := model.FileData{
-			ID:       data["id"].(string),
-			Name:     data["name"].(string),
-			Metadata: data["metadata"].(string),
+	activeLocalFiles := make([]model.FileData, 0, len(localFiles))
+	for _, file := range localFiles {
+		if file.Deleted {
+			continue
 		}
-		// JSON unmarshal в map[string]interface{} преобразует числа в float64
-		if size, ok := data["size"].(float64); ok {
-			file.Size = int64(size)
-		}
-		if changeTimeStr, ok := data["changeTime"].(string); ok {
-			file.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		localFiles[i] = file
+		file.SyncTime = s.lastSyncTime
+		activeLocalFiles = append(activeLocalFiles, file)
 	}
 
 	// 2. Отправляем на сервер
-	serverFiles, err := transport.SyncFiles(ctx, token, deviceID, localFiles)
+	serverFiles, err := transport.SyncFiles(ctx, token, deviceID, activeLocalFiles)
 	if err != nil {
 		return err
 	}
 
 	// 3. Обрабатываем ответ сервера
-	for _, sf := range serverFiles {
-		var foundLocal *model.FileData
-		for i := range localFiles {
-			if localFiles[i].ID == sf.ID {
-				foundLocal = &localFiles[i]
-				break
-			}
-		}
-
-		// Для файлов мы сохраняем данные как map[string]interface{}
-		fileMap := map[string]interface{}{
-			"id":         sf.ID,
-			"name":       sf.Name,
-			"metadata":   sf.Metadata,
-			"size":       sf.Size,
-			"changeTime": sf.ChangeTime.Format(time.RFC3339Nano),
-		}
-
-		if foundLocal == nil {
-			s.log.Info().Str("id", sf.ID).Str("name", sf.Name).Msg("Creating new local file metadata from server")
-			// При создании новой записи о файле, самого файла у нас еще нет.
-			// Мы просто сохраняем метаданные.
-			if err := s.storage.SaveFile(fileMap); err != nil {
-				s.log.Error().Err(err).Str("id", sf.ID).Msg("Failed to save new local file metadata")
-			}
-		} else if sf.ChangeTime.After(foundLocal.ChangeTime) {
-			s.log.Info().Str("id", sf.ID).Str("name", sf.Name).Msg("Updating local file metadata from server")
-			// TODO: Здесь должна быть логика для пометки файла как "требующий скачивания"
-			// Пока просто обновляем метаданные.
-		}
+	localSyncables := make([]domain.Syncable, len(localFiles))
+	for i := range localFiles {
+		localSyncables[i] = &localFiles[i]
 	}
+	serverSyncables := make([]domain.Syncable, len(serverFiles))
+	for i := range serverFiles {
+		serverSyncables[i] = &serverFiles[i]
+	}
+
+	saveFileFunc := func(data map[string]interface{}) error {
+		file, err := model.FromMapFile(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to file model on save: %w", err)
+		}
+		return s.storage.SaveFileMetadata(&file)
+	}
+	updateFileFunc := func(data map[string]interface{}) error {
+		file, err := model.FromMapFile(data)
+		if err != nil {
+			return fmt.Errorf("failed to convert map to file model on update: %w", err)
+		}
+		return s.storage.UpdateFile(&file)
+	}
+	s.processSyncResults(localSyncables, serverSyncables, saveFileFunc, updateFileFunc, s.storage.DeleteFileByID, "file")
 
 	s.log.Info().Msg("File metadata sync finished.")
 	return nil
+}
+
+// processSyncResults — это универсальный метод для обработки результатов синхронизации.
+func (s *SyncService) processSyncResults(
+	localItems []domain.Syncable,
+	serverItems []domain.Syncable,
+	saveFunc func(map[string]interface{}) error,
+	updateFunc func(map[string]interface{}) error,
+	deleteFunc func(string) error,
+	entityName string,
+) {
+	// Создаем map для быстрого доступа к локальным элементам по их LocalID.
+	localItemsMap := make(map[string]domain.Syncable)
+	for _, item := range localItems {
+		localItemsMap[item.GetLocalID()] = item
+	}
+	serverItemsSet := make(map[string]bool)
+
+	for _, serverItem := range serverItems {
+		serverLocalID := serverItem.GetLocalID()
+		serverItemsSet[serverLocalID] = true // Отмечаем, что этот элемент пришел с сервера
+		localItem, found := localItemsMap[serverLocalID]
+
+		// Проверяем, не помечен ли элемент как удаленный на сервере
+		if itemWithDelete, ok := serverItem.(interface{ GetDeleted() bool }); ok && itemWithDelete.GetDeleted() {
+			if found { // Если элемент еще существует локально, помечаем его как удаленный
+				s.log.Info().Str("local_id", serverLocalID).Msgf("Marking local %s as deleted, following server state", entityName)
+				// Мы не удаляем запись, а обновляем ее, устанавливая флаг Deleted
+				dataToSave := serverItem.ToMap()
+				updateFunc(dataToSave)
+			}
+			continue // Переходим к следующему элементу
+		}
+
+		dataToSave := serverItem.ToMap()
+
+		if !found {
+			s.log.Info().Str("local_id", serverLocalID).Msgf("Creating new local %s from server", entityName)
+			if err := saveFunc(dataToSave); err != nil {
+				s.log.Error().Err(err).Str("local_id", serverLocalID).Msgf("Failed to save new local %s", entityName)
+			}
+			continue
+		}
+
+		if localItem.GetServerID() == "" && serverItem.GetServerID() != "" {
+			s.log.Info().Str("local_id", serverLocalID).Str("server_id", serverItem.GetServerID()).Msgf("Local %s synced, saving server_id", entityName)
+			if err := updateFunc(dataToSave); err != nil {
+				s.log.Error().Err(err).Str("local_id", serverLocalID).Msgf("Failed to update %s with server_id", entityName)
+			}
+		} else if serverItem.GetChangeTime().After(localItem.GetChangeTime()) {
+			s.log.Info().Str("local_id", serverLocalID).Msgf("Updating local %s from server (newer version found)", entityName)
+			if err := updateFunc(dataToSave); err != nil {
+				s.log.Error().Err(err).Str("local_id", serverLocalID).Msgf("Failed to update local %s from server", entityName)
+			}
+		}
+	}
+
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gophKeeper/client/internal/domain"
+	"gophKeeper/client/internal/domain/model"
 	"io"
 	"os"
 	"path/filepath"
@@ -19,7 +20,7 @@ import (
 
 // Модель для элемента файла
 type FileItem struct {
-	ID         string
+	model.FileData
 	Name       string
 	Path       string
 	Size       int64
@@ -189,16 +190,11 @@ func (m *FileUploadModel) Load() tea.Cmd {
 
 	items := make([]list.Item, len(files))
 	for i, file := range files {
-		id, _ := file["id"].(string)
-		name, _ := file["name"].(string)
-		size, _ := file["size"].(float64) // json unmarshals numbers to float64 in map[string]interface{}
-		path, _ := file["path"].(string)
-
 		items[i] = FileItem{
-			ID:         id,
-			Name:       name,
-			Path:       path,
-			Size:       int64(size),
+			FileData:   file,
+			Name:       file.Name,
+			Path:       file.Metadata, // Используем Metadata для хранения локального пути
+			Size:       file.Size,
 			IsUploaded: true,
 		}
 	}
@@ -468,12 +464,13 @@ func (m *FileUploadModel) uploadFile(file FileItem) {
 	}
 
 	// Сохраняем в хранилище
-	saveErr := m.storage.SaveFile(map[string]interface{}{
-		"name": file.Name,
-		"data": data,
-		"size": file.Size,
-		"path": file.Path,
-	})
+	fileData := &model.FileData{
+		Name:     file.Name,
+		Size:     file.Size,
+		Metadata: file.Path, // Сохраняем локальный путь в метаданные
+		// содержимое файла (data) передается вторым аргументом
+	}
+	saveErr := m.storage.SaveFile(fileData, data)
 	m.p.Send(UploadCompleteMsg{FileName: file.Name, Error: saveErr})
 }
 
@@ -496,7 +493,7 @@ func (r *progressReader) Read(p []byte) (n int, err error) {
 
 func (m *FileUploadModel) downloadSelectedFile(file FileItem) tea.Cmd {
 	return func() tea.Msg {
-		fileDataMap, err := m.storage.GetFileByID(file.ID)
+		fileDataMap, err := m.storage.GetFileByID(file.LocalID)
 		if err != nil {
 			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("failed to get file from storage: %w", err)}
 		}
@@ -534,7 +531,7 @@ func (m *FileUploadModel) deleteSelectedFile() tea.Cmd {
 		if file, ok := item.(FileItem); ok {
 			if file.IsUploaded {
 				// Удаляем из удаленного хранилища
-				if err := m.storage.DeleteFileByID(file.ID); err != nil {
+				if err := m.storage.DeleteFileByID(file.LocalID); err != nil {
 					return err
 				}
 			}

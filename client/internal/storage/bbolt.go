@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gophKeeper/client/internal/domain"
 	"io"
 	"time"
 
@@ -199,7 +200,7 @@ func (s *BboltStorage) decrypt(data []byte) ([]byte, error) {
 
 // saveItem — это универсальный метод для сохранения или обновления элемента в бакете.
 // Если isNew=true, генерируется новый ID. В качестве ключа используется ID.
-func (s *BboltStorage) saveItem(bucketName []byte, itemData map[string]interface{}, isNew bool) error {
+func (s *BboltStorage) saveItem(bucketName []byte, item domain.Syncable, isNew bool) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		var itemID string
@@ -207,15 +208,20 @@ func (s *BboltStorage) saveItem(bucketName []byte, itemData map[string]interface
 		if isNew {
 			id, _ := b.NextSequence()
 			itemID = fmt.Sprintf("%d", id)
-			itemData["id"] = itemID
+			// Устанавливаем ID в модели через интерфейс
+			if settable, ok := item.(interface{ SetLocalID(string) }); ok {
+				settable.SetLocalID(itemID)
+			} else {
+				return fmt.Errorf("item in bucket %s does not support setting local ID", bucketName)
+			}
 		} else {
-			id, ok := itemData["id"].(string)
-			if !ok || id == "" {
+			itemID = item.GetLocalID()
+			if itemID == "" {
 				return fmt.Errorf("item ID is missing for update in bucket %s", bucketName)
 			}
-			itemID = id
 		}
 
+		itemData := item.ToMap()
 		jsonData, err := json.Marshal(itemData)
 		if err != nil {
 			return fmt.Errorf("could not marshal item data for bucket %s: %w", bucketName, err)
@@ -231,8 +237,8 @@ func (s *BboltStorage) saveItem(bucketName []byte, itemData map[string]interface
 }
 
 // getAllItems — это универсальный метод для получения всех элементов из бакета.
-func (s *BboltStorage) getAllItems(bucketName []byte) ([]map[string]interface{}, error) {
-	var items []map[string]interface{}
+func (s *BboltStorage) getAllItems(bucketName []byte, fromMapFunc func(map[string]interface{}) (interface{}, error)) ([]interface{}, error) {
+	var items []interface{}
 
 	err := s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -240,13 +246,15 @@ func (s *BboltStorage) getAllItems(bucketName []byte) ([]map[string]interface{},
 			decryptedData, err := s.decrypt(v)
 			if err != nil {
 				s.log.Error().Err(err).Bytes("key", k).Msgf("Could not decrypt data in bucket %s", bucketName)
-				return fmt.Errorf("could not decrypt data for key %s in bucket %s: %w", k, bucketName, err)
+				// Пропускаем поврежденные записи, но не прерываем весь процесс
+				return nil
 			}
 
 			var itemData map[string]interface{}
 			if err := json.Unmarshal(decryptedData, &itemData); err != nil {
 				s.log.Error().Err(err).Bytes("key", k).Msgf("Could not unmarshal data in bucket %s", bucketName)
-				return fmt.Errorf("could not unmarshal data for key %s in bucket %s: %w", k, bucketName, err)
+				// Пропускаем поврежденные записи
+				return nil
 			}
 
 			// Специальная обработка для файлов, чтобы не загружать их содержимое
@@ -254,7 +262,13 @@ func (s *BboltStorage) getAllItems(bucketName []byte) ([]map[string]interface{},
 				delete(itemData, "data")
 			}
 
-			items = append(items, itemData)
+			modelItem, err := fromMapFunc(itemData)
+			if err != nil {
+				s.log.Error().Err(err).Bytes("key", k).Msgf("Could not convert map to model in bucket %s", bucketName)
+				// Пропускаем записи, которые не удалось сконвертировать
+				return nil
+			}
+			items = append(items, modelItem)
 			return nil
 		})
 	})
@@ -263,6 +277,37 @@ func (s *BboltStorage) getAllItems(bucketName []byte) ([]map[string]interface{},
 		s.log.Error().Err(err).Msgf("Failed to get all items from bucket %s", bucketName)
 	}
 	return items, err
+}
+
+// markAsDeleted помечает элемент как удаленный, вместо физического удаления.
+func (s *BboltStorage) markAsDeleted(bucketName []byte, id string, fromMapFunc func(map[string]interface{}) (interface{}, error)) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		encryptedData := b.Get([]byte(id))
+		if encryptedData == nil {
+			return fmt.Errorf("item with id '%s' not found in bucket %s", id, bucketName)
+		}
+
+		decryptedData, err := s.decrypt(encryptedData)
+		if err != nil {
+			return fmt.Errorf("could not decrypt item for deletion: %w", err)
+		}
+
+		var itemData map[string]interface{}
+		if err := json.Unmarshal(decryptedData, &itemData); err != nil {
+			return fmt.Errorf("could not unmarshal item for deletion: %w", err)
+		}
+
+		itemData["deleted"] = true
+		itemData["changeTime"] = time.Now().Format(time.RFC3339Nano)
+
+		modelItem, err := fromMapFunc(itemData)
+		if err != nil {
+			return fmt.Errorf("could not convert map to model for deletion: %w", err)
+		}
+
+		return s.saveItem(bucketName, modelItem.(domain.Syncable), false)
+	})
 }
 
 // getItemByID — это универсальный метод для получения одного элемента по ID.

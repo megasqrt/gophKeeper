@@ -3,7 +3,6 @@ package tui
 import (
 	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/domain/model"
-	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -72,34 +71,18 @@ func (m *CardListModel) Load() {
 }
 
 func (m *CardListModel) loadCards() ([]table.Row, []model.Card) {
-	cardsData, err := m.storage.GetCards()
+	cards, err := m.storage.GetCards()
 	if err != nil {
 		//	m.log.Error().Err(err).Msg("get cards error")
 		return []table.Row{}, []model.Card{}
 	}
 
-	rows := make([]table.Row, len(cardsData))
-	cards := make([]model.Card, len(cardsData))
-	for i, data := range cardsData {
-		card := model.Card{
-			ID:     data["id"],
-			Number: data["number"],
-			Holder: data["holder"],
-			Expiry: data["expiry"],
-			CVV:    data["cvv"],
-		}
-		if changeTimeStr, ok := data["changeTime"]; ok {
-			card.ChangeTime, _ = time.Parse(time.RFC3339Nano, changeTimeStr)
-		}
-		if syncTimeStr, ok := data["syncTime"]; ok {
-			card.SyncTime, _ = time.Parse(time.RFC3339Nano, syncTimeStr)
-		}
-
+	rows := make([]table.Row, len(cards))
+	for i, card := range cards {
 		// Используем Title() и Description() из модели карты для консистентности
-		cards[i] = card
 		rows[i] = table.Row{card.Title(), card.Description(), card.Expiry}
 	}
-	return rows, cards
+	return rows, cards // Возвращаем исходный слайс моделей
 }
 
 func (m *CardListModel) Init() tea.Cmd {

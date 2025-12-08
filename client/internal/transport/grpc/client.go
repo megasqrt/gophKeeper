@@ -2,10 +2,9 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/domain/model"
-	pb "gophKeeper/internal/proto"
+	pb "gophKeeper/internal/proto/gen"
 	"strings"
 	"time"
 
@@ -15,17 +14,16 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-var ErrClientNotInitialized = errors.New("gRPC client not initialized")
-
 // Client - это централизованный gRPC клиент.
 type Client struct {
-	Auth pb.AuthServiceClient
-	Sync pb.SyncClient
-	// Passwords pb.PasswordServiceClient
-	// ...
-	conn   *grpc.ClientConn
-	Config *config.Config
-	Status bool
+	Auth     pb.AuthServiceClient     // Сервис аутентификации
+	Note     pb.NoteServiceClient     // Сервис для заметок
+	Card     pb.CardServiceClient     // Сервис для карт
+	Password pb.PasswordServiceClient // Сервис для паролей
+	File     pb.FileServiceClient     // Сервис для файлов
+	conn     *grpc.ClientConn         // Общее соединение
+	Config   *config.Config           // Конфигурация клиента
+	Status   bool                     // Статус соединения
 }
 
 // NewClient создает и возвращает новый gRPC клиент.
@@ -42,11 +40,14 @@ func NewClient(ctx context.Context, cfg *config.Config) (*Client, error) {
 	}
 
 	client := &Client{
-		Auth:   pb.NewAuthServiceClient(conn),
-		Sync:   pb.NewSyncClient(conn),
-		Config: cfg,
-		Status: true,
-		conn:   conn,
+		Auth:     pb.NewAuthServiceClient(conn),
+		Note:     pb.NewNoteServiceClient(conn),
+		Card:     pb.NewCardServiceClient(conn),
+		Password: pb.NewPasswordServiceClient(conn),
+		File:     pb.NewFileServiceClient(conn),
+		Config:   cfg,
+		Status:   true,
+		conn:     conn,
 	}
 
 	return client, nil
@@ -105,93 +106,91 @@ func (c *Client) CheckHealth(token string) (bool, error) {
 // SyncTexts вызывает RPC для синхронизации текстовых заметок.
 func (c *Client) SyncTexts(ctx context.Context, localTexts []model.TextData) ([]model.TextData, error) {
 	// Конвертируем наши модели в DTO для gRPC
-	pbTexts := make([]*pb.TextData, len(localTexts))
+	pbNotes := make([]*pb.NoteItem, len(localTexts))
 	for i, t := range localTexts {
-		pbTexts[i] = t.ToProto()
+		if t.Deleted {
+			continue
+		}
+		pbNotes[i] = t.ToProto()
 	}
 
-	textList := pb.TextDataList_builder{
-    	Items: pbTexts,
-	}.Build()
+	req := pb.NotesSyncRequest_builder{Notes: pbNotes}.Build()
 
-	req := pb.SyncRequest_builder{
-		Texts: textList,
-	}.Build()
-	resp, err := c.Sync.Sync(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return model.FromProtoTexts(resp.GetTexts().GetItems()), nil
-}
-
-// SyncCards вызывает RPC для синхронизации банковских карт.
-func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]model.Card, error) {
-	// Конвертируем наши модели в DTO для gRPC
-	pbCards := make([]*pb.CardData, len(localCards))
-	for i, card := range localCards {
-		pbCards[i] = card.ToProto()
-	}
-
-	cardsList := pb.CardDataList_builder{
-    	Items: pbCards,
-	}.Build()
-
-	req := pb.SyncRequest_builder{
-		Cards: cardsList,
-	}.Build()
-	resp, err := c.Sync.Sync(ctx, req)
+	resp, err := c.Note.NotesSync(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
 	// Конвертируем ответ от сервера обратно в наши доменные модели.
-	return model.FromProtoCards(resp.GetCards().GetItems()), nil
+	syncedTexts := make([]model.TextData, len(resp.GetNotes()))
+	for i, pbNote := range resp.GetNotes() {
+		syncedTexts[i] = model.FromProtoText(pbNote)
+	}
+	return syncedTexts, nil
+}
+
+// SyncCards вызывает RPC для синхронизации банковских карт.
+func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]model.Card, error) {
+	// Конвертируем наши модели в DTO для gRPC
+	pbCards := make([]*pb.CardItem, len(localCards))
+	for i, card := range localCards {
+		pbCards[i] = card.ToProto()
+	}
+
+	// Предполагаем, что существует CardsSyncRequest и метод CardsSync по аналогии с Notes
+	req := pb.CardsSyncRequest_builder{Cards: pbCards}.Build()
+	resp, err := c.Card.CardsSync(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	syncedCards := make([]model.Card, len(resp.GetCards()))
+	for i, pbCard := range resp.GetCards() {
+		syncedCards[i] = model.FromProtoCard(pbCard)
+	}
+	return syncedCards, nil
 }
 
 // SyncPasswords вызывает RPC для синхронизации паролей.
 func (c *Client) SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error) {
 	// Конвертируем наши модели в DTO для gRPC
-	pbPasswords := make([]*pb.PasswordData, len(localPasswords))
+	pbPasswords := make([]*pb.PasswordItem, len(localPasswords))
 	for i, pass := range localPasswords {
 		pbPasswords[i] = pass.ToProto()
 	}
 
-	passwordList := pb.PasswordDataList_builder{
-    	Items: pbPasswords,
-	}.Build()
-
-	req := pb.SyncRequest_builder{
-    	Passwords: passwordList,
-	}.Build()
-	resp, err := c.Sync.Sync(ctx, req)
+	// Предполагаем, что существует PasswordsSyncRequest и метод PasswordsSync
+	req := pb.PasswordsSyncRequest_builder{Passwords: pbPasswords}.Build()
+	resp, err := c.Password.PasswordsSync(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return model.FromProtoPasswords(resp.GetPasswords().GetItems()), nil
+	syncedPasswords := make([]model.Password, len(resp.GetPasswords()))
+	for i, pbPass := range resp.GetPasswords() {
+		syncedPasswords[i] = model.FromProtoPassword(pbPass)
+	}
+	return syncedPasswords, nil
 }
 
 // SyncFiles вызывает RPC для синхронизации метаданных файлов.
 func (c *Client) SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error) {
 	// Конвертируем наши модели в DTO для gRPC
-	pbFiles := make([]*pb.FileData, len(localFiles))
+	pbFiles := make([]*pb.FileItem, len(localFiles))
 	for i, file := range localFiles {
 		pbFiles[i] = file.ToProto()
 	}
 
-	fileList := pb.FileDataList_builder{
-		Items: pbFiles,
-	}.Build()
+	req := pb.FilesSyncRequest_builder{Files: pbFiles}.Build()
 
-	req := pb.SyncRequest_builder{
-		Files: fileList,
-	}.Build()
-
-	resp, err := c.Sync.Sync(ctx, req)
+	resp, err := c.File.FilesSync(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return model.FromProtoFiles(resp.GetFiles().GetItems()), nil
+	syncedFiles := make([]model.FileData, len(resp.GetFiles()))
+	for i, pbFile := range resp.GetFiles() {
+		syncedFiles[i] = model.FromProtoFile(pbFile)
+	}
+	return syncedFiles, nil
 }
