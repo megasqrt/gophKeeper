@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type passFormSavedMsg struct{}
@@ -17,6 +18,7 @@ type PassFormModel struct {
 	formModel
 	storage domain.LocalStorage
 	passID  string // ID для редактируемой карты
+	err     error  // Ошибка при сохранении
 }
 
 func NewPassForm(storage domain.LocalStorage, pass *model.Password) PassFormModel {
@@ -69,6 +71,10 @@ func (m PassFormModel) Init() tea.Cmd {
 
 func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case errMsg:
+		m.err = msg
+		return m, nil
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
@@ -95,7 +101,7 @@ func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				if err != nil {
-					//TODO обработка ошибок
+					m.err = err
 					return m, nil
 				}
 				// Отправляем сообщение об успешном сохранении
@@ -140,6 +146,14 @@ func (m PassFormModel) View() string {
 		submitButton = focusedStyle.Render("> [ Submit ]")
 	}
 	b.WriteString(submitButton)
+
+	// Показываем ошибку, если есть
+	if m.err != nil {
+		errorStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("9")).
+			Padding(0, 1)
+		b.WriteString("\n\n" + errorStyle.Render("❌ Error: "+m.err.Error()))
+	}
 
 	return docStyle.Render(b.String())
 }

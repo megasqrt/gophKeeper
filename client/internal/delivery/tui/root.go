@@ -30,11 +30,7 @@ type RootModel struct {
 
 // NewRootModel создает корневую модель.
 func NewRootModel(storage domain.LocalStorage, cfg *config.Config, syncer *services.SyncService) RootModel {
-
 	// Всегда начинаем с экрана входа, чтобы получить пароль для ключа.
-	//login, _, _ := storage.GetUserCredentials() // Можем получить логин, чтобы предзаполнить поле
-
-	// lastSync и deviceName будут получены после успешного входа.
 	mainViewModel := NewMainViewModel(cfg, storage, syncer)
 
 	return RootModel{

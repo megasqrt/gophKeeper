@@ -9,6 +9,7 @@ type Password struct {
 	Login       string
 	Password    string
 	Description string
+	Checksum    string
 	ChangeTime  time.Time
 	SyncTime    time.Time
 	Deleted     bool
@@ -18,3 +19,5 @@ func (p Password) GetLocalID() string       { return p.LocalID }
 func (p Password) GetServerID() string      { return p.ServerID }
 func (p Password) GetChangeTime() time.Time { return p.ChangeTime }
 func (p *Password) SetLocalID(id string)    { p.LocalID = id }
+func (p Password) GetDeleted() bool         { return p.Deleted }
+func (p *Password) SetDeleted(deleted bool) { p.Deleted = deleted }

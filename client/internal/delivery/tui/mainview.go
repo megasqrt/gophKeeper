@@ -77,6 +77,7 @@ type MainViewModel struct {
 	serverOnline bool
 	tokenIsValid bool
 	isSyncing    bool
+	syncErr      error // Ошибка синхронизации
 	cfg          *config.Config
 	program      *tea.Program
 	storage      domain.LocalStorage
@@ -163,7 +164,8 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case syncFinishMsg:
 		m.isSyncing = false
-		// TODO: Обработать msg.err, если нужно показать ошибку пользователю
+		m.syncErr = msg.err
+		// Ошибка будет показана в View()
 		return m, nil
 
 	case checkNowMsg:
@@ -294,7 +296,17 @@ func (m *MainViewModel) View() string {
 				Render("  Syncing...")
 			status += syncStatus
 		}
-		return docStyle.Render(m.menu.View() + "\n" + status)
+
+		// Показываем ошибку синхронизации, если есть
+		var errorSection string
+		if m.syncErr != nil {
+			errorStyle := lipgloss.NewStyle().
+				Foreground(lipgloss.Color("9")).
+				Padding(0, 1)
+			errorSection = "\n" + errorStyle.Render("❌ Sync error: "+m.syncErr.Error())
+		}
+
+		return docStyle.Render(m.menu.View() + "\n" + status + errorSection)
 	}
 }
 

@@ -26,14 +26,12 @@ type LoginModel struct {
 	loading       bool
 	width         int
 	firstRun      bool
-	//attemptsLeft  int
 }
 
 func NewLoginModel(storage domain.LocalStorage, cfg *config.Config) tea.Model {
 	m := LoginModel{
 		cfg:     cfg,
 		storage: storage,
-		//attemptsLeft: 3, // Устанавливаем 3 попытки
 	}
 
 	m.firstRun = storage.IsFirstRun()
@@ -104,24 +102,13 @@ func (m LoginModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		m.loading = false
-		//TODO parse error
-		// if ok && st.Code() == codes.Unauthenticated {
-		// 	m.err = errors.New("invalid login or password")
-		// } else if ok && st.Code() == codes.Unavailable {
-		// 	m.err = errors.New("server is unavailable, please try again later")
-		// }
-		// m.attemptsLeft--
-		// if m.attemptsLeft <= 0 {
-		// 	m.err = fmt.Errorf("Слишком много попыток неправильного ввода пароля: %w", m.err)
-		// 	return m, tea.Quit
-		// }
-
+		// Ошибка уже установлена, пользователь увидит её в View()
 		return m, nil
 
 	case loginOk:
-		// Это сообщение означает успешный вход. Мы должны выйти из программы,
+		// Это сообщение означает успешный вход.
 		// Корневая модель перехватит это сообщение и переключит вид.
-		return m, nil // func() tea.Msg { return loginOk{} }
+		return m, nil
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -150,7 +137,7 @@ func (m LoginModel) View() string {
 	if m.firstRun {
 		b.WriteString("Придумайте пароль для локального хранилища.\n\n")
 	} else {
-		b.WriteString("Добро пожлаловать в GophKeeper. Введите пароль для входа.\n\n")
+		b.WriteString("Добро пожаловать в GophKeeper. Введите пароль для входа.\n\n")
 	}
 	b.WriteString(m.passwordInput.View())
 	b.WriteString("\n\n")

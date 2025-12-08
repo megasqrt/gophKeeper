@@ -21,6 +21,7 @@ type CardFormModel struct {
 	formModel
 	storage domain.LocalStorage
 	cardID  string // ID для редактируемой карты
+	err     error  // Ошибка при сохранении
 }
 
 func NewCardForm(storage domain.LocalStorage, card *model.Card) CardFormModel {
@@ -81,6 +82,10 @@ func (m CardFormModel) Init() tea.Cmd {
 
 func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case errMsg:
+		m.err = msg
+		return m, nil
+
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc":
@@ -109,7 +114,7 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				if err != nil {
-					// TODO: обработать ошибку
+					m.err = err
 					return m, nil
 				}
 				// Отправляем сообщение об успешном сохранении
@@ -159,7 +164,19 @@ func (m CardFormModel) View() string {
 	b.WriteString(m.inputs[3].View() + "\n\n")
 
 	// Кнопка
-	b.WriteString(blurredStyle.Render("[ Submit ]"))
+	submitButton := blurredStyle.Render("[ Submit ]")
+	if m.submitFocused() {
+		submitButton = focusedStyle.Render("> [ Submit ]")
+	}
+	b.WriteString(submitButton)
+
+	// Показываем ошибку, если есть
+	if m.err != nil {
+		errorStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("9")).
+			Padding(0, 1)
+		b.WriteString("\n\n" + errorStyle.Render("❌ Error: "+m.err.Error()))
+	}
 
 	return docStyle.Render(b.String())
 }
