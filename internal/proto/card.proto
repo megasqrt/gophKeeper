@@ -6,20 +6,22 @@ option go_package = "gophKeeper/internal/proto/gen";
 
 import "common.proto";
 
+// CardItem представляет данные кредитной карты
 message CardItem {
-    string local_id = 1;
-    string server_id = 2;
-    string number = 3;
-    string holder = 4;
-    string expiry = 5;
-    string cvv = 6;
-    string metadata = 7;
-    TimeMap timemap = 8;
-    bool deleted = 9;
+    string local_id = 1;   // Локальный идентификатор клиента
+    string server_id = 2;  // Идентификатор на сервере
+    string number = 3;     // Номер карты
+    string holder = 4;     // Держатель карты
+    string expiry = 5;     // Срок действия (MM/YY)
+    string cvv = 6;        // CVV код
+    string metadata = 7;   // Дополнительные метаданные
+    string checksum = 8;   // Контрольная сумма для синхронизации
+    TimeMap timemap = 9;   // Временные метки
+    bool deleted = 10;     // Флаг удаления (soft delete)
 }
 
 message RemoveCardRequest {
-    string local_id = 1;
+    string local_id = 1;  // Локальный идентификатор карты для удаления
 }
 
 message RemoveCardResponse {}
@@ -27,18 +29,26 @@ message RemoveCardResponse {}
 message GetCardsRequest {}
 
 message GetCardsResponse {
-    repeated CardItem cards = 1;
+    repeated CardItem cards = 1;  // Список всех карт пользователя
 }
 
 message CardsSyncRequest {
-    repeated CardItem cards = 1;
+    repeated CardItem cards = 1;  // Карты для синхронизации
 }
 
 service CardService {
+    // UpdateCard обновляет существующую карту или создает новую
     rpc UpdateCard(CardItem) returns (Response);
+    
+    // RemoveCard помечает карту как удаленную (soft delete)
     rpc RemoveCard(RemoveCardRequest) returns (RemoveCardResponse);
+    
+    // GetCards возвращает все карты пользователя
     rpc GetCards(GetCardsRequest) returns (GetCardsResponse);
+    
+    // CardsShortSync выполняет краткую синхронизацию (только метаданные)
     rpc CardsShortSync(ShortSyncRequest) returns (ShortSyncResponse);
+    
+    // CardsSync выполняет полную синхронизацию карт
     rpc CardsSync(CardsSyncRequest) returns (GetCardsResponse);
-
 }

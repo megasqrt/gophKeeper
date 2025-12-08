@@ -6,14 +6,15 @@ option go_package = "gophKeeper/internal/proto/gen";
 
 import "common.proto";
 
+// NoteItem представляет текстовую заметку
 message NoteItem {
-    string local_id = 1;
-    string server_id = 2;
-    string title = 3;
-    string text = 4;
-    TimeMap timemap = 5;
-    bool deleted = 6;
-    string checkSum = 7;
+    string local_id = 1;   // Локальный идентификатор клиента
+    string server_id = 2;  // Идентификатор на сервере
+    string title = 3;      // Заголовок заметки
+    string text = 4;       // Текст заметки
+    string checksum = 5;   // Контрольная сумма для синхронизации
+    TimeMap timemap = 6;   // Временные метки
+    bool deleted = 7;      // Флаг удаления (soft delete)
 }
 
 message RemoveNoteRequest {

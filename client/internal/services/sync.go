@@ -72,19 +72,41 @@ func (s *SyncService) Sync(ctx context.Context) error {
 func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing text notes...")
 
-	// 1. Получаем все локальные тексты
-	localTexts, err := s.storage.GetTexts()
+	// 1. Получаем краткую информацию о текстах
+	shortTexts, err := s.storage.GetShortTexts()
 	if err != nil {
 		return err
 	}
 
-	// 2. Отправляем на сервер
-	serverTexts, err := transport.SyncTexts(ctx, token, deviceID, localTexts)
+	// 2. Отправляем краткую информацию на сервер и получаем ID текстов, которые нужно синхронизировать полностью
+	textIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortTexts)
 	if err != nil {
 		return err
 	}
 
-	// 3. Обрабатываем ответ сервера
+	// 3. Получаем полные данные текстов по ID
+	localTexts, err := s.storage.GetTextsByIDs(textIDsToSync)
+	if err != nil {
+		return err
+	}
+
+	// Фильтруем удаленные тексты
+	activeLocalTexts := make([]model.TextData, 0, len(localTexts))
+	for _, text := range localTexts {
+		if text.Deleted {
+			continue
+		}
+		text.SyncTime = s.lastSyncTime
+		activeLocalTexts = append(activeLocalTexts, text)
+	}
+
+	// 4. Отправляем полные данные текстов на сервер
+	serverTexts, err := transport.SyncTexts(ctx, token, deviceID, activeLocalTexts)
+	if err != nil {
+		return err
+	}
+
+	// 5. Обрабатываем ответ сервера
 	localSyncables := make([]domain.Syncable, len(localTexts))
 	for i := range localTexts {
 		localSyncables[i] = &localTexts[i]
@@ -192,35 +214,48 @@ func (s *SyncService) syncCards(ctx context.Context, token, deviceID string) err
 func (s *SyncService) syncPasswords(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing passwords...")
 
-	// 1. Получаем все локальные пароли уже в виде доменных моделей
-	localPass, err := s.storage.GetPasss()
+	// 1. Получаем краткую информацию о паролях
+	shortPasswords, err := s.storage.GetShortPasswords()
 	if err != nil {
 		return err
 	}
 
-	activeLocalPass := make([]model.Password, 0, len(localPass))
-	for _, pass := range localPass {
+	// 2. Отправляем краткую информацию на сервер и получаем ID паролей, которые нужно синхронизировать полностью
+	passwordIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortPasswords)
+	if err != nil {
+		return err
+	}
+
+	// 3. Получаем полные данные паролей по ID
+	localPasswords, err := s.storage.GetPasswordsByIDs(passwordIDsToSync)
+	if err != nil {
+		return err
+	}
+
+	// Фильтруем удаленные пароли
+	activeLocalPasswords := make([]model.Password, 0, len(localPasswords))
+	for _, pass := range localPasswords {
 		if pass.Deleted {
 			continue
 		}
 		pass.SyncTime = s.lastSyncTime
-		activeLocalPass = append(activeLocalPass, pass)
+		activeLocalPasswords = append(activeLocalPasswords, pass)
 	}
 
-	// 2. Отправляем на сервер
-	serverPass, err := transport.SyncPasswords(ctx, token, deviceID, activeLocalPass)
+	// 4. Отправляем полные данные паролей на сервер
+	serverPasswords, err := transport.SyncPasswords(ctx, token, deviceID, activeLocalPasswords)
 	if err != nil {
 		return err
 	}
 
-	// 3. Обрабатываем ответ сервера
-	localSyncables := make([]domain.Syncable, len(localPass))
-	for i := range localPass {
-		localSyncables[i] = &localPass[i]
+	// 5. Обрабатываем ответ сервера
+	localSyncables := make([]domain.Syncable, len(localPasswords))
+	for i := range localPasswords {
+		localSyncables[i] = &localPasswords[i]
 	}
-	serverSyncables := make([]domain.Syncable, len(serverPass))
-	for i := range serverPass {
-		serverSyncables[i] = &serverPass[i]
+	serverSyncables := make([]domain.Syncable, len(serverPasswords))
+	for i := range serverPasswords {
+		serverSyncables[i] = &serverPasswords[i]
 	}
 
 	savePassFunc := func(data map[string]interface{}) error {
@@ -250,12 +285,25 @@ func (s *SyncService) syncPasswords(ctx context.Context, token, deviceID string)
 func (s *SyncService) syncFiles(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing file metadata...")
 
-	// 1. Получаем все локальные метаданные файлов уже в виде доменных моделей
-	localFiles, err := s.storage.GetFiles()
+	// 1. Получаем краткую информацию о файлах
+	shortFiles, err := s.storage.GetShortFiles()
 	if err != nil {
 		return err
 	}
 
+	// 2. Отправляем краткую информацию на сервер и получаем ID файлов, которые нужно синхронизировать полностью
+	fileIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortFiles)
+	if err != nil {
+		return err
+	}
+
+	// 3. Получаем полные метаданные файлов по ID
+	localFiles, err := s.storage.GetFilesByIDs(fileIDsToSync)
+	if err != nil {
+		return err
+	}
+
+	// Фильтруем удаленные файлы
 	activeLocalFiles := make([]model.FileData, 0, len(localFiles))
 	for _, file := range localFiles {
 		if file.Deleted {
@@ -265,13 +313,13 @@ func (s *SyncService) syncFiles(ctx context.Context, token, deviceID string) err
 		activeLocalFiles = append(activeLocalFiles, file)
 	}
 
-	// 2. Отправляем на сервер
+	// 4. Отправляем полные метаданные файлов на сервер
 	serverFiles, err := transport.SyncFiles(ctx, token, deviceID, activeLocalFiles)
 	if err != nil {
 		return err
 	}
 
-	// 3. Обрабатываем ответ сервера
+	// 5. Обрабатываем ответ сервера
 	localSyncables := make([]domain.Syncable, len(localFiles))
 	for i := range localFiles {
 		localSyncables[i] = &localFiles[i]

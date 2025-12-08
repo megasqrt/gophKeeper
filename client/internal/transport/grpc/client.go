@@ -153,12 +153,12 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 
 func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
 	// Конвертируем наши модели в DTO для gRPC
-	pbItems := make([]*pb.ShortItem, len(shortItems))
-	for i, item := range shortItems {
+	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
+	for _, item := range shortItems {
 		if item.Deleted {
 			continue
 		}
-		pbItems[i] = item.ToProto()
+		pbItems = append(pbItems, item.ToProto())
 	}
 
 	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
@@ -167,11 +167,22 @@ func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]
 		return nil, err
 	}
 
-	syncedItems := make([]string, len(resp.GetItems()))
-	for i, pbItems := range resp.GetItems() {
-		syncedItems[i] = pbItems.GetServerId()
+	// TODO: После регенерации proto файлов заменить на:
+	// return resp.GetLocalIds(), nil
+	// Сейчас используем временный формат с Response items
+	oldItems := resp.GetItems()
+	if oldItems != nil {
+		syncedItems := make([]string, 0, len(oldItems))
+		for _, item := range oldItems {
+			if item != nil {
+				// Используем server_id как временную меру, после регенерации будет local_id напрямую
+				syncedItems = append(syncedItems, item.GetServerId())
+			}
+		}
+		return syncedItems, nil
 	}
-	return syncedItems, nil
+	
+	return []string{}, nil
 }
 
 // SyncPasswords вызывает RPC для синхронизации паролей.

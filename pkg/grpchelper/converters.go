@@ -85,6 +85,7 @@ func FromMapText(data map[string]interface{}) (TextData, error) {
 // --- Card Converters ---
 
 // ToProto converts a domain Card model to a Protobuf CardData model.
+// Note: Checksum is not included in proto as CardItem doesn't have this field yet.
 func (c *Card) ToProto() *pb.CardItem {
 	return pb.CardItem_builder{
 		LocalId:  &c.LocalID,
@@ -102,15 +103,15 @@ func (c *SyncInfo) ToProto() *pb.ShortItem {
 	return pb.ShortItem_builder{
 		LocalId:  c.LocalID,
 		ServerId: c.ServerID,
-		CheckSum: c.Checksum,
+		CheckSum: c.Checksum, // TODO: После регенерации proto заменить на Checksum (будет checksum в proto)
 		Deleted:  c.Deleted,
 	}.Build()
 }
 
-
 // FromProtoCard converts a Protobuf CardItem to a domain Card model.
+// Note: Checksum will be recalculated when saving locally.
 func FromProtoCard(pbCard *pb.CardItem) Card {
-	return Card{
+	card := Card{
 		LocalID:    pbCard.GetLocalId(),
 		ServerID:   pbCard.GetServerId(),
 		Number:     pbCard.GetNumber(),
@@ -121,6 +122,8 @@ func FromProtoCard(pbCard *pb.CardItem) Card {
 		SyncTime:   time.Unix(0, pbCard.GetTimemap().GetSyncTime()),
 		Deleted:    pbCard.GetDeleted(),
 	}
+	// Checksum будет пересчитан при сохранении в локальное хранилище
+	return card
 }
 
 // ToMap converts a Card model to a map for storage.
@@ -132,6 +135,7 @@ func (c *Card) ToMap() map[string]interface{} {
 		"holder":     c.Holder,
 		"expiry":     c.Expiry,
 		"cvv":        c.CVV,
+		"checksum":   c.Checksum,
 		"changeTime": c.ChangeTime.Format(time.RFC3339Nano),
 		"syncTime":   c.SyncTime.Format(time.RFC3339Nano),
 		"deleted":    c.Deleted,
@@ -151,6 +155,7 @@ func FromMapCard(data map[string]interface{}) (Card, error) {
 		Holder:     InterfaceToString(data["holder"]),
 		Expiry:     InterfaceToString(data["expiry"]),
 		CVV:        InterfaceToString(data["cvv"]),
+		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,
 		Deleted:    deleted,
@@ -160,6 +165,7 @@ func FromMapCard(data map[string]interface{}) (Card, error) {
 // --- Password Converters ---
 
 // ToProto converts a domain Password model to a Protobuf PasswordData model.
+// Note: Checksum is not included in proto as PasswordItem may not have this field yet.
 func (p *Password) ToProto() *pb.PasswordItem {
 	return pb.PasswordItem_builder{
 		LocalId:     &p.LocalID,
@@ -173,8 +179,9 @@ func (p *Password) ToProto() *pb.PasswordItem {
 }
 
 // FromProtoPassword converts a Protobuf PasswordItem to a domain Password model.
+// Note: Checksum will be recalculated when saving locally.
 func FromProtoPassword(pbPass *pb.PasswordItem) Password {
-	return Password{
+	pass := Password{
 		LocalID:     pbPass.GetLocalId(),
 		ServerID:    pbPass.GetServerId(),
 		Login:       pbPass.GetLogin(),
@@ -184,6 +191,8 @@ func FromProtoPassword(pbPass *pb.PasswordItem) Password {
 		SyncTime:    time.Unix(0, pbPass.GetTimemap().GetSyncTime()),
 		Deleted:     pbPass.GetDeleted(),
 	}
+	// Checksum будет пересчитан при сохранении в локальное хранилище
+	return pass
 }
 
 // ToMap converts a Password model to a map for storage.
@@ -194,6 +203,7 @@ func (p *Password) ToMap() map[string]interface{} {
 		"login":       p.Login,
 		"password":    p.Password,
 		"description": p.Description,
+		"checksum":    p.Checksum,
 		"changeTime":  p.ChangeTime.Format(time.RFC3339Nano),
 		"syncTime":    p.SyncTime.Format(time.RFC3339Nano),
 		"deleted":     p.Deleted,
@@ -212,6 +222,7 @@ func FromMapPassword(data map[string]interface{}) (Password, error) {
 		Login:       InterfaceToString(data["login"]),
 		Password:    InterfaceToString(data["password"]),
 		Description: InterfaceToString(data["description"]),
+		Checksum:    InterfaceToString(data["checksum"]),
 		ChangeTime:  changeTime,
 		SyncTime:    syncTime,
 		Deleted:     deleted,
@@ -221,6 +232,7 @@ func FromMapPassword(data map[string]interface{}) (Password, error) {
 // --- FileData Converters ---
 
 // ToProto converts a domain FileData model to a Protobuf FileData model.
+// Note: Checksum is not included in proto as FileItem may not have this field yet.
 func (f *FileData) ToProto() *pb.FileItem {
 	size := f.Size
 	return pb.FileItem_builder{
@@ -228,22 +240,27 @@ func (f *FileData) ToProto() *pb.FileItem {
 		ServerId: &f.ServerID,
 		Name:     &f.Name,
 		Size:     &size,
+		Metadata: &f.Metadata,
 		Timemap:  toProtoTimemap(f.ChangeTime, f.SyncTime),
 		Deleted:  &f.Deleted,
 	}.Build()
 }
 
 // FromProtoFile converts a Protobuf FileItem to a domain FileData model.
+// Note: Checksum will be recalculated when saving locally.
 func FromProtoFile(pbFile *pb.FileItem) FileData {
-	return FileData{
+	file := FileData{
 		LocalID:    pbFile.GetLocalId(),
 		ServerID:   pbFile.GetServerId(),
 		Name:       pbFile.GetName(),
 		Size:       pbFile.GetSize(),
+		Metadata:   pbFile.GetMetadata(),
 		ChangeTime: time.Unix(0, pbFile.GetTimemap().GetChangeTime()),
 		SyncTime:   time.Unix(0, pbFile.GetTimemap().GetSyncTime()),
 		Deleted:    pbFile.GetDeleted(),
 	}
+	// Checksum будет пересчитан при сохранении в локальное хранилище
+	return file
 }
 
 // ToMap converts a FileData model to a map for storage.
@@ -253,7 +270,9 @@ func (f *FileData) ToMap() map[string]interface{} {
 		"id":         f.LocalID,
 		"server_id":  f.ServerID,
 		"name":       f.Name,
+		"metadata":   f.Metadata,
 		"size":       f.Size,
+		"checksum":   f.Checksum,
 		"changeTime": f.ChangeTime.Format(time.RFC3339Nano),
 		"syncTime":   f.SyncTime.Format(time.RFC3339Nano),
 		"deleted":    f.Deleted,
@@ -276,6 +295,7 @@ func FromMapFile(data map[string]interface{}) (FileData, error) {
 		Name:       InterfaceToString(data["name"]),
 		Size:       size,
 		Metadata:   InterfaceToString(data["metadata"]),
+		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,
 		Deleted:    deleted,

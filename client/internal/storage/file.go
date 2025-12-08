@@ -1,12 +1,24 @@
 package storage
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	model "gophKeeper/pkg/grpchelper"
 	"time"
 
 	"go.etcd.io/bbolt"
 )
+
+// calculateFileChecksum вычисляет checksum для файла на основе метаданных (Name, Size, Metadata).
+// Содержимое файла не включается в checksum для экономии ресурсов.
+func calculateFileChecksum(file *model.FileData) string {
+	h := sha256.New()
+	h.Write([]byte(file.Name))
+	h.Write([]byte(fmt.Sprintf("%d", file.Size)))
+	h.Write([]byte(file.Metadata))
+	return hex.EncodeToString(h.Sum(nil))
+}
 
 // SaveFile сохраняет данные файла в хранилище.
 func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error {
@@ -17,6 +29,7 @@ func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error 
 		itemID := fmt.Sprintf("%d", id)
 		fileData.SetLocalID(itemID)
 		fileData.ChangeTime = time.Now()
+		fileData.Checksum = calculateFileChecksum(fileData)
 
 		// 1. Сохраняем метаданные (без содержимого)
 		err := s.saveItemTx(tx, fileMetaBucket, fileData, true)
@@ -38,6 +51,7 @@ func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error 
 func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
 	s.log.Info().Str("file_name", fileData.Name).Msg("Saving file metadata")
 	fileData.ChangeTime = time.Now()
+	fileData.Checksum = calculateFileChecksum(fileData)
 	return s.saveItem(fileMetaBucket, fileData, true)
 }
 
@@ -45,6 +59,7 @@ func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
 func (s *BboltStorage) UpdateFile(fileData *model.FileData) error {
 	s.log.Info().Str("file_id", fileData.LocalID).Msg("Updating file")
 	fileData.ChangeTime = time.Now()
+	fileData.Checksum = calculateFileChecksum(fileData)
 	return s.saveItem(fileMetaBucket, fileData, false)
 }
 
@@ -104,19 +119,65 @@ func (s *BboltStorage) GetFileByID(id string) (map[string]interface{}, error) {
 	return result, err
 }
 
-// DeleteFileByID удаляет файл из хранилища по его ID.
-func (s *BboltStorage) DeleteFileByID(id string) error {
-	return s.db.Update(func(tx *bbolt.Tx) error {
-		s.log.Info().Str("file_id", id).Msg("Deleting file")
-		// Удаляем из обоих бакетов
-		if err := tx.Bucket(fileMetaBucket).Delete([]byte(id)); err != nil {
-			return fmt.Errorf("failed to delete file metadata: %w", err)
-		}
-		if err := tx.Bucket(fileDataBucket).Delete([]byte(id)); err != nil {
-			// Если здесь ошибка, метаданные уже удалены. Это не идеально, но приемлемо.
-			// В реальном приложении можно было бы добавить логику отката.
-			s.log.Warn().Err(err).Str("file_id", id).Msg("Failed to delete file content, metadata was already deleted")
+// GetShortFiles извлекает краткую информацию о файлах для синхронизации.
+func (s *BboltStorage) GetShortFiles() ([]model.SyncInfo, error) {
+	s.log.Info().Msg("Retrieving all info files from storage")
+	var syncInfos []model.SyncInfo
+
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(fileMetaBucket)
+		return b.ForEach(func(k, v []byte) error {
+			var file model.FileData
+			if err := s.decryptItem(v, &file); err != nil {
+				s.log.Error().Err(err).Bytes("key", k).Msg("Could not decrypt file for sync info")
+				return nil // Пропускаем поврежденные записи
+			}
+
+			syncInfos = append(syncInfos, model.SyncInfo{
+				LocalID:  file.LocalID,
+				ServerID: file.ServerID,
+				Checksum: file.Checksum,
+				Deleted:  file.Deleted,
+			})
+			return nil
+		})
+	})
+
+	return syncInfos, err
+}
+
+// GetFilesByIDs извлекает метаданные файлов по их идентификаторам.
+func (s *BboltStorage) GetFilesByIDs(ids []string) ([]model.FileData, error) {
+	s.log.Info().Int("count", len(ids)).Msg("Retrieving files by IDs from storage")
+	var files []model.FileData
+
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(fileMetaBucket)
+		for _, id := range ids {
+			encryptedData := b.Get([]byte(id))
+			if encryptedData == nil {
+				s.log.Warn().Str("file_id", id).Msg("File not found, skipping")
+				continue
+			}
+
+			var file model.FileData
+			if err := s.decryptItem(encryptedData, &file); err != nil {
+				s.log.Error().Str("file_id", id).Err(err).Msg("Failed to decrypt file")
+				continue
+			}
+
+			files = append(files, file)
 		}
 		return nil
+	})
+
+	return files, err
+}
+
+// DeleteFileByID помечает файл как удаленный (soft delete).
+// Для физического удаления используется отдельный метод по команде пользователя из TUI.
+func (s *BboltStorage) DeleteFileByID(id string) error {
+	return s.markAsDeleted(fileMetaBucket, id, func() interface{} {
+		return &model.FileData{}
 	})
 }

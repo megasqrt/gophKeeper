@@ -1,29 +1,34 @@
-syntax = "proto3";
+edition = "2023";
 
 package gophkeeper;
 
 option go_package = "gophKeeper/internal/proto/gen";
 
+// TimeMap содержит временные метки для синхронизации
 message TimeMap {
-    int64 change_time = 1;
-    int64 sync_time = 2;
+    int64 change_time = 1;  // Время последнего изменения (nanoseconds since epoch)
+    int64 sync_time = 2;    // Время последней синхронизации (nanoseconds since epoch)
 }
 
+// ShortItem представляет краткую информацию об элементе для синхронизации
 message ShortItem {
-    string local_id = 1;
-    string server_id = 2;
-    string checkSum = 3;
-    bool deleted = 6;
+    string local_id = 1;   // Локальный идентификатор клиента
+    string server_id = 2;  // Идентификатор на сервере (может быть пустым для новых элементов)
+    string checksum = 3;   // Контрольная сумма данных для определения изменений
+    bool deleted = 4;      // Флаг удаления (soft delete)
 }
 
+// Response используется для возврата server_id после операций
 message Response {
-    string server_id = 1;
+    string server_id = 1;  // Идентификатор на сервере
 }
 
+// ShortSyncRequest содержит краткую информацию о всех элементах для сравнения
 message ShortSyncRequest {
     repeated ShortItem items = 1;
 }
 
+// ShortSyncResponse возвращает список локальных ID элементов, которые нужно синхронизировать полностью
 message ShortSyncResponse {
-    repeated Response items = 1;
+    repeated string local_ids = 1;  // Список локальных ID для полной синхронизации
 }

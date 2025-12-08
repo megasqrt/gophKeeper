@@ -36,14 +36,20 @@ type LocalStorage interface {
 	SavePass(passData *models.Password) error
 	UpdatePass(passData *models.Password) error
 	GetPasss() ([]models.Password, error)
+	GetPasswordsByIDs(ids []string) ([]models.Password, error)
+	GetShortPasswords() ([]models.SyncInfo, error)
 	DeletePass(id string) error
 
 	SaveText(textData *models.TextData) error
 	UpdateText(textData *models.TextData) error
 	GetTexts() ([]models.TextData, error)
+	GetTextsByIDs(ids []string) ([]models.TextData, error)
+	GetShortTexts() ([]models.SyncInfo, error)
 	DeleteText(id string) error
 
 	GetFiles() ([]models.FileData, error)
+	GetFilesByIDs(ids []string) ([]models.FileData, error)
+	GetShortFiles() ([]models.SyncInfo, error)
 	GetFileByID(id string) (map[string]interface{}, error)
 	UpdateFile(data *models.FileData) error
 	SaveFile(data *models.FileData, content []byte) error

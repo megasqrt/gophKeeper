@@ -6,15 +6,16 @@ option go_package = "gophKeeper/internal/proto/gen";
 
 import "common.proto";
 
+// FileItem представляет метаданные файла
 message FileItem {
-    string local_id = 1;
-    string server_id = 2;
-    string name = 3;
-    string metadata = 4;
-    int64 size = 5;
-    TimeMap timemap = 6;
-    bool deleted = 7;
-    string checkSum = 8;
+    string local_id = 1;   // Локальный идентификатор клиента
+    string server_id = 2;  // Идентификатор на сервере
+    string name = 3;       // Имя файла
+    string metadata = 4;   // Дополнительные метаданные
+    int64 size = 5;        // Размер файла в байтах
+    string checksum = 6;   // Контрольная сумма метаданных для синхронизации
+    TimeMap timemap = 7;   // Временные метки
+    bool deleted = 8;      // Флаг удаления (soft delete)
 }
 
 

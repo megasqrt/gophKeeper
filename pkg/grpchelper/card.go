@@ -17,13 +17,16 @@ type Card struct {
 	ChangeTime time.Time
 	SyncTime   time.Time
 	Deleted    bool
-	checksum   string
+	Checksum   string
 }
 
 func (c Card) GetLocalID() string       { return c.LocalID }
 func (c Card) GetServerID() string      { return c.ServerID }
 func (c Card) GetChangeTime() time.Time { return c.ChangeTime }
 func (c *Card) SetLocalID(id string)    { c.LocalID = id }
+func (c Card) GetDeleted() bool        { return c.Deleted }
+func (c *Card) SetDeleted(deleted bool) { c.Deleted = deleted }
+func (c Card) GetChecksum() string     { return c.Checksum }
 
 // Title возвращает заголовок для элемента списка (номер карты).
 func (c Card) Title() string {
