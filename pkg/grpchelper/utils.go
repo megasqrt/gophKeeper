@@ -1,10 +1,18 @@
-package model
+package grpchelper
 
 import (
 	"fmt"
 	"strconv"
 	"time"
 )
+
+// SyncInfo представляет минимальный набор данных для синхронизации.
+type SyncInfo struct {
+	LocalID  string `json:"id"`
+	ServerID string `json:"server_id"`
+	Checksum string `json:"checksum"`
+	Deleted  bool   `json:"deleted"`
+}
 
 // InterfaceToString safely converts an interface{} to a string.
 func InterfaceToString(v interface{}) string {

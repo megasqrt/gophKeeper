@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"gophKeeper/client/internal/domain/model"
+	models "gophKeeper/pkg/grpchelper"
 	"time"
 )
 
@@ -23,29 +23,31 @@ type LocalStorage interface {
 	SaveUserCredentials(login, token, deviceID string) error
 	GetUserCredentials() (login, token, deviceID string, err error)
 
-	SaveCard(cardData *model.Card) error
-	UpdateCard(cardData *model.Card) error
-	GetCards() ([]model.Card, error)
+	SaveCard(cardData *models.Card) error
+	UpdateCard(cardData *models.Card) error
+	GetCards() ([]models.Card, error)
+	GetCardsByIDs(ids []string) ([]models.Card, error)
+	GetShortCards() ([]models.SyncInfo, error)
 	DeleteCard(id string) error
 
 	SaveLastSyncTime(t time.Time) error
 	GetLastSyncTime() (time.Time, error)
 
-	SavePass(passData *model.Password) error
-	UpdatePass(passData *model.Password) error
-	GetPasss() ([]model.Password, error)
+	SavePass(passData *models.Password) error
+	UpdatePass(passData *models.Password) error
+	GetPasss() ([]models.Password, error)
 	DeletePass(id string) error
 
-	SaveText(textData *model.TextData) error
-	UpdateText(textData *model.TextData) error
-	GetTexts() ([]model.TextData, error)
+	SaveText(textData *models.TextData) error
+	UpdateText(textData *models.TextData) error
+	GetTexts() ([]models.TextData, error)
 	DeleteText(id string) error
 
-	GetFiles() ([]model.FileData, error)
+	GetFiles() ([]models.FileData, error)
 	GetFileByID(id string) (map[string]interface{}, error)
-	UpdateFile(data *model.FileData) error
-	SaveFile(data *model.FileData, content []byte) error
-	SaveFileMetadata(data *model.FileData) error
+	UpdateFile(data *models.FileData) error
+	SaveFile(data *models.FileData, content []byte) error
+	SaveFileMetadata(data *models.FileData) error
 	DeleteFileByID(id string) error
 
 	Close() error

@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	"gophKeeper/client/internal/config"
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	pb "gophKeeper/internal/proto/gen"
 	"strings"
 	"time"
@@ -149,6 +149,29 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 		syncedCards[i] = model.FromProtoCard(pbCard)
 	}
 	return syncedCards, nil
+}
+
+func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
+	// Конвертируем наши модели в DTO для gRPC
+	pbItems := make([]*pb.ShortItem, len(shortItems))
+	for i, item := range shortItems {
+		if item.Deleted {
+			continue
+		}
+		pbItems[i] = item.ToProto()
+	}
+
+	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
+	resp, err := c.Card.CardsShortSync(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	syncedItems := make([]string, len(resp.GetItems()))
+	for i, pbItems := range resp.GetItems() {
+		syncedItems[i] = pbItems.GetServerId()
+	}
+	return syncedItems, nil
 }
 
 // SyncPasswords вызывает RPC для синхронизации паролей.

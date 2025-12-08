@@ -1,4 +1,4 @@
-package model
+package grpchelper
 
 import (
 	"fmt"
@@ -32,6 +32,7 @@ func (t *TextData) ToProto() *pb.NoteItem {
 		ServerId: &t.ServerID,
 		Title:    &t.Title,
 		Text:     &t.Text,
+		CheckSum: &t.Checksum,
 		Timemap:  toProtoTimemap(t.ChangeTime, t.SyncTime),
 		Deleted:  &t.Deleted,
 	}.Build()
@@ -43,6 +44,7 @@ func GetModelText(data map[string]string) TextData {
 		ServerID:   data["server_id"],
 		Title:      data["title"],
 		Text:       data["text"],
+		Checksum:   data["checksum"],
 		Deleted:    data["deleted"] == "true",
 		ChangeTime: parseChangeTime(data),
 	}
@@ -55,6 +57,7 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 		ServerID:   pbText.GetServerId(),
 		Title:      pbText.GetTitle(),
 		Text:       pbText.GetText(),
+		Checksum:   pbText.GetCheckSum(),
 		ChangeTime: time.Unix(0, pbText.GetTimemap().GetChangeTime()),
 		SyncTime:   time.Unix(0, pbText.GetTimemap().GetSyncTime()),
 		Deleted:    pbText.GetDeleted(),
@@ -72,6 +75,7 @@ func FromMapText(data map[string]interface{}) (TextData, error) {
 		ServerID:   InterfaceToString(data["server_id"]),
 		Title:      InterfaceToString(data["title"]),
 		Text:       InterfaceToString(data["text"]),
+		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,
 		Deleted:    deleted,
@@ -93,6 +97,16 @@ func (c *Card) ToProto() *pb.CardItem {
 		Deleted:  &c.Deleted,
 	}.Build()
 }
+
+func (c *SyncInfo) ToProto() *pb.ShortItem {
+	return pb.ShortItem_builder{
+		LocalId:  c.LocalID,
+		ServerId: c.ServerID,
+		CheckSum: c.Checksum,
+		Deleted:  c.Deleted,
+	}.Build()
+}
+
 
 // FromProtoCard converts a Protobuf CardItem to a domain Card model.
 func FromProtoCard(pbCard *pb.CardItem) Card {

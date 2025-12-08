@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	"time"
 )
 
@@ -22,8 +22,8 @@ func (s *BboltStorage) UpdatePass(passData *model.Password) error {
 // GetPasss извлекает все сохраненные пароли.
 func (s *BboltStorage) GetPasss() ([]model.Password, error) {
 	s.log.Info().Msg("Retrieving all passwords from storage")
-	items, err := s.getAllItems(passwordsBucket, func(data map[string]interface{}) (interface{}, error) {
-		return model.FromMapPassword(data)
+	items, err := s.getAllItems(passwordsBucket, func() interface{} {
+		return &model.Password{}
 	})
 	if err != nil {
 		return nil, err
@@ -31,14 +31,16 @@ func (s *BboltStorage) GetPasss() ([]model.Password, error) {
 
 	var passwords []model.Password
 	for _, item := range items {
-		passwords = append(passwords, item.(model.Password))
+		if pass, ok := item.(*model.Password); ok {
+			passwords = append(passwords, *pass)
+		}
 	}
 	return passwords, nil
 }
 
 // DeletePass помечает пароль как удаленный.
 func (s *BboltStorage) DeletePass(id string) error {
-	return s.markAsDeleted(passwordsBucket, id, func(data map[string]interface{}) (interface{}, error) {
-		return model.FromMapPassword(data)
+	return s.markAsDeleted(passwordsBucket, id, func() interface{} {
+		return &model.Password{}
 	})
 }

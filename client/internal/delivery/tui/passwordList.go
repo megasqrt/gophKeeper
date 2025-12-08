@@ -2,7 +2,7 @@ package tui
 
 import (
 	"gophKeeper/client/internal/domain"
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/table"

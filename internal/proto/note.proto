@@ -13,10 +13,7 @@ message NoteItem {
     string text = 4;
     TimeMap timemap = 5;
     bool deleted = 6;
-}
-
-message NoteResponse {
-    string server_id = 1;
+    string checkSum = 7;
 }
 
 message RemoveNoteRequest {
@@ -36,8 +33,9 @@ message NotesSyncRequest {
 }
 
 service NoteService {
-    rpc UpdateNote(NoteItem) returns (NoteResponse);
+    rpc UpdateNote(NoteItem) returns (Response);
     rpc RemoveNote(RemoveNoteRequest) returns (RemoveNoteResponse);
     rpc GetNotes(GetNotesRequest) returns (GetNotesResponse);
+    rpc NotesShortSync(ShortSyncRequest) returns (ShortSyncResponse);
     rpc NotesSync(NotesSyncRequest) returns (GetNotesResponse);
 }

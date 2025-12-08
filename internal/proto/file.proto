@@ -14,11 +14,9 @@ message FileItem {
     int64 size = 5;
     TimeMap timemap = 6;
     bool deleted = 7;
+    string checkSum = 8;
 }
 
-message FileResponse {
-    string server_id = 1;
-}
 
 message RemoveFileRequest {
     string local_id = 1;
@@ -37,8 +35,9 @@ message FilesSyncRequest {
 }
 
 service FileService {
-    rpc UpdateFile(FileItem) returns (FileResponse);
+    rpc UpdateFile(FileItem) returns (Response);
     rpc RemoveFile(RemoveFileRequest) returns (RemoveFileResponse);
     rpc GetFiles(GetFilesRequest) returns (GetFilesResponse);
+    rpc FilesShortSync(ShortSyncRequest) returns (ShortSyncResponse);
     rpc FilesSync(FilesSyncRequest) returns (GetFilesResponse);
 }

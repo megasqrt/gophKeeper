@@ -3,7 +3,7 @@ package tui
 import (
 	"fmt"
 	"gophKeeper/client/internal/domain"
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	"strings"
 
 	"strconv"

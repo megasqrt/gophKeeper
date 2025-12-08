@@ -1,4 +1,4 @@
-package model
+package grpchelper
 
 import "time"
 

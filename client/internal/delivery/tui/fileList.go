@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"gophKeeper/client/internal/domain"
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	"io"
 	"os"
 	"path/filepath"

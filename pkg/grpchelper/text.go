@@ -1,4 +1,4 @@
-package model
+package grpchelper
 
 import "time"
 
@@ -7,6 +7,7 @@ type TextData struct {
 	ServerID   string
 	Title      string
 	Text       string
+	Checksum   string
 	ChangeTime time.Time
 	SyncTime   time.Time
 	Deleted    bool
@@ -26,6 +27,7 @@ func (t *TextData) ToMap() map[string]interface{} {
 		"server_id":  t.ServerID,
 		"title":      t.Title,
 		"text":       t.Text,
+		"checksum":   t.Checksum,
 		"changeTime": t.ChangeTime.Format(time.RFC3339Nano),
 		"syncTime":   t.SyncTime.Format(time.RFC3339Nano),
 		"deleted":    t.Deleted,

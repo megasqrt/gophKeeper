@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"gophKeeper/client/internal/domain"
-	"gophKeeper/client/internal/domain/model"
 	"gophKeeper/client/internal/transport"
 	"time"
+
+	model "gophKeeper/pkg/grpchelper"
 
 	"github.com/rs/zerolog"
 )
@@ -120,13 +121,25 @@ func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string) err
 func (s *SyncService) syncCards(ctx context.Context, token, deviceID string) error {
 	s.log.Info().Msg("Syncing credit cards...")
 
-	// 1. Получаем все локальные карты уже в виде доменных моделей
-	localCards, err := s.storage.GetCards()
+	// 1. Получаем краткую информацию о картах
+	shortCards, err := s.storage.GetShortCards()
 	if err != nil {
 		return err
 	}
 
-	// Фильтруем удаленные записи перед отправкой на сервер
+	// 2. Отправляем краткую информацию на сервер и получаем ID карт, которые нужно синхронизировать полностью
+	cardIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortCards)
+	if err != nil {
+		return err
+	}
+
+	// 3. Получаем полные данные карт по ID
+	localCards, err := s.storage.GetCardsByIDs(cardIDsToSync)
+	if err != nil {
+		return err
+	}
+
+	// Фильтруем удаленные карты
 	activeLocalCards := make([]model.Card, 0, len(localCards))
 	for _, card := range localCards {
 		if card.Deleted {
@@ -136,13 +149,13 @@ func (s *SyncService) syncCards(ctx context.Context, token, deviceID string) err
 		activeLocalCards = append(activeLocalCards, card)
 	}
 
-	// 2. Отправляем на сервер (этот метод нужно будет создать в transport и grpc клиенте)
+	// 4. Отправляем полные данные карт на сервер
 	serverCards, err := transport.SyncCards(ctx, token, deviceID, activeLocalCards)
 	if err != nil {
 		return err
 	}
 
-	// 3. Обрабатываем ответ сервера
+	// 5. Обрабатываем ответ сервера
 	localSyncables := make([]domain.Syncable, len(localCards))
 	for i := range localCards {
 		localSyncables[i] = &localCards[i]

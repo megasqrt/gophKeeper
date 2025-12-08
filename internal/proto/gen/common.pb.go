@@ -91,6 +91,280 @@ func (b0 TimeMap_builder) Build() *TimeMap {
 	return m0
 }
 
+type ShortItem struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_LocalId  string                 `protobuf:"bytes,1,opt,name=local_id,json=localId,proto3"`
+	xxx_hidden_ServerId string                 `protobuf:"bytes,2,opt,name=server_id,json=serverId,proto3"`
+	xxx_hidden_CheckSum string                 `protobuf:"bytes,3,opt,name=checkSum,proto3"`
+	xxx_hidden_Deleted  bool                   `protobuf:"varint,6,opt,name=deleted,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ShortItem) Reset() {
+	*x = ShortItem{}
+	mi := &file_common_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShortItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShortItem) ProtoMessage() {}
+
+func (x *ShortItem) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ShortItem) GetLocalId() string {
+	if x != nil {
+		return x.xxx_hidden_LocalId
+	}
+	return ""
+}
+
+func (x *ShortItem) GetServerId() string {
+	if x != nil {
+		return x.xxx_hidden_ServerId
+	}
+	return ""
+}
+
+func (x *ShortItem) GetCheckSum() string {
+	if x != nil {
+		return x.xxx_hidden_CheckSum
+	}
+	return ""
+}
+
+func (x *ShortItem) GetDeleted() bool {
+	if x != nil {
+		return x.xxx_hidden_Deleted
+	}
+	return false
+}
+
+func (x *ShortItem) SetLocalId(v string) {
+	x.xxx_hidden_LocalId = v
+}
+
+func (x *ShortItem) SetServerId(v string) {
+	x.xxx_hidden_ServerId = v
+}
+
+func (x *ShortItem) SetCheckSum(v string) {
+	x.xxx_hidden_CheckSum = v
+}
+
+func (x *ShortItem) SetDeleted(v bool) {
+	x.xxx_hidden_Deleted = v
+}
+
+type ShortItem_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	LocalId  string
+	ServerId string
+	CheckSum string
+	Deleted  bool
+}
+
+func (b0 ShortItem_builder) Build() *ShortItem {
+	m0 := &ShortItem{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_LocalId = b.LocalId
+	x.xxx_hidden_ServerId = b.ServerId
+	x.xxx_hidden_CheckSum = b.CheckSum
+	x.xxx_hidden_Deleted = b.Deleted
+	return m0
+}
+
+type Response struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ServerId string                 `protobuf:"bytes,1,opt,name=server_id,json=serverId,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *Response) Reset() {
+	*x = Response{}
+	mi := &file_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Response) ProtoMessage() {}
+
+func (x *Response) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Response) GetServerId() string {
+	if x != nil {
+		return x.xxx_hidden_ServerId
+	}
+	return ""
+}
+
+func (x *Response) SetServerId(v string) {
+	x.xxx_hidden_ServerId = v
+}
+
+type Response_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	ServerId string
+}
+
+func (b0 Response_builder) Build() *Response {
+	m0 := &Response{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_ServerId = b.ServerId
+	return m0
+}
+
+type ShortSyncRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*ShortItem          `protobuf:"bytes,1,rep,name=items,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ShortSyncRequest) Reset() {
+	*x = ShortSyncRequest{}
+	mi := &file_common_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShortSyncRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShortSyncRequest) ProtoMessage() {}
+
+func (x *ShortSyncRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ShortSyncRequest) GetItems() []*ShortItem {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *ShortSyncRequest) SetItems(v []*ShortItem) {
+	x.xxx_hidden_Items = &v
+}
+
+type ShortSyncRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*ShortItem
+}
+
+func (b0 ShortSyncRequest_builder) Build() *ShortSyncRequest {
+	m0 := &ShortSyncRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type ShortSyncResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*Response           `protobuf:"bytes,1,rep,name=items,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ShortSyncResponse) Reset() {
+	*x = ShortSyncResponse{}
+	mi := &file_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ShortSyncResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShortSyncResponse) ProtoMessage() {}
+
+func (x *ShortSyncResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ShortSyncResponse) GetItems() []*Response {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *ShortSyncResponse) SetItems(v []*Response) {
+	x.xxx_hidden_Items = &v
+}
+
+type ShortSyncResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*Response
+}
+
+func (b0 ShortSyncResponse_builder) Build() *ShortSyncResponse {
+	m0 := &ShortSyncResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
 var File_common_proto protoreflect.FileDescriptor
 
 const file_common_proto_rawDesc = "" +
@@ -100,18 +374,35 @@ const file_common_proto_rawDesc = "" +
 	"\aTimeMap\x12\x1f\n" +
 	"\vchange_time\x18\x01 \x01(\x03R\n" +
 	"changeTime\x12\x1b\n" +
-	"\tsync_time\x18\x02 \x01(\x03R\bsyncTimeB\x1fZ\x1dgophKeeper/internal/proto/genb\x06proto3"
+	"\tsync_time\x18\x02 \x01(\x03R\bsyncTime\"y\n" +
+	"\tShortItem\x12\x19\n" +
+	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
+	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x1a\n" +
+	"\bcheckSum\x18\x03 \x01(\tR\bcheckSum\x12\x18\n" +
+	"\adeleted\x18\x06 \x01(\bR\adeleted\"'\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tserver_id\x18\x01 \x01(\tR\bserverId\"?\n" +
+	"\x10ShortSyncRequest\x12+\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.gophkeeper.ShortItemR\x05items\"?\n" +
+	"\x11ShortSyncResponse\x12*\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.gophkeeper.ResponseR\x05itemsB\x1fZ\x1dgophKeeper/internal/proto/genb\x06proto3"
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_common_proto_goTypes = []any{
-	(*TimeMap)(nil), // 0: gophkeeper.TimeMap
+	(*TimeMap)(nil),           // 0: gophkeeper.TimeMap
+	(*ShortItem)(nil),         // 1: gophkeeper.ShortItem
+	(*Response)(nil),          // 2: gophkeeper.Response
+	(*ShortSyncRequest)(nil),  // 3: gophkeeper.ShortSyncRequest
+	(*ShortSyncResponse)(nil), // 4: gophkeeper.ShortSyncResponse
 }
 var file_common_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: gophkeeper.ShortSyncRequest.items:type_name -> gophkeeper.ShortItem
+	2, // 1: gophkeeper.ShortSyncResponse.items:type_name -> gophkeeper.Response
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_common_proto_init() }
@@ -125,7 +416,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

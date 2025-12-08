@@ -28,6 +28,7 @@ type NoteItem struct {
 	xxx_hidden_Text        *string                `protobuf:"bytes,4,opt,name=text"`
 	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,5,opt,name=timemap"`
 	xxx_hidden_Deleted     bool                   `protobuf:"varint,6,opt,name=deleted"`
+	xxx_hidden_CheckSum    *string                `protobuf:"bytes,7,opt,name=checkSum"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -113,24 +114,34 @@ func (x *NoteItem) GetDeleted() bool {
 	return false
 }
 
+func (x *NoteItem) GetCheckSum() string {
+	if x != nil {
+		if x.xxx_hidden_CheckSum != nil {
+			return *x.xxx_hidden_CheckSum
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *NoteItem) SetLocalId(v string) {
 	x.xxx_hidden_LocalId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
 }
 
 func (x *NoteItem) SetServerId(v string) {
 	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *NoteItem) SetTitle(v string) {
 	x.xxx_hidden_Title = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *NoteItem) SetText(v string) {
 	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *NoteItem) SetTimemap(v *TimeMap) {
@@ -139,7 +150,12 @@ func (x *NoteItem) SetTimemap(v *TimeMap) {
 
 func (x *NoteItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+}
+
+func (x *NoteItem) SetCheckSum(v string) {
+	x.xxx_hidden_CheckSum = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
 func (x *NoteItem) HasLocalId() bool {
@@ -184,6 +200,13 @@ func (x *NoteItem) HasDeleted() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
+func (x *NoteItem) HasCheckSum() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
 func (x *NoteItem) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_LocalId = nil
@@ -213,6 +236,11 @@ func (x *NoteItem) ClearDeleted() {
 	x.xxx_hidden_Deleted = false
 }
 
+func (x *NoteItem) ClearCheckSum() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_CheckSum = nil
+}
+
 type NoteItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -222,6 +250,7 @@ type NoteItem_builder struct {
 	Text     *string
 	Timemap  *TimeMap
 	Deleted  *bool
+	CheckSum *string
 }
 
 func (b0 NoteItem_builder) Build() *NoteItem {
@@ -229,103 +258,29 @@ func (b0 NoteItem_builder) Build() *NoteItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.LocalId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
 		x.xxx_hidden_LocalId = b.LocalId
 	}
 	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_ServerId = b.ServerId
 	}
 	if b.Title != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Title = b.Title
 	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Text = b.Text
 	}
 	x.xxx_hidden_Timemap = b.Timemap
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
 		x.xxx_hidden_Deleted = *b.Deleted
 	}
-	return m0
-}
-
-type NoteResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,1,opt,name=server_id,json=serverId"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *NoteResponse) Reset() {
-	*x = NoteResponse{}
-	mi := &file_note_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *NoteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NoteResponse) ProtoMessage() {}
-
-func (x *NoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *NoteResponse) GetServerId() string {
-	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *NoteResponse) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
-}
-
-func (x *NoteResponse) HasServerId() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *NoteResponse) ClearServerId() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ServerId = nil
-}
-
-type NoteResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	ServerId *string
-}
-
-func (b0 NoteResponse_builder) Build() *NoteResponse {
-	m0 := &NoteResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_ServerId = b.ServerId
+	if b.CheckSum != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		x.xxx_hidden_CheckSum = b.CheckSum
 	}
 	return m0
 }
@@ -341,7 +296,7 @@ type RemoveNoteRequest struct {
 
 func (x *RemoveNoteRequest) Reset() {
 	*x = RemoveNoteRequest{}
-	mi := &file_note_proto_msgTypes[2]
+	mi := &file_note_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +308,7 @@ func (x *RemoveNoteRequest) String() string {
 func (*RemoveNoteRequest) ProtoMessage() {}
 
 func (x *RemoveNoteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[2]
+	mi := &file_note_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -416,7 +371,7 @@ type RemoveNoteResponse struct {
 
 func (x *RemoveNoteResponse) Reset() {
 	*x = RemoveNoteResponse{}
-	mi := &file_note_proto_msgTypes[3]
+	mi := &file_note_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -428,7 +383,7 @@ func (x *RemoveNoteResponse) String() string {
 func (*RemoveNoteResponse) ProtoMessage() {}
 
 func (x *RemoveNoteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[3]
+	mi := &file_note_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -459,7 +414,7 @@ type GetNotesRequest struct {
 
 func (x *GetNotesRequest) Reset() {
 	*x = GetNotesRequest{}
-	mi := &file_note_proto_msgTypes[4]
+	mi := &file_note_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -471,7 +426,7 @@ func (x *GetNotesRequest) String() string {
 func (*GetNotesRequest) ProtoMessage() {}
 
 func (x *GetNotesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[4]
+	mi := &file_note_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -503,7 +458,7 @@ type GetNotesResponse struct {
 
 func (x *GetNotesResponse) Reset() {
 	*x = GetNotesResponse{}
-	mi := &file_note_proto_msgTypes[5]
+	mi := &file_note_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -515,7 +470,7 @@ func (x *GetNotesResponse) String() string {
 func (*GetNotesResponse) ProtoMessage() {}
 
 func (x *GetNotesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[5]
+	mi := &file_note_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -562,7 +517,7 @@ type NotesSyncRequest struct {
 
 func (x *NotesSyncRequest) Reset() {
 	*x = NotesSyncRequest{}
-	mi := &file_note_proto_msgTypes[6]
+	mi := &file_note_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +529,7 @@ func (x *NotesSyncRequest) String() string {
 func (*NotesSyncRequest) ProtoMessage() {}
 
 func (x *NotesSyncRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_note_proto_msgTypes[6]
+	mi := &file_note_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -618,16 +573,15 @@ const file_note_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"note.proto\x12\n" +
-	"gophkeeper\x1a\fcommon.proto\"\xb5\x01\n" +
+	"gophkeeper\x1a\fcommon.proto\"\xd1\x01\n" +
 	"\bNoteItem\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
 	"\x04text\x18\x04 \x01(\tR\x04text\x12-\n" +
 	"\atimemap\x18\x05 \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\x06 \x01(\bR\adeleted\"+\n" +
-	"\fNoteResponse\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\".\n" +
+	"\adeleted\x18\x06 \x01(\bR\adeleted\x12\x1a\n" +
+	"\bcheckSum\x18\a \x01(\tR\bcheckSum\".\n" +
 	"\x11RemoveNoteRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
 	"\x12RemoveNoteResponse\"\x11\n" +
@@ -635,40 +589,45 @@ const file_note_proto_rawDesc = "" +
 	"\x10GetNotesResponse\x12*\n" +
 	"\x05notes\x18\x01 \x03(\v2\x14.gophkeeper.NoteItemR\x05notes\">\n" +
 	"\x10NotesSyncRequest\x12*\n" +
-	"\x05notes\x18\x01 \x03(\v2\x14.gophkeeper.NoteItemR\x05notes2\xa8\x02\n" +
-	"\vNoteService\x12<\n" +
+	"\x05notes\x18\x01 \x03(\v2\x14.gophkeeper.NoteItemR\x05notes2\xf3\x02\n" +
+	"\vNoteService\x128\n" +
 	"\n" +
-	"UpdateNote\x12\x14.gophkeeper.NoteItem\x1a\x18.gophkeeper.NoteResponse\x12K\n" +
+	"UpdateNote\x12\x14.gophkeeper.NoteItem\x1a\x14.gophkeeper.Response\x12K\n" +
 	"\n" +
 	"RemoveNote\x12\x1d.gophkeeper.RemoveNoteRequest\x1a\x1e.gophkeeper.RemoveNoteResponse\x12E\n" +
-	"\bGetNotes\x12\x1b.gophkeeper.GetNotesRequest\x1a\x1c.gophkeeper.GetNotesResponse\x12G\n" +
+	"\bGetNotes\x12\x1b.gophkeeper.GetNotesRequest\x1a\x1c.gophkeeper.GetNotesResponse\x12M\n" +
+	"\x0eNotesShortSync\x12\x1c.gophkeeper.ShortSyncRequest\x1a\x1d.gophkeeper.ShortSyncResponse\x12G\n" +
 	"\tNotesSync\x12\x1c.gophkeeper.NotesSyncRequest\x1a\x1c.gophkeeper.GetNotesResponseB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"
 
-var file_note_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_note_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_note_proto_goTypes = []any{
 	(*NoteItem)(nil),           // 0: gophkeeper.NoteItem
-	(*NoteResponse)(nil),       // 1: gophkeeper.NoteResponse
-	(*RemoveNoteRequest)(nil),  // 2: gophkeeper.RemoveNoteRequest
-	(*RemoveNoteResponse)(nil), // 3: gophkeeper.RemoveNoteResponse
-	(*GetNotesRequest)(nil),    // 4: gophkeeper.GetNotesRequest
-	(*GetNotesResponse)(nil),   // 5: gophkeeper.GetNotesResponse
-	(*NotesSyncRequest)(nil),   // 6: gophkeeper.NotesSyncRequest
-	(*TimeMap)(nil),            // 7: gophkeeper.TimeMap
+	(*RemoveNoteRequest)(nil),  // 1: gophkeeper.RemoveNoteRequest
+	(*RemoveNoteResponse)(nil), // 2: gophkeeper.RemoveNoteResponse
+	(*GetNotesRequest)(nil),    // 3: gophkeeper.GetNotesRequest
+	(*GetNotesResponse)(nil),   // 4: gophkeeper.GetNotesResponse
+	(*NotesSyncRequest)(nil),   // 5: gophkeeper.NotesSyncRequest
+	(*TimeMap)(nil),            // 6: gophkeeper.TimeMap
+	(*ShortSyncRequest)(nil),   // 7: gophkeeper.ShortSyncRequest
+	(*Response)(nil),           // 8: gophkeeper.Response
+	(*ShortSyncResponse)(nil),  // 9: gophkeeper.ShortSyncResponse
 }
 var file_note_proto_depIdxs = []int32{
-	7, // 0: gophkeeper.NoteItem.timemap:type_name -> gophkeeper.TimeMap
+	6, // 0: gophkeeper.NoteItem.timemap:type_name -> gophkeeper.TimeMap
 	0, // 1: gophkeeper.GetNotesResponse.notes:type_name -> gophkeeper.NoteItem
 	0, // 2: gophkeeper.NotesSyncRequest.notes:type_name -> gophkeeper.NoteItem
 	0, // 3: gophkeeper.NoteService.UpdateNote:input_type -> gophkeeper.NoteItem
-	2, // 4: gophkeeper.NoteService.RemoveNote:input_type -> gophkeeper.RemoveNoteRequest
-	4, // 5: gophkeeper.NoteService.GetNotes:input_type -> gophkeeper.GetNotesRequest
-	6, // 6: gophkeeper.NoteService.NotesSync:input_type -> gophkeeper.NotesSyncRequest
-	1, // 7: gophkeeper.NoteService.UpdateNote:output_type -> gophkeeper.NoteResponse
-	3, // 8: gophkeeper.NoteService.RemoveNote:output_type -> gophkeeper.RemoveNoteResponse
-	5, // 9: gophkeeper.NoteService.GetNotes:output_type -> gophkeeper.GetNotesResponse
-	5, // 10: gophkeeper.NoteService.NotesSync:output_type -> gophkeeper.GetNotesResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
+	1, // 4: gophkeeper.NoteService.RemoveNote:input_type -> gophkeeper.RemoveNoteRequest
+	3, // 5: gophkeeper.NoteService.GetNotes:input_type -> gophkeeper.GetNotesRequest
+	7, // 6: gophkeeper.NoteService.NotesShortSync:input_type -> gophkeeper.ShortSyncRequest
+	5, // 7: gophkeeper.NoteService.NotesSync:input_type -> gophkeeper.NotesSyncRequest
+	8, // 8: gophkeeper.NoteService.UpdateNote:output_type -> gophkeeper.Response
+	2, // 9: gophkeeper.NoteService.RemoveNote:output_type -> gophkeeper.RemoveNoteResponse
+	4, // 10: gophkeeper.NoteService.GetNotes:output_type -> gophkeeper.GetNotesResponse
+	9, // 11: gophkeeper.NoteService.NotesShortSync:output_type -> gophkeeper.ShortSyncResponse
+	4, // 12: gophkeeper.NoteService.NotesSync:output_type -> gophkeeper.GetNotesResponse
+	8, // [8:13] is the sub-list for method output_type
+	3, // [3:8] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -686,7 +645,7 @@ func file_note_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_note_proto_rawDesc), len(file_note_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

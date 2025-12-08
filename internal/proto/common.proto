@@ -8,3 +8,22 @@ message TimeMap {
     int64 change_time = 1;
     int64 sync_time = 2;
 }
+
+message ShortItem {
+    string local_id = 1;
+    string server_id = 2;
+    string checkSum = 3;
+    bool deleted = 6;
+}
+
+message Response {
+    string server_id = 1;
+}
+
+message ShortSyncRequest {
+    repeated ShortItem items = 1;
+}
+
+message ShortSyncResponse {
+    repeated Response items = 1;
+}

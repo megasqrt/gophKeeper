@@ -351,84 +351,6 @@ func (b0 CardItem_builder) Build() *CardItem {
 	return m0
 }
 
-type CardResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,1,opt,name=server_id,json=serverId"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *CardResponse) Reset() {
-	*x = CardResponse{}
-	mi := &file_card_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CardResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CardResponse) ProtoMessage() {}
-
-func (x *CardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *CardResponse) GetServerId() string {
-	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *CardResponse) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
-}
-
-func (x *CardResponse) HasServerId() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *CardResponse) ClearServerId() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ServerId = nil
-}
-
-type CardResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	ServerId *string
-}
-
-func (b0 CardResponse_builder) Build() *CardResponse {
-	m0 := &CardResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_ServerId = b.ServerId
-	}
-	return m0
-}
-
 type RemoveCardRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
@@ -440,7 +362,7 @@ type RemoveCardRequest struct {
 
 func (x *RemoveCardRequest) Reset() {
 	*x = RemoveCardRequest{}
-	mi := &file_card_proto_msgTypes[2]
+	mi := &file_card_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -452,7 +374,7 @@ func (x *RemoveCardRequest) String() string {
 func (*RemoveCardRequest) ProtoMessage() {}
 
 func (x *RemoveCardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[2]
+	mi := &file_card_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -515,7 +437,7 @@ type RemoveCardResponse struct {
 
 func (x *RemoveCardResponse) Reset() {
 	*x = RemoveCardResponse{}
-	mi := &file_card_proto_msgTypes[3]
+	mi := &file_card_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -527,7 +449,7 @@ func (x *RemoveCardResponse) String() string {
 func (*RemoveCardResponse) ProtoMessage() {}
 
 func (x *RemoveCardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[3]
+	mi := &file_card_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -558,7 +480,7 @@ type GetCardsRequest struct {
 
 func (x *GetCardsRequest) Reset() {
 	*x = GetCardsRequest{}
-	mi := &file_card_proto_msgTypes[4]
+	mi := &file_card_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +492,7 @@ func (x *GetCardsRequest) String() string {
 func (*GetCardsRequest) ProtoMessage() {}
 
 func (x *GetCardsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[4]
+	mi := &file_card_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -602,7 +524,7 @@ type GetCardsResponse struct {
 
 func (x *GetCardsResponse) Reset() {
 	*x = GetCardsResponse{}
-	mi := &file_card_proto_msgTypes[5]
+	mi := &file_card_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +536,7 @@ func (x *GetCardsResponse) String() string {
 func (*GetCardsResponse) ProtoMessage() {}
 
 func (x *GetCardsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[5]
+	mi := &file_card_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +583,7 @@ type CardsSyncRequest struct {
 
 func (x *CardsSyncRequest) Reset() {
 	*x = CardsSyncRequest{}
-	mi := &file_card_proto_msgTypes[6]
+	mi := &file_card_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +595,7 @@ func (x *CardsSyncRequest) String() string {
 func (*CardsSyncRequest) ProtoMessage() {}
 
 func (x *CardsSyncRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_card_proto_msgTypes[6]
+	mi := &file_card_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -727,9 +649,7 @@ const file_card_proto_rawDesc = "" +
 	"\x03cvv\x18\x06 \x01(\tR\x03cvv\x12\x1a\n" +
 	"\bmetadata\x18\a \x01(\tR\bmetadata\x12-\n" +
 	"\atimemap\x18\b \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\t \x01(\bR\adeleted\"+\n" +
-	"\fCardResponse\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\".\n" +
+	"\adeleted\x18\t \x01(\bR\adeleted\".\n" +
 	"\x11RemoveCardRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
 	"\x12RemoveCardResponse\"\x11\n" +
@@ -737,40 +657,45 @@ const file_card_proto_rawDesc = "" +
 	"\x10GetCardsResponse\x12*\n" +
 	"\x05cards\x18\x01 \x03(\v2\x14.gophkeeper.CardItemR\x05cards\">\n" +
 	"\x10CardsSyncRequest\x12*\n" +
-	"\x05cards\x18\x01 \x03(\v2\x14.gophkeeper.CardItemR\x05cards2\xa8\x02\n" +
-	"\vCardService\x12<\n" +
+	"\x05cards\x18\x01 \x03(\v2\x14.gophkeeper.CardItemR\x05cards2\xf3\x02\n" +
+	"\vCardService\x128\n" +
 	"\n" +
-	"UpdateCard\x12\x14.gophkeeper.CardItem\x1a\x18.gophkeeper.CardResponse\x12K\n" +
+	"UpdateCard\x12\x14.gophkeeper.CardItem\x1a\x14.gophkeeper.Response\x12K\n" +
 	"\n" +
 	"RemoveCard\x12\x1d.gophkeeper.RemoveCardRequest\x1a\x1e.gophkeeper.RemoveCardResponse\x12E\n" +
-	"\bGetCards\x12\x1b.gophkeeper.GetCardsRequest\x1a\x1c.gophkeeper.GetCardsResponse\x12G\n" +
+	"\bGetCards\x12\x1b.gophkeeper.GetCardsRequest\x1a\x1c.gophkeeper.GetCardsResponse\x12M\n" +
+	"\x0eCardsShortSync\x12\x1c.gophkeeper.ShortSyncRequest\x1a\x1d.gophkeeper.ShortSyncResponse\x12G\n" +
 	"\tCardsSync\x12\x1c.gophkeeper.CardsSyncRequest\x1a\x1c.gophkeeper.GetCardsResponseB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"
 
-var file_card_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_card_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_card_proto_goTypes = []any{
 	(*CardItem)(nil),           // 0: gophkeeper.CardItem
-	(*CardResponse)(nil),       // 1: gophkeeper.CardResponse
-	(*RemoveCardRequest)(nil),  // 2: gophkeeper.RemoveCardRequest
-	(*RemoveCardResponse)(nil), // 3: gophkeeper.RemoveCardResponse
-	(*GetCardsRequest)(nil),    // 4: gophkeeper.GetCardsRequest
-	(*GetCardsResponse)(nil),   // 5: gophkeeper.GetCardsResponse
-	(*CardsSyncRequest)(nil),   // 6: gophkeeper.CardsSyncRequest
-	(*TimeMap)(nil),            // 7: gophkeeper.TimeMap
+	(*RemoveCardRequest)(nil),  // 1: gophkeeper.RemoveCardRequest
+	(*RemoveCardResponse)(nil), // 2: gophkeeper.RemoveCardResponse
+	(*GetCardsRequest)(nil),    // 3: gophkeeper.GetCardsRequest
+	(*GetCardsResponse)(nil),   // 4: gophkeeper.GetCardsResponse
+	(*CardsSyncRequest)(nil),   // 5: gophkeeper.CardsSyncRequest
+	(*TimeMap)(nil),            // 6: gophkeeper.TimeMap
+	(*ShortSyncRequest)(nil),   // 7: gophkeeper.ShortSyncRequest
+	(*Response)(nil),           // 8: gophkeeper.Response
+	(*ShortSyncResponse)(nil),  // 9: gophkeeper.ShortSyncResponse
 }
 var file_card_proto_depIdxs = []int32{
-	7, // 0: gophkeeper.CardItem.timemap:type_name -> gophkeeper.TimeMap
+	6, // 0: gophkeeper.CardItem.timemap:type_name -> gophkeeper.TimeMap
 	0, // 1: gophkeeper.GetCardsResponse.cards:type_name -> gophkeeper.CardItem
 	0, // 2: gophkeeper.CardsSyncRequest.cards:type_name -> gophkeeper.CardItem
 	0, // 3: gophkeeper.CardService.UpdateCard:input_type -> gophkeeper.CardItem
-	2, // 4: gophkeeper.CardService.RemoveCard:input_type -> gophkeeper.RemoveCardRequest
-	4, // 5: gophkeeper.CardService.GetCards:input_type -> gophkeeper.GetCardsRequest
-	6, // 6: gophkeeper.CardService.CardsSync:input_type -> gophkeeper.CardsSyncRequest
-	1, // 7: gophkeeper.CardService.UpdateCard:output_type -> gophkeeper.CardResponse
-	3, // 8: gophkeeper.CardService.RemoveCard:output_type -> gophkeeper.RemoveCardResponse
-	5, // 9: gophkeeper.CardService.GetCards:output_type -> gophkeeper.GetCardsResponse
-	5, // 10: gophkeeper.CardService.CardsSync:output_type -> gophkeeper.GetCardsResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
+	1, // 4: gophkeeper.CardService.RemoveCard:input_type -> gophkeeper.RemoveCardRequest
+	3, // 5: gophkeeper.CardService.GetCards:input_type -> gophkeeper.GetCardsRequest
+	7, // 6: gophkeeper.CardService.CardsShortSync:input_type -> gophkeeper.ShortSyncRequest
+	5, // 7: gophkeeper.CardService.CardsSync:input_type -> gophkeeper.CardsSyncRequest
+	8, // 8: gophkeeper.CardService.UpdateCard:output_type -> gophkeeper.Response
+	2, // 9: gophkeeper.CardService.RemoveCard:output_type -> gophkeeper.RemoveCardResponse
+	4, // 10: gophkeeper.CardService.GetCards:output_type -> gophkeeper.GetCardsResponse
+	9, // 11: gophkeeper.CardService.CardsShortSync:output_type -> gophkeeper.ShortSyncResponse
+	4, // 12: gophkeeper.CardService.CardsSync:output_type -> gophkeeper.GetCardsResponse
+	8, // [8:13] is the sub-list for method output_type
+	3, // [3:8] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -788,7 +713,7 @@ func file_card_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_card_proto_rawDesc), len(file_card_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

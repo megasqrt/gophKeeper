@@ -1,8 +1,9 @@
 package tui
 
 import (
+	model "gophKeeper/pkg/grpchelper"
+
 	"gophKeeper/client/internal/domain"
-	"gophKeeper/client/internal/domain/model"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"

@@ -1,4 +1,4 @@
-package model
+package grpchelper
 
 import (
 	"fmt"
@@ -17,6 +17,7 @@ type Card struct {
 	ChangeTime time.Time
 	SyncTime   time.Time
 	Deleted    bool
+	checksum   string
 }
 
 func (c Card) GetLocalID() string       { return c.LocalID }

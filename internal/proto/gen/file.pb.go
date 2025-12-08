@@ -29,6 +29,7 @@ type FileItem struct {
 	xxx_hidden_Size        int64                  `protobuf:"varint,5,opt,name=size"`
 	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,6,opt,name=timemap"`
 	xxx_hidden_Deleted     bool                   `protobuf:"varint,7,opt,name=deleted"`
+	xxx_hidden_CheckSum    *string                `protobuf:"bytes,8,opt,name=checkSum"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -121,29 +122,39 @@ func (x *FileItem) GetDeleted() bool {
 	return false
 }
 
+func (x *FileItem) GetCheckSum() string {
+	if x != nil {
+		if x.xxx_hidden_CheckSum != nil {
+			return *x.xxx_hidden_CheckSum
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *FileItem) SetLocalId(v string) {
 	x.xxx_hidden_LocalId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
 }
 
 func (x *FileItem) SetServerId(v string) {
 	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
 }
 
 func (x *FileItem) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
 }
 
 func (x *FileItem) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
 }
 
 func (x *FileItem) SetSize(v int64) {
 	x.xxx_hidden_Size = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
 }
 
 func (x *FileItem) SetTimemap(v *TimeMap) {
@@ -152,7 +163,12 @@ func (x *FileItem) SetTimemap(v *TimeMap) {
 
 func (x *FileItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
+}
+
+func (x *FileItem) SetCheckSum(v string) {
+	x.xxx_hidden_CheckSum = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
 }
 
 func (x *FileItem) HasLocalId() bool {
@@ -204,6 +220,13 @@ func (x *FileItem) HasDeleted() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
+func (x *FileItem) HasCheckSum() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
 func (x *FileItem) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_LocalId = nil
@@ -238,6 +261,11 @@ func (x *FileItem) ClearDeleted() {
 	x.xxx_hidden_Deleted = false
 }
 
+func (x *FileItem) ClearCheckSum() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_CheckSum = nil
+}
+
 type FileItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -248,6 +276,7 @@ type FileItem_builder struct {
 	Size     *int64
 	Timemap  *TimeMap
 	Deleted  *bool
+	CheckSum *string
 }
 
 func (b0 FileItem_builder) Build() *FileItem {
@@ -255,107 +284,33 @@ func (b0 FileItem_builder) Build() *FileItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.LocalId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
 		x.xxx_hidden_LocalId = b.LocalId
 	}
 	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
 		x.xxx_hidden_ServerId = b.ServerId
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
 		x.xxx_hidden_Metadata = b.Metadata
 	}
 	if b.Size != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
 		x.xxx_hidden_Size = *b.Size
 	}
 	x.xxx_hidden_Timemap = b.Timemap
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
 		x.xxx_hidden_Deleted = *b.Deleted
 	}
-	return m0
-}
-
-type FileResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,1,opt,name=server_id,json=serverId"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *FileResponse) Reset() {
-	*x = FileResponse{}
-	mi := &file_file_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FileResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FileResponse) ProtoMessage() {}
-
-func (x *FileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *FileResponse) GetServerId() string {
-	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *FileResponse) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
-}
-
-func (x *FileResponse) HasServerId() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *FileResponse) ClearServerId() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ServerId = nil
-}
-
-type FileResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	ServerId *string
-}
-
-func (b0 FileResponse_builder) Build() *FileResponse {
-	m0 := &FileResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_ServerId = b.ServerId
+	if b.CheckSum != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		x.xxx_hidden_CheckSum = b.CheckSum
 	}
 	return m0
 }
@@ -371,7 +326,7 @@ type RemoveFileRequest struct {
 
 func (x *RemoveFileRequest) Reset() {
 	*x = RemoveFileRequest{}
-	mi := &file_file_proto_msgTypes[2]
+	mi := &file_file_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +338,7 @@ func (x *RemoveFileRequest) String() string {
 func (*RemoveFileRequest) ProtoMessage() {}
 
 func (x *RemoveFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[2]
+	mi := &file_file_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +401,7 @@ type RemoveFileResponse struct {
 
 func (x *RemoveFileResponse) Reset() {
 	*x = RemoveFileResponse{}
-	mi := &file_file_proto_msgTypes[3]
+	mi := &file_file_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -458,7 +413,7 @@ func (x *RemoveFileResponse) String() string {
 func (*RemoveFileResponse) ProtoMessage() {}
 
 func (x *RemoveFileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[3]
+	mi := &file_file_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -489,7 +444,7 @@ type GetFilesRequest struct {
 
 func (x *GetFilesRequest) Reset() {
 	*x = GetFilesRequest{}
-	mi := &file_file_proto_msgTypes[4]
+	mi := &file_file_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +456,7 @@ func (x *GetFilesRequest) String() string {
 func (*GetFilesRequest) ProtoMessage() {}
 
 func (x *GetFilesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[4]
+	mi := &file_file_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +488,7 @@ type GetFilesResponse struct {
 
 func (x *GetFilesResponse) Reset() {
 	*x = GetFilesResponse{}
-	mi := &file_file_proto_msgTypes[5]
+	mi := &file_file_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -545,7 +500,7 @@ func (x *GetFilesResponse) String() string {
 func (*GetFilesResponse) ProtoMessage() {}
 
 func (x *GetFilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[5]
+	mi := &file_file_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -592,7 +547,7 @@ type FilesSyncRequest struct {
 
 func (x *FilesSyncRequest) Reset() {
 	*x = FilesSyncRequest{}
-	mi := &file_file_proto_msgTypes[6]
+	mi := &file_file_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -604,7 +559,7 @@ func (x *FilesSyncRequest) String() string {
 func (*FilesSyncRequest) ProtoMessage() {}
 
 func (x *FilesSyncRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_file_proto_msgTypes[6]
+	mi := &file_file_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +603,7 @@ const file_file_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"file.proto\x12\n" +
-	"gophkeeper\x1a\fcommon.proto\"\xcf\x01\n" +
+	"gophkeeper\x1a\fcommon.proto\"\xeb\x01\n" +
 	"\bFileItem\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x12\n" +
@@ -656,9 +611,8 @@ const file_file_proto_rawDesc = "" +
 	"\bmetadata\x18\x04 \x01(\tR\bmetadata\x12\x12\n" +
 	"\x04size\x18\x05 \x01(\x03R\x04size\x12-\n" +
 	"\atimemap\x18\x06 \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\a \x01(\bR\adeleted\"+\n" +
-	"\fFileResponse\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\".\n" +
+	"\adeleted\x18\a \x01(\bR\adeleted\x12\x1a\n" +
+	"\bcheckSum\x18\b \x01(\tR\bcheckSum\".\n" +
 	"\x11RemoveFileRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
 	"\x12RemoveFileResponse\"\x11\n" +
@@ -666,40 +620,45 @@ const file_file_proto_rawDesc = "" +
 	"\x10GetFilesResponse\x12*\n" +
 	"\x05files\x18\x01 \x03(\v2\x14.gophkeeper.FileItemR\x05files\">\n" +
 	"\x10FilesSyncRequest\x12*\n" +
-	"\x05files\x18\x01 \x03(\v2\x14.gophkeeper.FileItemR\x05files2\xa8\x02\n" +
-	"\vFileService\x12<\n" +
+	"\x05files\x18\x01 \x03(\v2\x14.gophkeeper.FileItemR\x05files2\xf3\x02\n" +
+	"\vFileService\x128\n" +
 	"\n" +
-	"UpdateFile\x12\x14.gophkeeper.FileItem\x1a\x18.gophkeeper.FileResponse\x12K\n" +
+	"UpdateFile\x12\x14.gophkeeper.FileItem\x1a\x14.gophkeeper.Response\x12K\n" +
 	"\n" +
 	"RemoveFile\x12\x1d.gophkeeper.RemoveFileRequest\x1a\x1e.gophkeeper.RemoveFileResponse\x12E\n" +
-	"\bGetFiles\x12\x1b.gophkeeper.GetFilesRequest\x1a\x1c.gophkeeper.GetFilesResponse\x12G\n" +
+	"\bGetFiles\x12\x1b.gophkeeper.GetFilesRequest\x1a\x1c.gophkeeper.GetFilesResponse\x12M\n" +
+	"\x0eFilesShortSync\x12\x1c.gophkeeper.ShortSyncRequest\x1a\x1d.gophkeeper.ShortSyncResponse\x12G\n" +
 	"\tFilesSync\x12\x1c.gophkeeper.FilesSyncRequest\x1a\x1c.gophkeeper.GetFilesResponseB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"
 
-var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_file_proto_goTypes = []any{
 	(*FileItem)(nil),           // 0: gophkeeper.FileItem
-	(*FileResponse)(nil),       // 1: gophkeeper.FileResponse
-	(*RemoveFileRequest)(nil),  // 2: gophkeeper.RemoveFileRequest
-	(*RemoveFileResponse)(nil), // 3: gophkeeper.RemoveFileResponse
-	(*GetFilesRequest)(nil),    // 4: gophkeeper.GetFilesRequest
-	(*GetFilesResponse)(nil),   // 5: gophkeeper.GetFilesResponse
-	(*FilesSyncRequest)(nil),   // 6: gophkeeper.FilesSyncRequest
-	(*TimeMap)(nil),            // 7: gophkeeper.TimeMap
+	(*RemoveFileRequest)(nil),  // 1: gophkeeper.RemoveFileRequest
+	(*RemoveFileResponse)(nil), // 2: gophkeeper.RemoveFileResponse
+	(*GetFilesRequest)(nil),    // 3: gophkeeper.GetFilesRequest
+	(*GetFilesResponse)(nil),   // 4: gophkeeper.GetFilesResponse
+	(*FilesSyncRequest)(nil),   // 5: gophkeeper.FilesSyncRequest
+	(*TimeMap)(nil),            // 6: gophkeeper.TimeMap
+	(*ShortSyncRequest)(nil),   // 7: gophkeeper.ShortSyncRequest
+	(*Response)(nil),           // 8: gophkeeper.Response
+	(*ShortSyncResponse)(nil),  // 9: gophkeeper.ShortSyncResponse
 }
 var file_file_proto_depIdxs = []int32{
-	7, // 0: gophkeeper.FileItem.timemap:type_name -> gophkeeper.TimeMap
+	6, // 0: gophkeeper.FileItem.timemap:type_name -> gophkeeper.TimeMap
 	0, // 1: gophkeeper.GetFilesResponse.files:type_name -> gophkeeper.FileItem
 	0, // 2: gophkeeper.FilesSyncRequest.files:type_name -> gophkeeper.FileItem
 	0, // 3: gophkeeper.FileService.UpdateFile:input_type -> gophkeeper.FileItem
-	2, // 4: gophkeeper.FileService.RemoveFile:input_type -> gophkeeper.RemoveFileRequest
-	4, // 5: gophkeeper.FileService.GetFiles:input_type -> gophkeeper.GetFilesRequest
-	6, // 6: gophkeeper.FileService.FilesSync:input_type -> gophkeeper.FilesSyncRequest
-	1, // 7: gophkeeper.FileService.UpdateFile:output_type -> gophkeeper.FileResponse
-	3, // 8: gophkeeper.FileService.RemoveFile:output_type -> gophkeeper.RemoveFileResponse
-	5, // 9: gophkeeper.FileService.GetFiles:output_type -> gophkeeper.GetFilesResponse
-	5, // 10: gophkeeper.FileService.FilesSync:output_type -> gophkeeper.GetFilesResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
+	1, // 4: gophkeeper.FileService.RemoveFile:input_type -> gophkeeper.RemoveFileRequest
+	3, // 5: gophkeeper.FileService.GetFiles:input_type -> gophkeeper.GetFilesRequest
+	7, // 6: gophkeeper.FileService.FilesShortSync:input_type -> gophkeeper.ShortSyncRequest
+	5, // 7: gophkeeper.FileService.FilesSync:input_type -> gophkeeper.FilesSyncRequest
+	8, // 8: gophkeeper.FileService.UpdateFile:output_type -> gophkeeper.Response
+	2, // 9: gophkeeper.FileService.RemoveFile:output_type -> gophkeeper.RemoveFileResponse
+	4, // 10: gophkeeper.FileService.GetFiles:output_type -> gophkeeper.GetFilesResponse
+	9, // 11: gophkeeper.FileService.FilesShortSync:output_type -> gophkeeper.ShortSyncResponse
+	4, // 12: gophkeeper.FileService.FilesSync:output_type -> gophkeeper.GetFilesResponse
+	8, // [8:13] is the sub-list for method output_type
+	3, // [3:8] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -717,7 +676,7 @@ func file_file_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_file_proto_rawDesc), len(file_file_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

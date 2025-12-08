@@ -19,19 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FileService_UpdateFile_FullMethodName = "/gophkeeper.FileService/UpdateFile"
-	FileService_RemoveFile_FullMethodName = "/gophkeeper.FileService/RemoveFile"
-	FileService_GetFiles_FullMethodName   = "/gophkeeper.FileService/GetFiles"
-	FileService_FilesSync_FullMethodName  = "/gophkeeper.FileService/FilesSync"
+	FileService_UpdateFile_FullMethodName     = "/gophkeeper.FileService/UpdateFile"
+	FileService_RemoveFile_FullMethodName     = "/gophkeeper.FileService/RemoveFile"
+	FileService_GetFiles_FullMethodName       = "/gophkeeper.FileService/GetFiles"
+	FileService_FilesShortSync_FullMethodName = "/gophkeeper.FileService/FilesShortSync"
+	FileService_FilesSync_FullMethodName      = "/gophkeeper.FileService/FilesSync"
 )
 
 // FileServiceClient is the client API for FileService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
-	UpdateFile(ctx context.Context, in *FileItem, opts ...grpc.CallOption) (*FileResponse, error)
+	UpdateFile(ctx context.Context, in *FileItem, opts ...grpc.CallOption) (*Response, error)
 	RemoveFile(ctx context.Context, in *RemoveFileRequest, opts ...grpc.CallOption) (*RemoveFileResponse, error)
 	GetFiles(ctx context.Context, in *GetFilesRequest, opts ...grpc.CallOption) (*GetFilesResponse, error)
+	FilesShortSync(ctx context.Context, in *ShortSyncRequest, opts ...grpc.CallOption) (*ShortSyncResponse, error)
 	FilesSync(ctx context.Context, in *FilesSyncRequest, opts ...grpc.CallOption) (*GetFilesResponse, error)
 }
 
@@ -43,9 +45,9 @@ func NewFileServiceClient(cc grpc.ClientConnInterface) FileServiceClient {
 	return &fileServiceClient{cc}
 }
 
-func (c *fileServiceClient) UpdateFile(ctx context.Context, in *FileItem, opts ...grpc.CallOption) (*FileResponse, error) {
+func (c *fileServiceClient) UpdateFile(ctx context.Context, in *FileItem, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FileResponse)
+	out := new(Response)
 	err := c.cc.Invoke(ctx, FileService_UpdateFile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,6 +75,16 @@ func (c *fileServiceClient) GetFiles(ctx context.Context, in *GetFilesRequest, o
 	return out, nil
 }
 
+func (c *fileServiceClient) FilesShortSync(ctx context.Context, in *ShortSyncRequest, opts ...grpc.CallOption) (*ShortSyncResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ShortSyncResponse)
+	err := c.cc.Invoke(ctx, FileService_FilesShortSync_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *fileServiceClient) FilesSync(ctx context.Context, in *FilesSyncRequest, opts ...grpc.CallOption) (*GetFilesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetFilesResponse)
@@ -87,9 +99,10 @@ func (c *fileServiceClient) FilesSync(ctx context.Context, in *FilesSyncRequest,
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility.
 type FileServiceServer interface {
-	UpdateFile(context.Context, *FileItem) (*FileResponse, error)
+	UpdateFile(context.Context, *FileItem) (*Response, error)
 	RemoveFile(context.Context, *RemoveFileRequest) (*RemoveFileResponse, error)
 	GetFiles(context.Context, *GetFilesRequest) (*GetFilesResponse, error)
+	FilesShortSync(context.Context, *ShortSyncRequest) (*ShortSyncResponse, error)
 	FilesSync(context.Context, *FilesSyncRequest) (*GetFilesResponse, error)
 	mustEmbedUnimplementedFileServiceServer()
 }
@@ -101,7 +114,7 @@ type FileServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFileServiceServer struct{}
 
-func (UnimplementedFileServiceServer) UpdateFile(context.Context, *FileItem) (*FileResponse, error) {
+func (UnimplementedFileServiceServer) UpdateFile(context.Context, *FileItem) (*Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateFile not implemented")
 }
 func (UnimplementedFileServiceServer) RemoveFile(context.Context, *RemoveFileRequest) (*RemoveFileResponse, error) {
@@ -109,6 +122,9 @@ func (UnimplementedFileServiceServer) RemoveFile(context.Context, *RemoveFileReq
 }
 func (UnimplementedFileServiceServer) GetFiles(context.Context, *GetFilesRequest) (*GetFilesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetFiles not implemented")
+}
+func (UnimplementedFileServiceServer) FilesShortSync(context.Context, *ShortSyncRequest) (*ShortSyncResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FilesShortSync not implemented")
 }
 func (UnimplementedFileServiceServer) FilesSync(context.Context, *FilesSyncRequest) (*GetFilesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method FilesSync not implemented")
@@ -188,6 +204,24 @@ func _FileService_GetFiles_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FileService_FilesShortSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShortSyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileServiceServer).FilesShortSync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FileService_FilesShortSync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServiceServer).FilesShortSync(ctx, req.(*ShortSyncRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _FileService_FilesSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FilesSyncRequest)
 	if err := dec(in); err != nil {
@@ -224,6 +258,10 @@ var FileService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFiles",
 			Handler:    _FileService_GetFiles_Handler,
+		},
+		{
+			MethodName: "FilesShortSync",
+			Handler:    _FileService_FilesShortSync_Handler,
 		},
 		{
 			MethodName: "FilesSync",

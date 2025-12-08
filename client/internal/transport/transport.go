@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 	"gophKeeper/client/internal/config"
-	"gophKeeper/client/internal/domain/model"
+	model "gophKeeper/pkg/grpchelper"
 	"gophKeeper/client/internal/transport/grpc"
 
 	pb "gophKeeper/internal/proto/gen"
@@ -90,6 +90,11 @@ func SyncTexts(ctx context.Context, token, deviceID string, localTexts []model.T
 func SyncCards(ctx context.Context, token, deviceID string, localCards []model.Card) ([]model.Card, error) {
 	ctx = withAuth(ctx, token, deviceID)
 	return client.SyncCards(ctx, localCards)
+}
+
+func SyncShort(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+	ctx = withAuth(ctx, token, deviceID)
+	return client.SyncShort(ctx, shortItems)
 }
 
 // SyncPasswords проксирует вызов к gRPC клиенту.

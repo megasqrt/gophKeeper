@@ -18,10 +18,6 @@ message CardItem {
     bool deleted = 9;
 }
 
-message CardResponse {
-    string server_id = 1;
-}
-
 message RemoveCardRequest {
     string local_id = 1;
 }
@@ -39,8 +35,10 @@ message CardsSyncRequest {
 }
 
 service CardService {
-    rpc UpdateCard(CardItem) returns (CardResponse);
+    rpc UpdateCard(CardItem) returns (Response);
     rpc RemoveCard(RemoveCardRequest) returns (RemoveCardResponse);
     rpc GetCards(GetCardsRequest) returns (GetCardsResponse);
+    rpc CardsShortSync(ShortSyncRequest) returns (ShortSyncResponse);
     rpc CardsSync(CardsSyncRequest) returns (GetCardsResponse);
+
 }

@@ -9,9 +9,9 @@ import (
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/health"
-    "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
 // Server представляет собой обертку для gRPC-сервера.
@@ -24,7 +24,14 @@ type Server struct {
 
 // New создает новый gRPC-сервер.
 // Он принимает логгер, реализацию KeeperService и адрес сервера.
-func New(log zerolog.Logger, authService pb.AuthServiceServer, cfg config.Config) (*Server, error) {
+func New(
+	log zerolog.Logger,
+	authService pb.AuthServiceServer,
+	noteService pb.NoteServiceServer,
+	cardService pb.CardServiceServer,
+	passService pb.PasswordServiceServer,
+	fileService pb.FileServiceServer,
+	cfg config.Config) (*Server, error) {
 	// Загружаем учетные данные TLS для сервера.
 	// TODO: пути к файлам сертификатов лучше вынести в конфигурацию.
 	creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
@@ -38,12 +45,15 @@ func New(log zerolog.Logger, authService pb.AuthServiceServer, cfg config.Config
 	)
 
 	healthServer := health.NewServer()
-    grpc_health_v1.RegisterHealthServer(s, healthServer)
+	grpc_health_v1.RegisterHealthServer(s, healthServer)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
-	
+
 	// Регистрируем нашу реализацию сервиса на gRPC-сервере.
 	pb.RegisterAuthServiceServer(s, authService)
-	// TODO: Зарегистрировать здесь остальные сервисы (Device, Password и т.д.), когда они будут реализованы.
+	pb.RegisterNoteServiceServer(s, noteService)
+	pb.RegisterCardServiceServer(s, cardService)
+	pb.RegisterPasswordServiceServer(s, passService)
+	pb.RegisterFileServiceServer(s, fileService)
 
 	// Условно регистрируем reflection service на gRPC-сервере.
 	if cfg.EnableReflection {

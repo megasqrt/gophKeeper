@@ -19,19 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CardService_UpdateCard_FullMethodName = "/gophkeeper.CardService/UpdateCard"
-	CardService_RemoveCard_FullMethodName = "/gophkeeper.CardService/RemoveCard"
-	CardService_GetCards_FullMethodName   = "/gophkeeper.CardService/GetCards"
-	CardService_CardsSync_FullMethodName  = "/gophkeeper.CardService/CardsSync"
+	CardService_UpdateCard_FullMethodName     = "/gophkeeper.CardService/UpdateCard"
+	CardService_RemoveCard_FullMethodName     = "/gophkeeper.CardService/RemoveCard"
+	CardService_GetCards_FullMethodName       = "/gophkeeper.CardService/GetCards"
+	CardService_CardsShortSync_FullMethodName = "/gophkeeper.CardService/CardsShortSync"
+	CardService_CardsSync_FullMethodName      = "/gophkeeper.CardService/CardsSync"
 )
 
 // CardServiceClient is the client API for CardService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CardServiceClient interface {
-	UpdateCard(ctx context.Context, in *CardItem, opts ...grpc.CallOption) (*CardResponse, error)
+	UpdateCard(ctx context.Context, in *CardItem, opts ...grpc.CallOption) (*Response, error)
 	RemoveCard(ctx context.Context, in *RemoveCardRequest, opts ...grpc.CallOption) (*RemoveCardResponse, error)
 	GetCards(ctx context.Context, in *GetCardsRequest, opts ...grpc.CallOption) (*GetCardsResponse, error)
+	CardsShortSync(ctx context.Context, in *ShortSyncRequest, opts ...grpc.CallOption) (*ShortSyncResponse, error)
 	CardsSync(ctx context.Context, in *CardsSyncRequest, opts ...grpc.CallOption) (*GetCardsResponse, error)
 }
 
@@ -43,9 +45,9 @@ func NewCardServiceClient(cc grpc.ClientConnInterface) CardServiceClient {
 	return &cardServiceClient{cc}
 }
 
-func (c *cardServiceClient) UpdateCard(ctx context.Context, in *CardItem, opts ...grpc.CallOption) (*CardResponse, error) {
+func (c *cardServiceClient) UpdateCard(ctx context.Context, in *CardItem, opts ...grpc.CallOption) (*Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CardResponse)
+	out := new(Response)
 	err := c.cc.Invoke(ctx, CardService_UpdateCard_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -73,6 +75,16 @@ func (c *cardServiceClient) GetCards(ctx context.Context, in *GetCardsRequest, o
 	return out, nil
 }
 
+func (c *cardServiceClient) CardsShortSync(ctx context.Context, in *ShortSyncRequest, opts ...grpc.CallOption) (*ShortSyncResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ShortSyncResponse)
+	err := c.cc.Invoke(ctx, CardService_CardsShortSync_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cardServiceClient) CardsSync(ctx context.Context, in *CardsSyncRequest, opts ...grpc.CallOption) (*GetCardsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetCardsResponse)
@@ -87,9 +99,10 @@ func (c *cardServiceClient) CardsSync(ctx context.Context, in *CardsSyncRequest,
 // All implementations must embed UnimplementedCardServiceServer
 // for forward compatibility.
 type CardServiceServer interface {
-	UpdateCard(context.Context, *CardItem) (*CardResponse, error)
+	UpdateCard(context.Context, *CardItem) (*Response, error)
 	RemoveCard(context.Context, *RemoveCardRequest) (*RemoveCardResponse, error)
 	GetCards(context.Context, *GetCardsRequest) (*GetCardsResponse, error)
+	CardsShortSync(context.Context, *ShortSyncRequest) (*ShortSyncResponse, error)
 	CardsSync(context.Context, *CardsSyncRequest) (*GetCardsResponse, error)
 	mustEmbedUnimplementedCardServiceServer()
 }
@@ -101,7 +114,7 @@ type CardServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCardServiceServer struct{}
 
-func (UnimplementedCardServiceServer) UpdateCard(context.Context, *CardItem) (*CardResponse, error) {
+func (UnimplementedCardServiceServer) UpdateCard(context.Context, *CardItem) (*Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateCard not implemented")
 }
 func (UnimplementedCardServiceServer) RemoveCard(context.Context, *RemoveCardRequest) (*RemoveCardResponse, error) {
@@ -109,6 +122,9 @@ func (UnimplementedCardServiceServer) RemoveCard(context.Context, *RemoveCardReq
 }
 func (UnimplementedCardServiceServer) GetCards(context.Context, *GetCardsRequest) (*GetCardsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCards not implemented")
+}
+func (UnimplementedCardServiceServer) CardsShortSync(context.Context, *ShortSyncRequest) (*ShortSyncResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CardsShortSync not implemented")
 }
 func (UnimplementedCardServiceServer) CardsSync(context.Context, *CardsSyncRequest) (*GetCardsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CardsSync not implemented")
@@ -188,6 +204,24 @@ func _CardService_GetCards_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CardService_CardsShortSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShortSyncRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServiceServer).CardsShortSync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CardService_CardsShortSync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServiceServer).CardsShortSync(ctx, req.(*ShortSyncRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CardService_CardsSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CardsSyncRequest)
 	if err := dec(in); err != nil {
@@ -224,6 +258,10 @@ var CardService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCards",
 			Handler:    _CardService_GetCards_Handler,
+		},
+		{
+			MethodName: "CardsShortSync",
+			Handler:    _CardService_CardsShortSync_Handler,
 		},
 		{
 			MethodName: "CardsSync",
