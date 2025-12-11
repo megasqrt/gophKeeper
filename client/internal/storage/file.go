@@ -28,7 +28,7 @@ func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error 
 		id, _ := metaBucket.NextSequence()
 		itemID := fmt.Sprintf("%d", id)
 		fileData.SetLocalID(itemID)
-		fileData.ChangeTime = time.Now()
+		fileData.ChangeTime = time.Now().Unix()
 		fileData.Checksum = calculateFileChecksum(fileData)
 
 		// 1. Сохраняем метаданные (без содержимого)
@@ -50,7 +50,7 @@ func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error 
 // SaveFileMetadata сохраняет только метаданные файла. Используется при синхронизации.
 func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
 	s.log.Info().Str("file_name", fileData.Name).Msg("Saving file metadata")
-	fileData.ChangeTime = time.Now()
+	fileData.ChangeTime = time.Now().Unix()
 	fileData.Checksum = calculateFileChecksum(fileData)
 	return s.saveItem(fileMetaBucket, fileData, true)
 }
@@ -58,7 +58,7 @@ func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
 // UpdateFile обновляет данные существующего файла.
 func (s *BboltStorage) UpdateFile(fileData *model.FileData) error {
 	s.log.Info().Str("file_id", fileData.LocalID).Msg("Updating file")
-	fileData.ChangeTime = time.Now()
+	fileData.ChangeTime = time.Now().Unix()
 	fileData.Checksum = calculateFileChecksum(fileData)
 	return s.saveItem(fileMetaBucket, fileData, false)
 }

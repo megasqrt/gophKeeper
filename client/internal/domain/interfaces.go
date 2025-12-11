@@ -2,14 +2,13 @@ package domain
 
 import (
 	models "gophKeeper/pkg/grpchelper"
-	"time"
 )
 
 // Syncable определяет общие методы для всех сущностей, которые могут быть синхронизированы.
 type Syncable interface {
 	GetLocalID() string
 	GetServerID() string
-	GetChangeTime() time.Time
+	GetChangeTime() int64
 	ToMap() map[string]interface{}
 }
 
@@ -31,8 +30,8 @@ type LocalStorage interface {
 	DeleteCard(id string) error
 	DeleteHardCard(id string) error
 
-	SaveLastSyncTime(t time.Time) error
-	GetLastSyncTime() (time.Time, error)
+	SaveLastSyncTime(t int64) error
+	GetLastSyncTime() (int64, error)
 
 	SavePass(passData *models.Password) error
 	UpdatePass(passData *models.Password) error
@@ -48,6 +47,8 @@ type LocalStorage interface {
 	GetTextsByIDs(ids []string) ([]models.TextData, error)
 	GetShortTexts() ([]models.SyncInfo, error)
 	DeleteText(id string) error
+	DeleteHardText(id string) error
+
 
 	GetFiles() ([]models.FileData, error)
 	GetFilesByIDs(ids []string) ([]models.FileData, error)

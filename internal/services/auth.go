@@ -58,8 +58,8 @@ func (s *Service) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Re
 		ID:           uuid.New(),
 		Login:        req.GetLogin(),
 		PasswordHash: string(hashedPassword),
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		CreatedAt:    time.Now().Unix(),
+		UpdatedAt:    time.Now().Unix(),
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
@@ -96,8 +96,8 @@ func (s *Service) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Re
 		ID:         uuid.New(),
 		UserID:     user.ID,
 		DeviceName: "Initial Device", // Можно будет дать пользователю возможность переименовать
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		CreatedAt:  time.Now().Unix(),
+		UpdatedAt:  time.Now().Unix(),
 	}
 
 	if err := s.deviceRepo.Create(ctx, device); err != nil {

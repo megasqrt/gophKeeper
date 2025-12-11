@@ -1,23 +1,21 @@
 package grpchelper
 
-import "time"
-
 type TextData struct {
 	LocalID    string
 	ServerID   string
 	Title      string
 	Text       string
 	Checksum   string
-	ChangeTime time.Time
-	SyncTime   time.Time
+	ChangeTime int64
+	SyncTime   int64
 	Deleted    bool
 }
 
-func (t TextData) GetLocalID() string       { return t.LocalID }
-func (t TextData) GetServerID() string      { return t.ServerID }
-func (t TextData) GetChangeTime() time.Time { return t.ChangeTime }
-func (t *TextData) SetLocalID(id string)    { t.LocalID = id }
-func (t TextData) GetDeleted() bool         { return t.Deleted }
+func (t TextData) GetLocalID() string      { return t.LocalID }
+func (t TextData) GetServerID() string     { return t.ServerID }
+func (t TextData) GetChangeTime() int64 { return t.ChangeTime }
+func (t *TextData) SetLocalID(id string)   { t.LocalID = id }
+func (t TextData) GetDeleted() bool        { return t.Deleted }
 func (t *TextData) SetDeleted(deleted bool) { t.Deleted = deleted }
 
 func (i TextData) FilterValue() string { return i.Title }
@@ -30,8 +28,8 @@ func (t *TextData) ToMap() map[string]interface{} {
 		"title":      t.Title,
 		"text":       t.Text,
 		"checksum":   t.Checksum,
-		"changeTime": t.ChangeTime.Format(time.RFC3339Nano),
-		"syncTime":   t.SyncTime.Format(time.RFC3339Nano),
+		"changeTime": t.ChangeTime,
+		"syncTime":   t.SyncTime,
 		"deleted":    t.Deleted,
 	}
 }

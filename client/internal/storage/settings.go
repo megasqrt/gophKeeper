@@ -3,16 +3,15 @@ package storage
 import(
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"go.etcd.io/bbolt"
 )
 
 // SaveLastSyncTime сохраняет время последней успешной синхронизации с сервером.
-func (s *BboltStorage) SaveLastSyncTime(t time.Time) error {
+func (s *BboltStorage) SaveLastSyncTime(t int64) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
-		// Сериализуем time.Time в JSON, затем шифруем
+		// Сериализуем int64 в JSON, затем шифруем
 		timeJSON, err := json.Marshal(t)
 		if err != nil {
 			return fmt.Errorf("could not marshal sync time: %w", err)
@@ -26,8 +25,8 @@ func (s *BboltStorage) SaveLastSyncTime(t time.Time) error {
 }
 
 // GetLastSyncTime извлекает время последней успешной синхронизации.
-func (s *BboltStorage) GetLastSyncTime() (time.Time, error) {
-	var t time.Time
+func (s *BboltStorage) GetLastSyncTime() (int64, error) {
+	var t int64
 	err := s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 		timeBytes := b.Get(lastSyncKey)

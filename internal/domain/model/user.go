@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -14,6 +12,6 @@ type User struct {
 	ID           uuid.UUID `json:"id" db:"id"`
 	Login        string    `json:"login" db:"login"`
 	PasswordHash string    `json:"-" db:"password_hash"` // Хеш пароля не должен отправляться клиенту
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	CreatedAt    int64 `json:"created_at" db:"created_at"`
+	UpdatedAt    int64 `json:"updated_at" db:"updated_at"`
 }

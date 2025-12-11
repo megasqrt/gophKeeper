@@ -20,7 +20,7 @@ func calculateTextChecksum(text *model.TextData) string {
 // SaveText сохраняет текстовые данные в хранилище.
 func (s *BboltStorage) SaveText(textData *model.TextData) error {
 	s.log.Info().Str("title", textData.Title).Msg("Saving new text data")
-	textData.ChangeTime = time.Now()
+	textData.ChangeTime = time.Now().Unix()
 	textData.Checksum = calculateTextChecksum(textData)
 	return s.saveItem(textBucket, textData, true)
 }
@@ -28,7 +28,7 @@ func (s *BboltStorage) SaveText(textData *model.TextData) error {
 // UpdateText обновляет данные существующей текстовой записи.
 func (s *BboltStorage) UpdateText(textData *model.TextData) error {
 	s.log.Info().Str("text_id", textData.LocalID).Msg("Updating text data")
-	textData.ChangeTime = time.Now()
+	textData.ChangeTime = time.Now().Unix()
 	textData.Checksum = calculateTextChecksum(textData)
 	return s.saveItem(textBucket, textData, false)
 }
@@ -112,4 +112,9 @@ func (s *BboltStorage) DeleteText(id string) error {
 	return s.markAsDeleted(textBucket, id, func() interface{} {
 		return &model.TextData{}
 	})
+}
+
+// DeleteHardText физически удаляет карту из хранилища.
+func (s *BboltStorage) DeleteHardText(id string) error {
+	return s.deleteItem(textBucket, id)
 }

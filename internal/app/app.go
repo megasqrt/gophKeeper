@@ -55,13 +55,22 @@ func NewApp(ctx context.Context) *App {
 
 	userRepo := postgres.NewUserRepository(db)
 	deviceRepo := postgres.NewDeviceRepository(db)
+	noteRepo := postgres.NewTextDataRepository(db)
+	cardRepo := postgres.NewCardRepository(db)
+	passRepo := postgres.NewPasswordRepository(db)
+	fileRepo := postgres.NewFileRepository(db)
 
 	// Инициализируем сервис аутентификации с репозиторием пользователей.
 	authService := services.NewService(log, userRepo, deviceRepo,cfg)
+	noteService := services.NewNoteService(log, postgres.NewTextDataRepository(db))
+	cardService := services.NewCardService(log, postgres.NewCardRepository(db))
+	passService := services.NewPasswordService(log, postgres.NewPasswordRepository(db))
+	fileService := services.NewFileService(log, postgres.NewFileRepository(db))	
+
 
 	// 1. Инициализируем gRPC сервер
 	// Передаем нашу реализацию сервиса.
-	server, err := services.New(log, authService, cfg)
+	server, err := services.New(log, authService,noteService,cardService,passService,fileService, cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create gRPC server")
 	}

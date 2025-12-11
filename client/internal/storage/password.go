@@ -21,7 +21,7 @@ func calculatePasswordChecksum(pass *model.Password) string {
 // SavePass сохраняет данные пароля в хранилище.
 func (s *BboltStorage) SavePass(passData *model.Password) error {
 	s.log.Info().Msg("Saving new password")
-	passData.ChangeTime = time.Now()
+	passData.ChangeTime = time.Now().Unix()
 	passData.Checksum = calculatePasswordChecksum(passData)
 	return s.saveItem(passwordsBucket, passData, true)
 }
@@ -29,7 +29,7 @@ func (s *BboltStorage) SavePass(passData *model.Password) error {
 // UpdatePass обновляет данные существующего пароля.
 func (s *BboltStorage) UpdatePass(passData *model.Password) error {
 	s.log.Info().Str("pass_id", passData.LocalID).Msg("Updating password")
-	passData.ChangeTime = time.Now()
+	passData.ChangeTime = time.Now().Unix()
 	passData.Checksum = calculatePasswordChecksum(passData)
 	return s.saveItem(passwordsBucket, passData, false)
 }

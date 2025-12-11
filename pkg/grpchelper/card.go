@@ -3,7 +3,6 @@ package grpchelper
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Card представляет собой данные кредитной карты.
@@ -14,16 +13,16 @@ type Card struct {
 	Holder     string
 	Expiry     string
 	CVV        string
-	ChangeTime time.Time
-	SyncTime   time.Time
+	ChangeTime int64
+	SyncTime   int64
 	Deleted    bool
 	Checksum   string
 }
 
-func (c Card) GetLocalID() string       { return c.LocalID }
-func (c Card) GetServerID() string      { return c.ServerID }
-func (c Card) GetChangeTime() time.Time { return c.ChangeTime }
-func (c *Card) SetLocalID(id string)    { c.LocalID = id }
+func (c Card) GetLocalID() string      { return c.LocalID }
+func (c Card) GetServerID() string     { return c.ServerID }
+func (c Card) GetChangeTime() int64 { return c.ChangeTime }
+func (c *Card) SetLocalID(id string)   { c.LocalID = id }
 func (c Card) GetDeleted() bool        { return c.Deleted }
 func (c *Card) SetDeleted(deleted bool) { c.Deleted = deleted }
 func (c Card) GetChecksum() string     { return c.Checksum }

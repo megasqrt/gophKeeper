@@ -247,7 +247,7 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 		}
 
 		// Сохраняем время успешной операции
-		if err := storage.SaveLastSyncTime(time.Now()); err != nil {
+		if err := storage.SaveLastSyncTime(time.Now().Unix()); err != nil {
 			// Не критичная ошибка, просто логируем или игнорируем
 		}
 

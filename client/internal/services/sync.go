@@ -16,7 +16,7 @@ import (
 type SyncService struct {
 	storage      domain.LocalStorage
 	log          *zerolog.Logger
-	lastSyncTime time.Time // Время последней успешной синхронизации
+	lastSyncTime int64 // Время последней успешной синхронизации
 }
 
 // NewSyncService создает новый экземпляр сервиса синхронизации.
@@ -36,7 +36,7 @@ func (s *SyncService) Sync(ctx context.Context) error {
 	if err != nil {
 		s.log.Warn().Err(err).Msg("Could not get last sync time, performing full sync")
 		// Если времени нет, используем нулевое время, чтобы синхронизировать все.
-		s.lastSyncTime = time.Time{}
+		s.lastSyncTime = 0
 	}
 
 	// Получаем учетные данные для запросов
@@ -60,7 +60,7 @@ func (s *SyncService) Sync(ctx context.Context) error {
 		s.log.Error().Err(err).Msg("File metadata sync failed")
 	}
 
-	if err := s.storage.SaveLastSyncTime(time.Now()); err != nil {
+	if err := s.storage.SaveLastSyncTime(time.Now().Unix()); err != nil {
 		s.log.Error().Err(err).Msg("Failed to save last sync time")
 		return err
 	}
@@ -396,7 +396,7 @@ func (s *SyncService) processSyncResults(
 			if err := updateFunc(dataToSave); err != nil {
 				s.log.Error().Err(err).Str("local_id", serverLocalID).Msgf("Failed to update %s with server_id", entityName)
 			}
-		} else if serverItem.GetChangeTime().After(localItem.GetChangeTime()) {
+		} else if serverItem.GetChangeTime() > localItem.GetChangeTime() {
 			s.log.Info().Str("local_id", serverLocalID).Msgf("Updating local %s from server (newer version found)", entityName)
 			if err := updateFunc(dataToSave); err != nil {
 				s.log.Error().Err(err).Str("local_id", serverLocalID).Msgf("Failed to update local %s from server", entityName)

@@ -22,7 +22,7 @@ func calculateCardChecksum(card *model.Card) string {
 // SaveCard сохраняет данные карты в хранилище.
 func (s *BboltStorage) SaveCard(cardData *model.Card) error {
 	s.log.Info().Msg("Saving new card")
-	cardData.ChangeTime = time.Now()
+	cardData.ChangeTime = time.Now().Unix()
 	cardData.Checksum = calculateCardChecksum(cardData)
 	return s.saveItem(cardsBucket, cardData, true)
 }
@@ -30,7 +30,7 @@ func (s *BboltStorage) SaveCard(cardData *model.Card) error {
 // UpdateCard обновляет данные существующей карты.
 func (s *BboltStorage) UpdateCard(cardData *model.Card) error {
 	s.log.Info().Str("card_id", cardData.LocalID).Msg("Updating card")
-	cardData.ChangeTime = time.Now()
+	cardData.ChangeTime = time.Now().Unix()
 	cardData.Checksum = calculateCardChecksum(cardData)
 	return s.saveItem(cardsBucket, cardData, false)
 }

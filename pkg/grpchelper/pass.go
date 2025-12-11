@@ -1,7 +1,5 @@
 package grpchelper
 
-import "time"
-
 // Password представляет собой данные пароля.
 type Password struct {
 	LocalID     string
@@ -10,14 +8,14 @@ type Password struct {
 	Password    string
 	Description string
 	Checksum    string
-	ChangeTime  time.Time
-	SyncTime    time.Time
+	ChangeTime  int64
+	SyncTime    int64
 	Deleted     bool
 }
 
-func (p Password) GetLocalID() string       { return p.LocalID }
-func (p Password) GetServerID() string      { return p.ServerID }
-func (p Password) GetChangeTime() time.Time { return p.ChangeTime }
-func (p *Password) SetLocalID(id string)    { p.LocalID = id }
-func (p Password) GetDeleted() bool         { return p.Deleted }
+func (p Password) GetLocalID() string      { return p.LocalID }
+func (p Password) GetServerID() string     { return p.ServerID }
+func (p Password) GetChangeTime() int64 { return p.ChangeTime }
+func (p *Password) SetLocalID(id string)   { p.LocalID = id }
+func (p Password) GetDeleted() bool        { return p.Deleted }
 func (p *Password) SetDeleted(deleted bool) { p.Deleted = deleted }

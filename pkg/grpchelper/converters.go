@@ -3,25 +3,7 @@ package grpchelper
 import (
 	"fmt"
 	pb "gophKeeper/internal/proto/gen"
-	"time"
 )
-
-// toProtoTimemap является вспомогательной функцией для конвертации time.Time в *pb.TimeMap.
-func toProtoTimemap(changeTime, syncTime time.Time) *pb.TimeMap {
-	return pb.TimeMap_builder{
-		ChangeTime: changeTime.UnixNano(),
-		SyncTime:   syncTime.UnixNano(),
-	}.Build()
-}
-
-// parseChangeTime извлекает и парсит время изменения из map.
-func parseChangeTime(data map[string]string) time.Time {
-	if changeTimeStr, ok := data["changeTime"]; ok {
-		t, _ := time.Parse(time.RFC3339Nano, changeTimeStr)
-		return t
-	}
-	return time.Time{}
-}
 
 // --- TextData Converters ---
 
@@ -32,22 +14,13 @@ func (t *TextData) ToProto() *pb.NoteItem {
 		ServerId: &t.ServerID,
 		Title:    &t.Title,
 		Text:     &t.Text,
-		CheckSum: &t.Checksum,
-		Timemap:  toProtoTimemap(t.ChangeTime, t.SyncTime),
-		Deleted:  &t.Deleted,
+		Checksum: &t.Checksum,
+		Timemap: pb.TimeMap_builder{
+			ChangeTime: &t.ChangeTime,
+			SyncTime:   &t.SyncTime,
+		}.Build(),
+		Deleted: &t.Deleted,
 	}.Build()
-}
-
-func GetModelText(data map[string]string) TextData {
-	return TextData{
-		LocalID:    data["id"],
-		ServerID:   data["server_id"],
-		Title:      data["title"],
-		Text:       data["text"],
-		Checksum:   data["checksum"],
-		Deleted:    data["deleted"] == "true",
-		ChangeTime: parseChangeTime(data),
-	}
 }
 
 // FromProtoText converts a Protobuf NoteItem to a domain TextData model.
@@ -57,9 +30,9 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 		ServerID:   pbText.GetServerId(),
 		Title:      pbText.GetTitle(),
 		Text:       pbText.GetText(),
-		Checksum:   pbText.GetCheckSum(),
-		ChangeTime: time.Unix(0, pbText.GetTimemap().GetChangeTime()),
-		SyncTime:   time.Unix(0, pbText.GetTimemap().GetSyncTime()),
+		Checksum:   pbText.GetChecksum(),
+		ChangeTime: pbText.GetTimemap().GetChangeTime(),
+		SyncTime:   pbText.GetTimemap().GetSyncTime(),
 		Deleted:    pbText.GetDeleted(),
 	}
 }
@@ -67,8 +40,8 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 // FromMapText converts a map to a domain TextData model.
 func FromMapText(data map[string]interface{}) (TextData, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
-	changeTime, _ := InterfaceToTime(data["changeTime"])
-	syncTime, _ := InterfaceToTime(data["syncTime"])
+	changeTime, _ := InterfaceToInt64(data["changeTime"])
+	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
 	return TextData{
 		LocalID:    InterfaceToString(data["id"]),
@@ -94,8 +67,11 @@ func (c *Card) ToProto() *pb.CardItem {
 		Holder:   &c.Holder,
 		Expiry:   &c.Expiry,
 		Cvv:      &c.CVV,
-		Timemap:  toProtoTimemap(c.ChangeTime, c.SyncTime),
-		Deleted:  &c.Deleted,
+		Timemap: pb.TimeMap_builder{
+			ChangeTime: &c.ChangeTime,
+			SyncTime:   &c.SyncTime,
+		}.Build(),
+		Deleted: &c.Deleted,
 	}.Build()
 }
 
@@ -103,7 +79,7 @@ func (c *SyncInfo) ToProto() *pb.ShortItem {
 	return pb.ShortItem_builder{
 		LocalId:  &c.LocalID,
 		ServerId: &c.ServerID,
-		Checksum: &c.Checksum,oe
+		Checksum: &c.Checksum,
 		Deleted:  &c.Deleted,
 	}.Build()
 }
@@ -118,8 +94,8 @@ func FromProtoCard(pbCard *pb.CardItem) Card {
 		Holder:     pbCard.GetHolder(),
 		Expiry:     pbCard.GetExpiry(),
 		CVV:        pbCard.GetCvv(),
-		ChangeTime: time.Unix(0, pbCard.GetTimemap().GetChangeTime()),
-		SyncTime:   time.Unix(0, pbCard.GetTimemap().GetSyncTime()),
+		ChangeTime: pbCard.GetTimemap().GetChangeTime(),
+		SyncTime:   pbCard.GetTimemap().GetSyncTime(),
 		Deleted:    pbCard.GetDeleted(),
 	}
 	// Checksum будет пересчитан при сохранении в локальное хранилище
@@ -136,8 +112,8 @@ func (c *Card) ToMap() map[string]interface{} {
 		"expiry":     c.Expiry,
 		"cvv":        c.CVV,
 		"checksum":   c.Checksum,
-		"changeTime": c.ChangeTime.Format(time.RFC3339Nano),
-		"syncTime":   c.SyncTime.Format(time.RFC3339Nano),
+		"changeTime": c.ChangeTime,
+		"syncTime":   c.SyncTime,
 		"deleted":    c.Deleted,
 	}
 }
@@ -145,8 +121,8 @@ func (c *Card) ToMap() map[string]interface{} {
 // FromMapCard converts a map to a domain Card model.
 func FromMapCard(data map[string]interface{}) (Card, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
-	changeTime, _ := InterfaceToTime(data["changeTime"])
-	syncTime, _ := InterfaceToTime(data["syncTime"])
+	changeTime, _ := InterfaceToInt64(data["changeTime"])
+	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
 	return Card{
 		LocalID:    InterfaceToString(data["id"]),
@@ -173,8 +149,11 @@ func (p *Password) ToProto() *pb.PasswordItem {
 		Login:       &p.Login,
 		Password:    &p.Password,
 		Description: &p.Description,
-		Timemap:     toProtoTimemap(p.ChangeTime, p.SyncTime),
-		Deleted:     &p.Deleted,
+		Timemap: pb.TimeMap_builder{
+			ChangeTime: &p.ChangeTime,
+			SyncTime:   &p.SyncTime,
+		}.Build(),
+		Deleted: &p.Deleted,
 	}.Build()
 }
 
@@ -187,8 +166,8 @@ func FromProtoPassword(pbPass *pb.PasswordItem) Password {
 		Login:       pbPass.GetLogin(),
 		Password:    pbPass.GetPassword(),
 		Description: pbPass.GetDescription(),
-		ChangeTime:  time.Unix(0, pbPass.GetTimemap().GetChangeTime()),
-		SyncTime:    time.Unix(0, pbPass.GetTimemap().GetSyncTime()),
+		ChangeTime:  pbPass.GetTimemap().GetChangeTime(),
+		SyncTime:    pbPass.GetTimemap().GetSyncTime(),
 		Deleted:     pbPass.GetDeleted(),
 	}
 	// Checksum будет пересчитан при сохранении в локальное хранилище
@@ -204,8 +183,8 @@ func (p *Password) ToMap() map[string]interface{} {
 		"password":    p.Password,
 		"description": p.Description,
 		"checksum":    p.Checksum,
-		"changeTime":  p.ChangeTime.Format(time.RFC3339Nano),
-		"syncTime":    p.SyncTime.Format(time.RFC3339Nano),
+		"changeTime":  p.ChangeTime,
+		"syncTime":    p.SyncTime,
 		"deleted":     p.Deleted,
 	}
 }
@@ -213,8 +192,8 @@ func (p *Password) ToMap() map[string]interface{} {
 // FromMapPassword converts a map to a domain Password model.
 func FromMapPassword(data map[string]interface{}) (Password, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
-	changeTime, _ := InterfaceToTime(data["changeTime"])
-	syncTime, _ := InterfaceToTime(data["syncTime"])
+	changeTime, _ := InterfaceToInt64(data["changeTime"])
+	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
 	return Password{
 		LocalID:     InterfaceToString(data["id"]),
@@ -234,15 +213,17 @@ func FromMapPassword(data map[string]interface{}) (Password, error) {
 // ToProto converts a domain FileData model to a Protobuf FileData model.
 // Note: Checksum is not included in proto as FileItem may not have this field yet.
 func (f *FileData) ToProto() *pb.FileItem {
-	size := f.Size
 	return pb.FileItem_builder{
 		LocalId:  &f.LocalID,
 		ServerId: &f.ServerID,
 		Name:     &f.Name,
-		Size:     &size,
+		Size:     &f.Size,
 		Metadata: &f.Metadata,
-		Timemap:  toProtoTimemap(f.ChangeTime, f.SyncTime),
-		Deleted:  &f.Deleted,
+		Timemap: pb.TimeMap_builder{
+			ChangeTime: &f.ChangeTime,
+			SyncTime:   &f.SyncTime,
+		}.Build(),
+		Deleted: &f.Deleted,
 	}.Build()
 }
 
@@ -255,8 +236,8 @@ func FromProtoFile(pbFile *pb.FileItem) FileData {
 		Name:       pbFile.GetName(),
 		Size:       pbFile.GetSize(),
 		Metadata:   pbFile.GetMetadata(),
-		ChangeTime: time.Unix(0, pbFile.GetTimemap().GetChangeTime()),
-		SyncTime:   time.Unix(0, pbFile.GetTimemap().GetSyncTime()),
+		ChangeTime: pbFile.GetTimemap().GetChangeTime(),
+		SyncTime:   pbFile.GetTimemap().GetSyncTime(),
 		Deleted:    pbFile.GetDeleted(),
 	}
 	// Checksum будет пересчитан при сохранении в локальное хранилище
@@ -273,8 +254,8 @@ func (f *FileData) ToMap() map[string]interface{} {
 		"metadata":   f.Metadata,
 		"size":       f.Size,
 		"checksum":   f.Checksum,
-		"changeTime": f.ChangeTime.Format(time.RFC3339Nano),
-		"syncTime":   f.SyncTime.Format(time.RFC3339Nano),
+		"changeTime": f.ChangeTime,
+		"syncTime":   f.SyncTime,
 		"deleted":    f.Deleted,
 	}
 }
@@ -286,8 +267,8 @@ func FromMapFile(data map[string]interface{}) (FileData, error) {
 		return FileData{}, fmt.Errorf("failed to convert size for file: %w", err)
 	}
 	deleted, _ := InterfaceToBool(data["deleted"])
-	changeTime, _ := InterfaceToTime(data["changeTime"])
-	syncTime, _ := InterfaceToTime(data["syncTime"])
+	changeTime, _ := InterfaceToInt64(data["changeTime"])
+	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
 	return FileData{
 		LocalID:    InterfaceToString(data["id"]),
