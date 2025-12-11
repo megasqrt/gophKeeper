@@ -52,11 +52,41 @@ godoc:
 	godoc -http=:6070 -goroot="/home/kan/src/ypMetrics/" -play
 #http://localhost:6070/pkg/ypMetrics/internal/?m=all
 
-protoc:
-	rm -rf internal/proto/keeper.pb.go
-	rm -rf internal/proto/keeper_grpc.pb.go
-	protoc --go_out=. --go_opt=default_api_level=API_OPAQUE --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative internal/proto/keeper.proto
+PROTO_FILES = \
+	common.proto \
+	auth.proto \
+	device.proto \
+	password.proto \
+	note.proto \
+	card.proto \
+	file.proto
 
+PROTO_DIR = internal/proto
+OUT_DIR = internal/proto/gen
+
+proto_tools:
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@latest
+
+proto: proto-clean
+	@echo "Генерация protobuf кода..."
+	@mkdir -p $(OUT_DIR)
+	@cd $(PROTO_DIR) && \
+	for proto in $(PROTO_FILES); do \
+		echo "  Генерация: $$proto"; \
+		protoc --go_opt=default_api_level=API_OPAQUE \
+			--go_out=$(notdir $(OUT_DIR)) --go_opt=paths=source_relative \
+			--go-grpc_out=$(notdir $(OUT_DIR)) --go-grpc_opt=paths=source_relative \
+			-I. \
+			$$proto; \
+	done;
+	@echo "Генерация завершена!"
+
+proto-clean:
+	@echo "Очистка protobuf файлов..."
+	@rm -rf $(OUT_DIR)
+	@echo "Очистка завершена!"
 # Docker
 
 start: stop
@@ -112,7 +142,7 @@ clean-certs:
 	@echo "--> Cleaning up certificates..."
 	rm -f certs/*.crt certs/*.key certs/*.csr certs/*.srl
 
-.PHONY: certs-all certs-ca certs-server certs-client clean-certs start startb stop protoc run_s run_c
+.PHONY: certs-all certs-ca certs-server certs-client clean-certs start startb stop proto run_s run_c
 
 tools:
 	go install github.com/bufbuild/buf/cmd/buf@latest
