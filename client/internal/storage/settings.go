@@ -1,6 +1,7 @@
 package storage
 
 import(
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -11,11 +12,12 @@ import(
 func (s *BboltStorage) SaveLastSyncTime(t time.Time) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
-		timeBytes, err := t.MarshalText() // MarshalText более устойчив к изменениям
+		// Сериализуем time.Time в JSON, затем шифруем
+		timeJSON, err := json.Marshal(t)
 		if err != nil {
-			return fmt.Errorf("could not marshal time: %w", err)
+			return fmt.Errorf("could not marshal sync time: %w", err)
 		}
-		encryptedTime, err := s.encrypt(timeBytes)
+		encryptedTime, err := s.encrypt(timeJSON)
 		if err != nil {
 			return fmt.Errorf("could not encrypt sync time: %w", err)
 		}
@@ -36,7 +38,11 @@ func (s *BboltStorage) GetLastSyncTime() (time.Time, error) {
 		if err != nil {
 			return fmt.Errorf("could not decrypt sync time: %w", err)
 		}
-		return t.UnmarshalText(decryptedTime)
+		// Десериализуем из JSON
+		if err := json.Unmarshal(decryptedTime, &t); err != nil {
+			return fmt.Errorf("could not unmarshal sync time: %w", err)
+		}
+		return nil
 	})
 	return t, err
 }

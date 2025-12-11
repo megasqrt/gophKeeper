@@ -101,10 +101,10 @@ func (c *Card) ToProto() *pb.CardItem {
 
 func (c *SyncInfo) ToProto() *pb.ShortItem {
 	return pb.ShortItem_builder{
-		LocalId:  c.LocalID,
-		ServerId: c.ServerID,
-		CheckSum: c.Checksum, // TODO: После регенерации proto заменить на Checksum (будет checksum в proto)
-		Deleted:  c.Deleted,
+		LocalId:  &c.LocalID,
+		ServerId: &c.ServerID,
+		Checksum: &c.Checksum,oe
+		Deleted:  &c.Deleted,
 	}.Build()
 }
 

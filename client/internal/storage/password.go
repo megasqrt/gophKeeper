@@ -114,3 +114,8 @@ func (s *BboltStorage) DeletePass(id string) error {
 		return &model.Password{}
 	})
 }
+
+// DeleteHardPass физически удаляет пароль из хранилища.
+func (s *BboltStorage) DeleteHardPass(id string) error {
+	return s.deleteItem(passwordsBucket, id)
+}

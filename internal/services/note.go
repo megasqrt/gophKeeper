@@ -39,7 +39,7 @@ func (s *NoteService) NotesSync(ctx context.Context, req *pb.NotesSyncRequest) (
 	s.log.Info().Msgf("Received %d notes to sync", len(req.GetNotes()))
 
 	clientNotes := make(map[string]*model.TextData)
-	for i, pbNote := range req.GetNotes() {
+	for pbNote := range req.GetNotes() {
 		note := model.FromProtoText(pbNote)
 		// Используем LocalID клиента как ключ
 		clientNotes[note.LocalID] = &note

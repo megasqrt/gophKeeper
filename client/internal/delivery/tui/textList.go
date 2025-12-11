@@ -52,11 +52,14 @@ type keyMap struct {
 	DeleteItem  key.Binding
 }
 
+type deleteTextMsg struct{ confirmed bool }
+
 type TextEditModel struct {
 	list          list.Model
 	editor        textarea.Model
 	titleInput    textinput.Model
 	storage       domain.LocalStorage
+	confirmModel  ConfirmModel
 	state         viewState
 	focusIndex    int // 0 = title, 1 = editor
 	width, height int
@@ -93,7 +96,7 @@ func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
 		Save:        key.NewBinding(key.WithKeys("ctrl+s"), key.WithHelp("ctrl+s", "save")),
 		Back:        key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "back to menu")),
 		NewItem:     key.NewBinding(key.WithKeys("ctrl+n"), key.WithHelp("ctrl+n", "new note")),
-		DeleteItem:  key.NewBinding(key.WithKeys("delete"), key.WithHelp("del", "delete note")),
+		DeleteItem:  key.NewBinding(key.WithKeys("ctrl+d"), key.WithHelp("ctrl+d", "delete note")),
 	}
 
 	// 4. Собираем модель
@@ -106,25 +109,35 @@ func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
 		focusIndex: 0,
 		keys:       keys,
 	}
+	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
+		return func() tea.Msg {
+			return deleteTextMsg{confirmed: confirmed}
+		}
+	})
 
 	return m
 }
 
 // Load данные из хранилища и обновляет список.
 func (m *TextEditModel) Load() {
-	texts, err := m.storage.GetTexts()
+	allTexts, err := m.storage.GetTexts()
 	if err != nil {
 		m.err = fmt.Errorf("could not load notes: %w", err)
 		m.list.SetItems(nil)
 		return
 	}
 
-	items := make([]list.Item, len(texts))
-	for i, textData := range texts {
-		items[i] = textItem{textData}
+	var items []list.Item
+	for _, textData := range allTexts {
+		if !textData.Deleted {
+			items = append(items, textItem{textData})
+		}
 	}
+
 	m.list.SetItems(items)
-	m.syncEditor()
+	if len(items) == 0 {
+		m.syncEditor()
+	}
 }
 
 // syncEditor обновляет содержимое редактора в соответствии с выбранным элементом списка.
@@ -141,10 +154,10 @@ func (m *TextEditModel) syncEditor() {
 }
 
 func (m *TextEditModel) saveNote() {
-	selectedItem, ok := m.list.SelectedItem().(textItem)
-	if !ok {
+	if m.list.SelectedItem() == nil {
 		return
 	}
+	selectedItem := m.list.SelectedItem().(textItem)
 
 	// Обновляем данные прямо в модели
 	selectedItem.TextData.Title = m.titleInput.Value()
@@ -172,10 +185,19 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	if m.state == confirmDeleteView {
+		newConfirmModel, newCmd := m.confirmModel.Update(msg)
+		if _, ok := newConfirmModel.(ConfirmModel); ok {
+			m.confirmModel = newConfirmModel.(ConfirmModel)
+		}
+		return m, newCmd
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
+		m.confirmModel.setSize(m.width, m.height)
 		listWidth := int(float64(msg.Width) * 0.4) // 40% ширины для списка
 		editorWidth := msg.Width - listWidth
 		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
@@ -185,9 +207,28 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.editor.SetHeight(msg.Height - 6) // Оставляем место для поля заголовка и отступов
 		return m, nil
 
+	case deleteTextMsg:
+		m.state = tableView
+		if msg.confirmed {
+			if item, ok := m.list.SelectedItem().(textItem); ok && item.GetLocalID() != "" {
+				err := m.storage.DeleteHardText(item.GetLocalID())
+				if err != nil {
+					m.err = err
+				} else {
+					m.Load()
+				}
+			}
+		}
+		return m, nil
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Back):
+			if m.state == formView {
+				m.state = tableView
+				m.saveNote()
+				return m, nil
+			}
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keys.SwitchFocus):
@@ -207,7 +248,6 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			cmds = append(cmds, cmd)
 
-		// Новое поведение для выхода из режима редактирования
 		case msg.String() == "shift+tab":
 			if m.state == formView && m.focusIndex == 0 {
 				m.state = tableView // Возвращаемся к списку
@@ -230,13 +270,9 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.state == tableView {
 				selectedItem, ok := m.list.SelectedItem().(textItem)
 				if ok && selectedItem.LocalID != "" {
-					err := m.storage.DeleteText(selectedItem.LocalID)
-					if err == nil {
-						m.err = nil
-						m.Load()
-					} else {
-						m.err = fmt.Errorf("could not delete note: %w", err)
-					}
+					m.state = confirmDeleteView
+					m.confirmModel.SetPrompt(fmt.Sprintf("заметку '%s'", selectedItem.Title()))
+					return m, nil
 				}
 			}
 		}
@@ -262,6 +298,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *TextEditModel) View() string {
+	var mainView string
 	listView := m.list.View()
 
 	rightPane := lipgloss.JoinVertical(lipgloss.Left,
@@ -279,15 +316,21 @@ func (m *TextEditModel) View() string {
 	help := m.helpView()
 
 	// Соединяем все части вместе
-	mainView := lipgloss.JoinVertical(lipgloss.Left,
+	mainView = lipgloss.JoinVertical(lipgloss.Left,
 		lipgloss.JoinHorizontal(lipgloss.Top, listView, rightPane),
 		help,
 	)
 
 	if m.err != nil {
 		errorText := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
-		return lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
+		mainView = lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
 	}
+
+	if m.state == confirmDeleteView {
+		dialog := m.confirmModel.View()
+		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, dialog)
+	}
+
 	return mainView
 }
 

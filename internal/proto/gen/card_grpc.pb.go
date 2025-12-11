@@ -30,10 +30,15 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CardServiceClient interface {
+	// UpdateCard обновляет существующую карту или создает новую
 	UpdateCard(ctx context.Context, in *CardItem, opts ...grpc.CallOption) (*Response, error)
+	// RemoveCard помечает карту как удаленную (soft delete)
 	RemoveCard(ctx context.Context, in *RemoveCardRequest, opts ...grpc.CallOption) (*RemoveCardResponse, error)
+	// GetCards возвращает все карты пользователя
 	GetCards(ctx context.Context, in *GetCardsRequest, opts ...grpc.CallOption) (*GetCardsResponse, error)
+	// CardsShortSync выполняет краткую синхронизацию (только метаданные)
 	CardsShortSync(ctx context.Context, in *ShortSyncRequest, opts ...grpc.CallOption) (*ShortSyncResponse, error)
+	// CardsSync выполняет полную синхронизацию карт
 	CardsSync(ctx context.Context, in *CardsSyncRequest, opts ...grpc.CallOption) (*GetCardsResponse, error)
 }
 
@@ -99,10 +104,15 @@ func (c *cardServiceClient) CardsSync(ctx context.Context, in *CardsSyncRequest,
 // All implementations must embed UnimplementedCardServiceServer
 // for forward compatibility.
 type CardServiceServer interface {
+	// UpdateCard обновляет существующую карту или создает новую
 	UpdateCard(context.Context, *CardItem) (*Response, error)
+	// RemoveCard помечает карту как удаленную (soft delete)
 	RemoveCard(context.Context, *RemoveCardRequest) (*RemoveCardResponse, error)
+	// GetCards возвращает все карты пользователя
 	GetCards(context.Context, *GetCardsRequest) (*GetCardsResponse, error)
+	// CardsShortSync выполняет краткую синхронизацию (только метаданные)
 	CardsShortSync(context.Context, *ShortSyncRequest) (*ShortSyncResponse, error)
+	// CardsSync выполняет полную синхронизацию карт
 	CardsSync(context.Context, *CardsSyncRequest) (*GetCardsResponse, error)
 	mustEmbedUnimplementedCardServiceServer()
 }

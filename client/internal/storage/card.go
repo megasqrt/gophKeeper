@@ -115,3 +115,8 @@ func (s *BboltStorage) DeleteCard(id string) error {
 		return &model.Card{}
 	})
 }
+
+// DeleteHardCard физически удаляет карту из хранилища.
+func (s *BboltStorage) DeleteHardCard(id string) error {
+	return s.deleteItem(cardsBucket, id)
+}

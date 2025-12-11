@@ -347,6 +347,17 @@ func (s *BboltStorage) getItemByIDTx(b *bbolt.Bucket, id string) (map[string]int
 	return itemData, err
 }
 
+// deleteItem — это универсальный метод для удаления элемента из бакета по ID.
+func (s *BboltStorage) deleteItem(bucketName []byte, id string) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(bucketName)
+		if err := b.Delete([]byte(id)); err != nil {
+			return fmt.Errorf("could not delete item with id '%s' from bucket %s: %w", id, bucketName, err)
+		}
+		return nil
+	})
+}
+
 // encryptItem сериализует и шифрует любой объект.
 func (s *BboltStorage) encryptItem(item interface{}) ([]byte, error) {
 	jsonData, err := json.Marshal(item)

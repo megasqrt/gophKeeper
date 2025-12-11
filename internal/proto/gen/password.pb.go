@@ -20,6 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// PasswordItem представляет данные пароля (логин/пароль)
 type PasswordItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
@@ -27,9 +28,9 @@ type PasswordItem struct {
 	xxx_hidden_Login       *string                `protobuf:"bytes,3,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,4,opt,name=password"`
 	xxx_hidden_Description *string                `protobuf:"bytes,5,opt,name=description"`
-	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,6,opt,name=timemap"`
-	xxx_hidden_Deleted     bool                   `protobuf:"varint,7,opt,name=deleted"`
-	xxx_hidden_CheckSum    *string                `protobuf:"bytes,8,opt,name=checkSum"`
+	xxx_hidden_Checksum    *string                `protobuf:"bytes,6,opt,name=checksum"`
+	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,7,opt,name=timemap"`
+	xxx_hidden_Deleted     bool                   `protobuf:"varint,8,opt,name=deleted"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -111,6 +112,16 @@ func (x *PasswordItem) GetDescription() string {
 	return ""
 }
 
+func (x *PasswordItem) GetChecksum() string {
+	if x != nil {
+		if x.xxx_hidden_Checksum != nil {
+			return *x.xxx_hidden_Checksum
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *PasswordItem) GetTimemap() *TimeMap {
 	if x != nil {
 		return x.xxx_hidden_Timemap
@@ -123,16 +134,6 @@ func (x *PasswordItem) GetDeleted() bool {
 		return x.xxx_hidden_Deleted
 	}
 	return false
-}
-
-func (x *PasswordItem) GetCheckSum() string {
-	if x != nil {
-		if x.xxx_hidden_CheckSum != nil {
-			return *x.xxx_hidden_CheckSum
-		}
-		return ""
-	}
-	return ""
 }
 
 func (x *PasswordItem) SetLocalId(v string) {
@@ -160,17 +161,17 @@ func (x *PasswordItem) SetDescription(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
 }
 
+func (x *PasswordItem) SetChecksum(v string) {
+	x.xxx_hidden_Checksum = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 8)
+}
+
 func (x *PasswordItem) SetTimemap(v *TimeMap) {
 	x.xxx_hidden_Timemap = v
 }
 
 func (x *PasswordItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
-}
-
-func (x *PasswordItem) SetCheckSum(v string) {
-	x.xxx_hidden_CheckSum = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
 }
 
@@ -209,6 +210,13 @@ func (x *PasswordItem) HasDescription() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
+func (x *PasswordItem) HasChecksum() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
 func (x *PasswordItem) HasTimemap() bool {
 	if x == nil {
 		return false
@@ -217,13 +225,6 @@ func (x *PasswordItem) HasTimemap() bool {
 }
 
 func (x *PasswordItem) HasDeleted() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
-}
-
-func (x *PasswordItem) HasCheckSum() bool {
 	if x == nil {
 		return false
 	}
@@ -255,18 +256,18 @@ func (x *PasswordItem) ClearDescription() {
 	x.xxx_hidden_Description = nil
 }
 
+func (x *PasswordItem) ClearChecksum() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Checksum = nil
+}
+
 func (x *PasswordItem) ClearTimemap() {
 	x.xxx_hidden_Timemap = nil
 }
 
 func (x *PasswordItem) ClearDeleted() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_Deleted = false
-}
-
-func (x *PasswordItem) ClearCheckSum() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_CheckSum = nil
+	x.xxx_hidden_Deleted = false
 }
 
 type PasswordItem_builder struct {
@@ -277,9 +278,9 @@ type PasswordItem_builder struct {
 	Login       *string
 	Password    *string
 	Description *string
+	Checksum    *string
 	Timemap     *TimeMap
 	Deleted     *bool
-	CheckSum    *string
 }
 
 func (b0 PasswordItem_builder) Build() *PasswordItem {
@@ -306,14 +307,14 @@ func (b0 PasswordItem_builder) Build() *PasswordItem {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
 		x.xxx_hidden_Description = b.Description
 	}
+	if b.Checksum != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 8)
+		x.xxx_hidden_Checksum = b.Checksum
+	}
 	x.xxx_hidden_Timemap = b.Timemap
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
-		x.xxx_hidden_Deleted = *b.Deleted
-	}
-	if b.CheckSum != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
-		x.xxx_hidden_CheckSum = b.CheckSum
+		x.xxx_hidden_Deleted = *b.Deleted
 	}
 	return m0
 }
@@ -611,10 +612,10 @@ const file_password_proto_rawDesc = "" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x14\n" +
 	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\x12-\n" +
-	"\atimemap\x18\x06 \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\a \x01(\bR\adeleted\x12\x1a\n" +
-	"\bcheckSum\x18\b \x01(\tR\bcheckSum\"2\n" +
+	"\vdescription\x18\x05 \x01(\tR\vdescription\x12\x1a\n" +
+	"\bchecksum\x18\x06 \x01(\tR\bchecksum\x12-\n" +
+	"\atimemap\x18\a \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
+	"\adeleted\x18\b \x01(\bR\adeleted\"2\n" +
 	"\x15RemovePasswordRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x18\n" +
 	"\x16RemovePasswordResponse\"\x15\n" +

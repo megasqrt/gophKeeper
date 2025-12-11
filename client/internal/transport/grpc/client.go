@@ -167,16 +167,14 @@ func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]
 		return nil, err
 	}
 
-	// TODO: После регенерации proto файлов заменить на:
-	// return resp.GetLocalIds(), nil
-	// Сейчас используем временный формат с Response items
-	oldItems := resp.GetItems()
+
+	oldItems := resp.GetLocalIds()
 	if oldItems != nil {
 		syncedItems := make([]string, 0, len(oldItems))
 		for _, item := range oldItems {
-			if item != nil {
+			if item != "" {
 				// Используем server_id как временную меру, после регенерации будет local_id напрямую
-				syncedItems = append(syncedItems, item.GetServerId())
+				syncedItems = append(syncedItems, oldItems...)
 			}
 		}
 		return syncedItems, nil

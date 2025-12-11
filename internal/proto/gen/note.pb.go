@@ -20,15 +20,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// NoteItem представляет текстовую заметку
 type NoteItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
 	xxx_hidden_ServerId    *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId"`
 	xxx_hidden_Title       *string                `protobuf:"bytes,3,opt,name=title"`
 	xxx_hidden_Text        *string                `protobuf:"bytes,4,opt,name=text"`
-	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,5,opt,name=timemap"`
-	xxx_hidden_Deleted     bool                   `protobuf:"varint,6,opt,name=deleted"`
-	xxx_hidden_CheckSum    *string                `protobuf:"bytes,7,opt,name=checkSum"`
+	xxx_hidden_Checksum    *string                `protobuf:"bytes,5,opt,name=checksum"`
+	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,6,opt,name=timemap"`
+	xxx_hidden_Deleted     bool                   `protobuf:"varint,7,opt,name=deleted"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -100,6 +101,16 @@ func (x *NoteItem) GetText() string {
 	return ""
 }
 
+func (x *NoteItem) GetChecksum() string {
+	if x != nil {
+		if x.xxx_hidden_Checksum != nil {
+			return *x.xxx_hidden_Checksum
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *NoteItem) GetTimemap() *TimeMap {
 	if x != nil {
 		return x.xxx_hidden_Timemap
@@ -112,16 +123,6 @@ func (x *NoteItem) GetDeleted() bool {
 		return x.xxx_hidden_Deleted
 	}
 	return false
-}
-
-func (x *NoteItem) GetCheckSum() string {
-	if x != nil {
-		if x.xxx_hidden_CheckSum != nil {
-			return *x.xxx_hidden_CheckSum
-		}
-		return ""
-	}
-	return ""
 }
 
 func (x *NoteItem) SetLocalId(v string) {
@@ -144,17 +145,17 @@ func (x *NoteItem) SetText(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
+func (x *NoteItem) SetChecksum(v string) {
+	x.xxx_hidden_Checksum = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+}
+
 func (x *NoteItem) SetTimemap(v *TimeMap) {
 	x.xxx_hidden_Timemap = v
 }
 
 func (x *NoteItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
-}
-
-func (x *NoteItem) SetCheckSum(v string) {
-	x.xxx_hidden_CheckSum = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
@@ -186,6 +187,13 @@ func (x *NoteItem) HasText() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
+func (x *NoteItem) HasChecksum() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
 func (x *NoteItem) HasTimemap() bool {
 	if x == nil {
 		return false
@@ -194,13 +202,6 @@ func (x *NoteItem) HasTimemap() bool {
 }
 
 func (x *NoteItem) HasDeleted() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
-}
-
-func (x *NoteItem) HasCheckSum() bool {
 	if x == nil {
 		return false
 	}
@@ -227,18 +228,18 @@ func (x *NoteItem) ClearText() {
 	x.xxx_hidden_Text = nil
 }
 
+func (x *NoteItem) ClearChecksum() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Checksum = nil
+}
+
 func (x *NoteItem) ClearTimemap() {
 	x.xxx_hidden_Timemap = nil
 }
 
 func (x *NoteItem) ClearDeleted() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_Deleted = false
-}
-
-func (x *NoteItem) ClearCheckSum() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_CheckSum = nil
+	x.xxx_hidden_Deleted = false
 }
 
 type NoteItem_builder struct {
@@ -248,9 +249,9 @@ type NoteItem_builder struct {
 	ServerId *string
 	Title    *string
 	Text     *string
+	Checksum *string
 	Timemap  *TimeMap
 	Deleted  *bool
-	CheckSum *string
 }
 
 func (b0 NoteItem_builder) Build() *NoteItem {
@@ -273,14 +274,14 @@ func (b0 NoteItem_builder) Build() *NoteItem {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Text = b.Text
 	}
+	if b.Checksum != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
+		x.xxx_hidden_Checksum = b.Checksum
+	}
 	x.xxx_hidden_Timemap = b.Timemap
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
-		x.xxx_hidden_Deleted = *b.Deleted
-	}
-	if b.CheckSum != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
-		x.xxx_hidden_CheckSum = b.CheckSum
+		x.xxx_hidden_Deleted = *b.Deleted
 	}
 	return m0
 }
@@ -578,10 +579,10 @@ const file_note_proto_rawDesc = "" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
-	"\x04text\x18\x04 \x01(\tR\x04text\x12-\n" +
-	"\atimemap\x18\x05 \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\x06 \x01(\bR\adeleted\x12\x1a\n" +
-	"\bcheckSum\x18\a \x01(\tR\bcheckSum\".\n" +
+	"\x04text\x18\x04 \x01(\tR\x04text\x12\x1a\n" +
+	"\bchecksum\x18\x05 \x01(\tR\bchecksum\x12-\n" +
+	"\atimemap\x18\x06 \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
+	"\adeleted\x18\a \x01(\bR\adeleted\".\n" +
 	"\x11RemoveNoteRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
 	"\x12RemoveNoteResponse\"\x11\n" +

@@ -20,6 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// CardItem представляет данные кредитной карты
 type CardItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
@@ -29,8 +30,9 @@ type CardItem struct {
 	xxx_hidden_Expiry      *string                `protobuf:"bytes,5,opt,name=expiry"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,6,opt,name=cvv"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,7,opt,name=metadata"`
-	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,8,opt,name=timemap"`
-	xxx_hidden_Deleted     bool                   `protobuf:"varint,9,opt,name=deleted"`
+	xxx_hidden_Checksum    *string                `protobuf:"bytes,8,opt,name=checksum"`
+	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,9,opt,name=timemap"`
+	xxx_hidden_Deleted     bool                   `protobuf:"varint,10,opt,name=deleted"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -132,6 +134,16 @@ func (x *CardItem) GetMetadata() string {
 	return ""
 }
 
+func (x *CardItem) GetChecksum() string {
+	if x != nil {
+		if x.xxx_hidden_Checksum != nil {
+			return *x.xxx_hidden_Checksum
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *CardItem) GetTimemap() *TimeMap {
 	if x != nil {
 		return x.xxx_hidden_Timemap
@@ -148,37 +160,42 @@ func (x *CardItem) GetDeleted() bool {
 
 func (x *CardItem) SetLocalId(v string) {
 	x.xxx_hidden_LocalId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
 }
 
 func (x *CardItem) SetServerId(v string) {
 	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
 }
 
 func (x *CardItem) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
 }
 
 func (x *CardItem) SetHolder(v string) {
 	x.xxx_hidden_Holder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
 }
 
 func (x *CardItem) SetExpiry(v string) {
 	x.xxx_hidden_Expiry = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
 }
 
 func (x *CardItem) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
 }
 
 func (x *CardItem) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+}
+
+func (x *CardItem) SetChecksum(v string) {
+	x.xxx_hidden_Checksum = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
 }
 
 func (x *CardItem) SetTimemap(v *TimeMap) {
@@ -187,7 +204,7 @@ func (x *CardItem) SetTimemap(v *TimeMap) {
 
 func (x *CardItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
 }
 
 func (x *CardItem) HasLocalId() bool {
@@ -239,6 +256,13 @@ func (x *CardItem) HasMetadata() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
+func (x *CardItem) HasChecksum() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
 func (x *CardItem) HasTimemap() bool {
 	if x == nil {
 		return false
@@ -250,7 +274,7 @@ func (x *CardItem) HasDeleted() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *CardItem) ClearLocalId() {
@@ -288,12 +312,17 @@ func (x *CardItem) ClearMetadata() {
 	x.xxx_hidden_Metadata = nil
 }
 
+func (x *CardItem) ClearChecksum() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_Checksum = nil
+}
+
 func (x *CardItem) ClearTimemap() {
 	x.xxx_hidden_Timemap = nil
 }
 
 func (x *CardItem) ClearDeleted() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_Deleted = false
 }
 
@@ -307,6 +336,7 @@ type CardItem_builder struct {
 	Expiry   *string
 	Cvv      *string
 	Metadata *string
+	Checksum *string
 	Timemap  *TimeMap
 	Deleted  *bool
 }
@@ -316,36 +346,40 @@ func (b0 CardItem_builder) Build() *CardItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.LocalId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
 		x.xxx_hidden_LocalId = b.LocalId
 	}
 	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
 		x.xxx_hidden_ServerId = b.ServerId
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.Holder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
 		x.xxx_hidden_Holder = b.Holder
 	}
 	if b.Expiry != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
 		x.xxx_hidden_Expiry = b.Expiry
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
 		x.xxx_hidden_Metadata = b.Metadata
+	}
+	if b.Checksum != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		x.xxx_hidden_Checksum = b.Checksum
 	}
 	x.xxx_hidden_Timemap = b.Timemap
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
 		x.xxx_hidden_Deleted = *b.Deleted
 	}
 	return m0
@@ -639,7 +673,7 @@ const file_card_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"card.proto\x12\n" +
-	"gophkeeper\x1a\fcommon.proto\"\x81\x02\n" +
+	"gophkeeper\x1a\fcommon.proto\"\x9d\x02\n" +
 	"\bCardItem\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
 	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x16\n" +
@@ -647,9 +681,11 @@ const file_card_proto_rawDesc = "" +
 	"\x06holder\x18\x04 \x01(\tR\x06holder\x12\x16\n" +
 	"\x06expiry\x18\x05 \x01(\tR\x06expiry\x12\x10\n" +
 	"\x03cvv\x18\x06 \x01(\tR\x03cvv\x12\x1a\n" +
-	"\bmetadata\x18\a \x01(\tR\bmetadata\x12-\n" +
-	"\atimemap\x18\b \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
-	"\adeleted\x18\t \x01(\bR\adeleted\".\n" +
+	"\bmetadata\x18\a \x01(\tR\bmetadata\x12\x1a\n" +
+	"\bchecksum\x18\b \x01(\tR\bchecksum\x12-\n" +
+	"\atimemap\x18\t \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
+	"\adeleted\x18\n" +
+	" \x01(\bR\adeleted\".\n" +
 	"\x11RemoveCardRequest\x12\x19\n" +
 	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
 	"\x12RemoveCardResponse\"\x11\n" +

@@ -99,7 +99,10 @@ type fileListViewState int
 const (
 	mainListState fileListViewState = iota
 	browsingState
+	confirmDeleteState
 )
+
+type deleteFileMsg struct{ confirmed bool }
 
 // Модель загрузки файлов
 type FileUploadModel struct {
@@ -117,6 +120,7 @@ type FileUploadModel struct {
 	p              *tea.Program // Ссылка на программу для отправки сообщений из горутин
 	state          fileListViewState
 	browser        fileBrowserModel
+	confirmModel   ConfirmModel
 }
 
 func NewFileUploadModel(storage domain.LocalStorage) *FileUploadModel {
@@ -149,8 +153,8 @@ func NewFileUploadModel(storage domain.LocalStorage) *FileUploadModel {
 			key.WithHelp("s", "save to disk"),
 		),
 		Delete: key.NewBinding(
-			key.WithKeys("d"),
-			key.WithHelp("d", "delete"),
+			key.WithKeys("ctrl+d"),
+			key.WithHelp("ctrl+d", "delete"),
 		),
 		Back: key.NewBinding(
 			key.WithKeys("esc"),
@@ -162,7 +166,7 @@ func NewFileUploadModel(storage domain.LocalStorage) *FileUploadModel {
 		),
 	}
 
-	return &FileUploadModel{
+	m := &FileUploadModel{
 		list:     l,
 		viewport: vp,
 		progress: prog,
@@ -171,6 +175,14 @@ func NewFileUploadModel(storage domain.LocalStorage) *FileUploadModel {
 		state:    mainListState,
 		browser:  newFileBrowserModel(),
 	}
+
+	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
+		return func() tea.Msg {
+			return deleteFileMsg{confirmed: confirmed}
+		}
+	})
+
+	return m
 }
 
 func (m *FileUploadModel) SetProgram(p *tea.Program) {
@@ -188,14 +200,16 @@ func (m *FileUploadModel) Load() tea.Cmd {
 		return func() tea.Msg { return err }
 	}
 
-	items := make([]list.Item, len(files))
-	for i, file := range files {
-		items[i] = FileItem{
-			FileData:   file,
-			Name:       file.Name,
-			Path:       file.Metadata, // Используем Metadata для хранения локального пути
-			Size:       file.Size,
-			IsUploaded: true,
+	var items []list.Item
+	for _, file := range files {
+		if !file.Deleted {
+			items = append(items, FileItem{
+				FileData:   file,
+				Name:       file.Name,
+				Path:       file.Metadata, // Используем Metadata для хранения локального пути
+				Size:       file.Size,
+				IsUploaded: true,
+			})
 		}
 	}
 
@@ -206,16 +220,20 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	// if m.state == browsingState {
-	// 	newBrowser, browserCmd := m.browser.Update(msg)
-	// 	m.browser = newBrowser.(fileBrowserModel)
-	// 	return m, browserCmd
-	// }
+	if m.state == confirmDeleteState {
+		newConfirmModel, newCmd := m.confirmModel.Update(msg)
+		if _, ok := newConfirmModel.(ConfirmModel); ok {
+			m.confirmModel = newConfirmModel.(ConfirmModel)
+		}
+		return m, newCmd
+	}
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
 		m.updateLayout()
+		m.confirmModel.setSize(msg.Width, msg.Height)
 
 	case tea.KeyMsg:
 		if m.uploading {
@@ -224,6 +242,10 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch {
 		case key.Matches(msg, m.keys.Back):
+			if m.state == browsingState {
+				m.state = mainListState
+				return m, nil
+			}
 			return m, func() tea.Msg { return backToMenuMsg{} }
 
 		case key.Matches(msg, m.keys.AddFiles):
@@ -246,8 +268,13 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, m.keys.Delete):
-			return m, m.deleteSelectedFile()
-
+			if m.state == mainListState {
+				if item, ok := m.list.SelectedItem().(FileItem); ok {
+					m.state = confirmDeleteState
+					m.confirmModel.SetPrompt(fmt.Sprintf("файл '%s'", item.Name))
+					return m, nil
+				}
+			}
 		case key.Matches(msg, m.keys.Refresh):
 			return m, m.loadFiles
 		}
@@ -295,6 +322,21 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, tea.Batch(append(cmds, m.loadFiles)...) // Перезагружаем список
 
+	case deleteFileMsg:
+		m.state = mainListState
+		if msg.confirmed {
+			if item, ok := m.list.SelectedItem().(FileItem); ok {
+				// Используем DeleteFileByID для soft delete (помечает как удаленный)
+				err := m.storage.DeleteFileByID(item.GetLocalID())
+				if err != nil {
+					m.err = err
+				} else {
+					return m, m.loadFiles
+				}
+			}
+		}
+		return m, nil
+
 	case DownloadCompleteMsg:
 		m.err = nil    // Сбрасываем предыдущую ошибку
 		m.infoMsg = "" // Сбрасываем предыдущее инфо-сообщение
@@ -335,6 +377,7 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *FileUploadModel) View() string {
+	var mainView string
 	if m.state == browsingState {
 		return m.browser.View()
 	}
@@ -384,7 +427,14 @@ func (m *FileUploadModel) View() string {
 		sections = append(sections, infoSection)
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Left, sections...)
+	mainView = lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	if m.state == confirmDeleteState {
+		dialog := m.confirmModel.View()
+		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, dialog)
+	}
+
+	return mainView
 }
 
 func (m *FileUploadModel) fileInfoView() string {
@@ -393,7 +443,7 @@ func (m *FileUploadModel) fileInfoView() string {
 			info := []string{
 				lipgloss.NewStyle().Bold(true).Render("File Info:"),
 				fmt.Sprintf("Name: %s", file.Name),
-				fmt.Sprintf("Size: %s", formatFileSize(file.Size)),
+				fmt.Sprintf("Size: %s", model.FormatFileSize(file.Size)),
 				fmt.Sprintf("Path: %s", file.Path),
 				fmt.Sprintf("Status: %s", map[bool]string{true: "✅ Uploaded", false: "📄 Local"}[file.IsUploaded]),
 			}
@@ -498,16 +548,47 @@ func (m *FileUploadModel) downloadSelectedFile(file FileItem) tea.Cmd {
 			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("failed to get file from storage: %w", err)}
 		}
 
-		// JSON unmarshal для interface{} декодирует base64 строки.
-		// Нам нужно преобразовать это обратно в байты.
-		fileContentBase64, ok := fileDataMap["data"].(string)
-		if !ok {
-			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("invalid data format in storage")}
+		// Проверяем наличие данных
+		dataRaw, exists := fileDataMap["data"]
+		if !exists || dataRaw == nil {
+			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("file content not found in storage")}
 		}
 
-		fileContent, err := base64.StdEncoding.DecodeString(fileContentBase64)
-		if err != nil {
-			return DownloadCompleteMsg{FileName: file.Name, Error: fmt.Errorf("could not decode base64 file content: %w", err)}
+		var fileContent []byte
+		var decodeErr error
+
+		// Пытаемся получить данные как []byte (наиболее вероятный случай)
+		switch v := dataRaw.(type) {
+		case []byte:
+			fileContent = v
+		case string:
+			// Если данные в виде строки, пытаемся декодировать из base64
+			fileContent, decodeErr = base64.StdEncoding.DecodeString(v)
+			if decodeErr != nil {
+				// Если не base64, используем строку как есть
+				fileContent = []byte(v)
+			}
+		case []interface{}:
+			// Если это slice интерфейсов (может быть при JSON unmarshal)
+			fileContent = make([]byte, len(v))
+			for i, val := range v {
+				if b, ok := val.(byte); ok {
+					fileContent[i] = b
+				} else if n, ok := val.(float64); ok {
+					// JSON числа могут быть float64
+					fileContent[i] = byte(n)
+				} else {
+					return DownloadCompleteMsg{
+						FileName: file.Name,
+						Error:    fmt.Errorf("invalid data format in storage: cannot convert []interface{} element type %T to byte", val),
+					}
+				}
+			}
+		default:
+			return DownloadCompleteMsg{
+				FileName: file.Name,
+				Error:    fmt.Errorf("invalid data format in storage: expected []byte or string, got %T (value: %v)", dataRaw, dataRaw),
+			}
 		}
 
 		// Сохраняем в /tmp/
@@ -519,38 +600,4 @@ func (m *FileUploadModel) downloadSelectedFile(file FileItem) tea.Cmd {
 
 		return DownloadCompleteMsg{FileName: file.Name, SavePath: savePath}
 	}
-}
-
-func (m *FileUploadModel) deleteSelectedFile() tea.Cmd {
-	return func() tea.Msg {
-		item := m.list.SelectedItem()
-		if item == nil {
-			return nil
-		}
-
-		if file, ok := item.(FileItem); ok {
-			if file.IsUploaded {
-				// Удаляем из удаленного хранилища
-				if err := m.storage.DeleteFileByID(file.LocalID); err != nil {
-					return err
-				}
-			}
-			// Можно добавить удаление локального файла если нужно
-		}
-
-		return m.loadFiles()
-	}
-}
-
-func formatFileSize(size int64) string {
-	const unit = 1024
-	if size < unit {
-		return fmt.Sprintf("%d B", size)
-	}
-	div, exp := int64(unit), 0
-	for n := size / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
 }

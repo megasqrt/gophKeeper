@@ -111,8 +111,13 @@ func (s *BboltStorage) GetFileByID(id string) (map[string]interface{}, error) {
 			return fmt.Errorf("could not decrypt file content for id '%s': %w", id, err)
 		}
 
-		metaData["data"] = decryptedContent // Добавляем содержимое в результат
-		result = metaData
+		// Создаем новый map, чтобы избежать проблем с типами при добавлении []byte
+		// metaData уже десериализован из JSON, поэтому добавляем данные напрямую
+		result = make(map[string]interface{})
+		for k, v := range metaData {
+			result[k] = v
+		}
+		result["data"] = decryptedContent // Добавляем содержимое как []byte
 		return nil
 	})
 

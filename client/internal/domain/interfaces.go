@@ -29,6 +29,7 @@ type LocalStorage interface {
 	GetCardsByIDs(ids []string) ([]models.Card, error)
 	GetShortCards() ([]models.SyncInfo, error)
 	DeleteCard(id string) error
+	DeleteHardCard(id string) error
 
 	SaveLastSyncTime(t time.Time) error
 	GetLastSyncTime() (time.Time, error)
@@ -39,6 +40,7 @@ type LocalStorage interface {
 	GetPasswordsByIDs(ids []string) ([]models.Password, error)
 	GetShortPasswords() ([]models.SyncInfo, error)
 	DeletePass(id string) error
+	DeleteHardPass(id string) error
 
 	SaveText(textData *models.TextData) error
 	UpdateText(textData *models.TextData) error

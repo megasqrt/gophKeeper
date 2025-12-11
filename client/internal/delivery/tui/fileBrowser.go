@@ -8,6 +8,8 @@ import (
 	"sort"
 	"time"
 
+	model "gophKeeper/pkg/grpchelper"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -139,7 +141,7 @@ func (m fileBrowserModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			rows[i] = table.Row{
 				fmt.Sprintf("%s %s", icon, item.info.Name()),
-				formatFileSize(item.info.Size()),
+				model.FormatFileSize(item.info.Size()),
 				item.info.ModTime().Format("2006-01-02 15:04"),
 			}
 		}

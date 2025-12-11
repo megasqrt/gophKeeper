@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	model "gophKeeper/pkg/grpchelper"
 
 	"gophKeeper/client/internal/domain"
@@ -15,17 +16,22 @@ type viewState int
 const (
 	tableView viewState = iota
 	formView
+	confirmDeleteView
 )
 
 type backToMenuMsg struct{}
+type deleteCardMsg struct{ confirmed bool }
 
 // CardListModel управляет состоянием вкладки "Card", теперь используя таблицу.
 type CardListModel struct {
-	state   viewState
-	table   table.Model
-	form    CardFormModel
-	storage domain.LocalStorage
-	cards   []model.Card // Добавляем поле для хранения полных данных карт
+	state        viewState
+	table        table.Model
+	form         CardFormModel
+	confirmModel ConfirmModel
+	storage      domain.LocalStorage
+	cards        []model.Card // Добавляем поле для хранения полных данных карт
+	width        int
+	height       int
 }
 
 func NewCardListModel(storage domain.LocalStorage) *CardListModel {
@@ -60,6 +66,11 @@ func NewCardListModel(storage domain.LocalStorage) *CardListModel {
 		form:    NewCardForm(storage, nil),
 		table:   tbl,
 	}
+	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
+		return func() tea.Msg {
+			return deleteCardMsg{confirmed: confirmed}
+		}
+	})
 
 	return m
 }
@@ -72,18 +83,21 @@ func (m *CardListModel) Load() {
 }
 
 func (m *CardListModel) loadCards() ([]table.Row, []model.Card) {
-	cards, err := m.storage.GetCards()
+	allCards, err := m.storage.GetCards()
 	if err != nil {
 		//	m.log.Error().Err(err).Msg("get cards error")
 		return []table.Row{}, []model.Card{}
 	}
 
-	rows := make([]table.Row, len(cards))
-	for i, card := range cards {
-		// Используем Title() и Description() из модели карты для консистентности
-		rows[i] = table.Row{card.Title(), card.Description(), card.Expiry}
+	var rows []table.Row
+	var displayedCards []model.Card
+	for _, card := range allCards {
+		if !card.Deleted {
+			rows = append(rows, table.Row{card.Title(), card.Description(), card.Expiry})
+			displayedCards = append(displayedCards, card)
+		}
 	}
-	return rows, cards // Возвращаем исходный слайс моделей
+	return rows, displayedCards // Возвращаем только отображаемые карты
 }
 
 func (m *CardListModel) Init() tea.Cmd {
@@ -93,13 +107,41 @@ func (m *CardListModel) Init() tea.Cmd {
 func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg.(type) {
+	if m.state == confirmDeleteView {
+		// Pass messages to the confirmation model
+		newConfirmModel, newCmd := m.confirmModel.Update(msg)
+		if _, ok := newConfirmModel.(ConfirmModel); ok {
+			m.confirmModel = newConfirmModel.(ConfirmModel)
+		}
+		return m, newCmd
+	}
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.confirmModel.setSize(msg.Width, msg.Height)
+
 	case cardFormBackMsg:
 		m.state = tableView
 		return m, nil
+
 	case cardFormSavedMsg:
 		m.Load() // Просто перезагружаем данные в таблицу
 		m.state = tableView
+		return m, nil
+
+	case deleteCardMsg:
+		m.state = tableView
+		if msg.confirmed {
+			if len(m.cards) > 0 {
+				selectedCard := m.cards[m.table.Cursor()]
+				err := m.storage.DeleteHardCard(selectedCard.GetLocalID())
+				if err != nil {
+					// TODO: handle error
+				}
+				m.Load() // Reload to reflect deletion
+			}
+		}
 		return m, nil
 	}
 
@@ -127,6 +169,13 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = formView
 			m.form = NewCardForm(m.storage, &selectedCard) // Передаем выбранную карту в форму
 			return m, m.form.Init()
+		case "ctrl+d":
+			if m.state == tableView && len(m.cards) > 0 {
+				selectedCard := m.cards[m.table.Cursor()]
+				m.confirmModel.SetPrompt(fmt.Sprintf("карту '%s'", selectedCard.Title()))
+				m.state = confirmDeleteView
+				return m, nil
+			}
 		}
 	}
 
@@ -135,10 +184,13 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *CardListModel) View() string {
+	if m.state == confirmDeleteView {
+		return m.confirmModel.View()
+	}
 	if m.state == formView {
 		return m.form.View()
 	}
 
-	help := helpStyle.Render("(↑/↓) navigate | (a) add new card | (esc) back to menu")
+	help := helpStyle.Render("(↑/↓) navigate | (a) add new card | (e) edit | (ctrl+d) delete | (esc) back to menu")
 	return baseStyle.Render(m.table.View()) + "\n" + help
 }
