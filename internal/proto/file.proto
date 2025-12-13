@@ -10,8 +10,8 @@ import "common.proto";
 message FileItem {
     string local_id = 1;   // Локальный идентификатор клиента
     string server_id = 2;  // Идентификатор на сервере
-    string name = 3;       // Имя файла
-    string metadata = 4;   // Дополнительные метаданные
+    string name = 3;       // Имя файла (зашифрован, base64)
+    string metadata = 4;   // Дополнительные метаданные (зашифрован, base64)
     int64 size = 5;        // Размер файла в байтах
     string checksum = 6;   // Контрольная сумма метаданных для синхронизации
     TimeMap timemap = 7;   // Временные метки

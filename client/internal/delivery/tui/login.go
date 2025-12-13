@@ -1,9 +1,12 @@
 package tui
 
 import (
+	"context"
 	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/domain"
+	"gophKeeper/client/internal/services"
+	"gophKeeper/client/internal/transport"
 
 	//"gophKeeper/client/internal/transport"
 	"strings"
@@ -172,6 +175,39 @@ func performLogin(cfg *config.Config, storage domain.LocalStorage, password stri
 		// Шаг 1: Локальная аутентификация. Пытаемся разблокировать хранилище.
 		if err := storage.Unlock(cfg.User, password); err != nil {
 			return errMsg(fmt.Errorf("failed to unlock local storage: %w", err))
+		}
+
+		// Шаг 2: Проверяем, есть ли сохраненные учетные данные для удаленного сервера
+		login, token, deviceID, encryptedMasterKey, err := storage.GetUserCredentials()
+		if err != nil || token == "" {
+			// Нет сохраненных учетных данных, просто возвращаем успех локального входа
+			return loginOk{}
+		}
+
+		// Шаг 3: Если есть сохраненный мастер-ключ, расшифровываем его
+		encryptionService := services.NewEncryptionService()
+		if len(encryptedMasterKey) > 0 {
+			if err := encryptionService.DecryptMasterKey(encryptedMasterKey, password, []byte(login)); err != nil {
+				// Не критично, просто логируем
+				// return errMsg(fmt.Errorf("failed to decrypt master key: %w", err))
+			} else {
+				// Регистрируем EncryptionService глобально для использования в конвертерах
+				services.SetGlobalEncryptionService(encryptionService)
+			}
+		} else {
+			// Нет сохраненного мастер-ключа, пытаемся выполнить удаленный логин
+			res, err := transport.Login(context.Background(), login, password)
+			if err == nil && len(res.GetEncryptedMasterKey()) > 0 {
+				// Расшифровываем полученный мастер-ключ
+				if err := encryptionService.DecryptMasterKey(res.GetEncryptedMasterKey(), password, []byte(login)); err == nil {
+					// Регистрируем EncryptionService глобально
+					services.SetGlobalEncryptionService(encryptionService)
+					// Сохраняем полученный мастер-ключ
+					if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID, res.GetEncryptedMasterKey()); err != nil {
+						// Не критично, просто логируем
+					}
+				}
+			}
 		}
 
 		// Локальная аутентификация прошла успешно, возвращаем loginOk.

@@ -157,9 +157,9 @@ func (m *regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.loading = false
 		m.registered = true
 		m.token = msg.token
-		// После успешной регистрации сохраняем учетные данные и выходим.
-		// Сохранение токена теперь происходит внутри performRegistration
-		return m, func() tea.Msg { return backToMenuMsg{} }
+		// После успешной регистрации отправляем loginOk, чтобы root.go переключил состояние на authorizedState
+		// Сохранение токена и мастер-ключа происходит внутри performRegistration
+		return m, func() tea.Msg { return loginOk{} }
 
 	case spinner.TickMsg:
 		var cmd tea.Cmd
@@ -241,9 +241,18 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 			return errMsg(fmt.Errorf("failed to parse token: %w", err))
 		}
 
-		// Сохраняем токен
-		if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID); err != nil {
+		// Сохраняем токен и зашифрованный мастер-ключ
+		encryptedMasterKey := res.GetEncryptedMasterKey()
+		if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID, encryptedMasterKey); err != nil {
 			return errMsg(fmt.Errorf("failed to save credentials: %w", err))
+		}
+
+		// Расшифровываем мастер-ключ и регистрируем EncryptionService глобально
+		encryptionService := services.NewEncryptionService()
+		if len(encryptedMasterKey) > 0 {
+			if err := encryptionService.DecryptMasterKey(encryptedMasterKey, password, []byte(login)); err == nil {
+				services.SetGlobalEncryptionService(encryptionService)
+			}
 		}
 
 		// Сохраняем время успешной операции

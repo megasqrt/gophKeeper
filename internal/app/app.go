@@ -61,11 +61,11 @@ func NewApp(ctx context.Context) *App {
 	fileRepo := postgres.NewFileRepository(db)
 
 	// Инициализируем сервис аутентификации с репозиторием пользователей.
-	authService := services.NewService(log, userRepo, deviceRepo,cfg)
-	noteService := services.NewNoteService(log, postgres.NewTextDataRepository(db))
-	cardService := services.NewCardService(log, postgres.NewCardRepository(db))
-	passService := services.NewPasswordService(log, postgres.NewPasswordRepository(db))
-	fileService := services.NewFileService(log, postgres.NewFileRepository(db))	
+	authService := services.NewService(log, userRepo, deviceRepo, cfg)
+	noteService := services.NewNoteService(log, noteRepo)
+	cardService := services.NewCardService(log, cardRepo)
+	passService := services.NewPasswordService(log, passRepo)
+	fileService := services.NewFileService(log, fileRepo)	
 
 
 	// 1. Инициализируем gRPC сервер

@@ -32,8 +32,10 @@ func (s *BboltStorage) LocalRegister(user, password string) error {
 	})
 }
 
-// SaveUserCredentials сохраняет токен, удаленный логин и ID устройства пользователя.
-func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string) error {
+var masterKeyKey = []byte("master_key")
+
+// SaveUserCredentials сохраняет токен, удаленный логин, ID устройства и зашифрованный мастер-ключ пользователя.
+func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 
@@ -60,12 +62,27 @@ func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string) error 
 		if err != nil {
 			return fmt.Errorf("could not encrypt device id: %w", err)
 		}
-		return b.Put(deviceKey, encryptedDeviceID)
+		if err := b.Put(deviceKey, encryptedDeviceID); err != nil {
+			return fmt.Errorf("failed to save device id: %w", err)
+		}
+
+		// Сохраняем зашифрованный мастер-ключ (зашифрованный локальным ключом)
+		if len(encryptedMasterKey) > 0 {
+			encryptedMasterKeyLocal, err := s.encrypt(encryptedMasterKey)
+			if err != nil {
+				return fmt.Errorf("could not encrypt master key: %w", err)
+			}
+			if err := b.Put(masterKeyKey, encryptedMasterKeyLocal); err != nil {
+				return fmt.Errorf("failed to save master key: %w", err)
+			}
+		}
+
+		return nil
 	})
 }
 
-// GetUserCredentials извлекает удаленный логин и токен пользователя.
-func (s *BboltStorage) GetUserCredentials() (login, token, device string, err error) {
+// GetUserCredentials извлекает удаленный логин, токен, ID устройства и зашифрованный мастер-ключ пользователя.
+func (s *BboltStorage) GetUserCredentials() (login, token, device string, encryptedMasterKey []byte, err error) {
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 
@@ -95,8 +112,17 @@ func (s *BboltStorage) GetUserCredentials() (login, token, device string, err er
 			}
 			device = string(decryptedDevice)
 		}
+
+		masterKeyBytes := b.Get(masterKeyKey)
+		if len(masterKeyBytes) > 0 {
+			decryptedMasterKey, err := s.decrypt(masterKeyBytes)
+			if err != nil {
+				return fmt.Errorf("could not decrypt master key: %w", err)
+			}
+			encryptedMasterKey = decryptedMasterKey
+		}
 		return nil
 	})
 	s.log.Info().Str("Login", login).Bool("hasToken", token != "").Msg("Retrieved user credentials")
-	return login, token, device, err
+	return login, token, device, encryptedMasterKey, err
 }

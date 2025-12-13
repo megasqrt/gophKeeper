@@ -10,11 +10,11 @@ import "common.proto";
 message CardItem {
     string local_id = 1;   // Локальный идентификатор клиента
     string server_id = 2;  // Идентификатор на сервере
-    string number = 3;     // Номер карты
-    string holder = 4;     // Держатель карты
-    string expiry = 5;     // Срок действия (MM/YY)
-    string cvv = 6;        // CVV код
-    string metadata = 7;   // Дополнительные метаданные
+    string number = 3;     // Номер карты (зашифрован, base64)
+    string holder = 4;     // Держатель карты (зашифрован, base64)
+    string expiry = 5;     // Срок действия (MM/YY) (зашифрован, base64)
+    string cvv = 6;        // CVV код (зашифрован, base64)
+    string metadata = 7;   // Дополнительные метаданные (зашифрован, base64)
     string checksum = 8;   // Контрольная сумма для синхронизации
     TimeMap timemap = 9;   // Временные метки
     bool deleted = 10;     // Флаг удаления (soft delete)

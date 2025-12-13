@@ -10,8 +10,8 @@ import "common.proto";
 message NoteItem {
     string local_id = 1;   // Локальный идентификатор клиента
     string server_id = 2;  // Идентификатор на сервере
-    string title = 3;      // Заголовок заметки
-    string text = 4;       // Текст заметки
+    string title = 3;      // Заголовок заметки (зашифрован, base64)
+    string text = 4;       // Текст заметки (зашифрован, base64)
     string checksum = 5;   // Контрольная сумма для синхронизации
     TimeMap timemap = 6;   // Временные метки
     bool deleted = 7;      // Флаг удаления (soft delete)

@@ -13,6 +13,7 @@ type Card struct {
 	Holder     string
 	Expiry     string
 	CVV        string
+	Metadata   string
 	ChangeTime int64
 	SyncTime   int64
 	Deleted    bool

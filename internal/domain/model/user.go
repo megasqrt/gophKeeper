@@ -9,9 +9,10 @@ import (
 
 // User представляет пользователя в системе.
 type User struct {
-	ID           uuid.UUID `json:"id" db:"id"`
-	Login        string    `json:"login" db:"login"`
-	PasswordHash string    `json:"-" db:"password_hash"` // Хеш пароля не должен отправляться клиенту
-	CreatedAt    int64 `json:"created_at" db:"created_at"`
-	UpdatedAt    int64 `json:"updated_at" db:"updated_at"`
+	ID                 uuid.UUID `json:"id" db:"id"`
+	Login              string    `json:"login" db:"login"`
+	PasswordHash       string    `json:"-" db:"password_hash"` // Хеш пароля не должен отправляться клиенту
+	EncryptedMasterKey []byte    `json:"-" db:"encrypted_master_key"` // Зашифрованный мастер-ключ пользователя
+	CreatedAt          int64     `json:"created_at" db:"created_at"`
+	UpdatedAt          int64     `json:"updated_at" db:"updated_at"`
 }

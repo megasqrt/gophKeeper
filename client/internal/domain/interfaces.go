@@ -19,8 +19,8 @@ type LocalStorage interface {
 	IsLoggedIn() bool
 	IsFirstRun() bool
 	LocalRegister(user, password string) error
-	SaveUserCredentials(login, token, deviceID string) error
-	GetUserCredentials() (login, token, deviceID string, err error)
+	SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error
+	GetUserCredentials() (login, token, deviceID string, encryptedMasterKey []byte, err error)
 
 	SaveCard(cardData *models.Card) error
 	UpdateCard(cardData *models.Card) error

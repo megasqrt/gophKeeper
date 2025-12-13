@@ -2,13 +2,15 @@ package repository
 
 import (
 	"context"
-	model "gophKeeper/pkg/grpchelper"
+	"gophKeeper/internal/domain/model"
 
 	"github.com/google/uuid"
 )
 
-type NoteRepository interface {
+// TextDataRepository определяет интерфейс для работы с текстовыми заметками
+type TextDataRepository interface {
 	Create(ctx context.Context, note *model.TextData) error
 	Update(ctx context.Context, note *model.TextData) error
-	FindByUserID(ctx context.Context, userID uuid.UUID) ([]model.TextData, error)
+	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TextData, error)
+	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
 }

@@ -316,7 +316,7 @@ func (m *MainViewModel) View() string {
 // checkServer returns a command that pings the server and returns a serverStatusMsg.
 func checkServer(storage domain.LocalStorage) tea.Cmd {
 	return func() tea.Msg {
-		_, token, _, err := storage.GetUserCredentials()
+		_, token, _, _, err := storage.GetUserCredentials()
 		if err != nil {
 			return serverStatusMsg{tokenValid: false}
 		}

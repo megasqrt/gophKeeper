@@ -39,9 +39,13 @@ func New(
 		return nil, err
 	}
 
+	// Создаем interceptor для аутентификации
+	authInterceptor := AuthInterceptor(log, []byte(cfg.HashKey))
+
 	// Здесь можно добавить interceptors для логирования, аутентификации и т.д.
 	s := grpc.NewServer(
 		grpc.Creds(creds),
+		grpc.UnaryInterceptor(authInterceptor),
 	)
 
 	healthServer := health.NewServer()

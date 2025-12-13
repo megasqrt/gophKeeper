@@ -132,7 +132,7 @@ func encriptPassword(user, password string) ([]byte, error) {
 
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
-	_, token, _, err := s.GetUserCredentials()
+	_, token, _, _, err := s.GetUserCredentials()
 	return err == nil && token != ""
 }
 

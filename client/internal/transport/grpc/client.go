@@ -151,8 +151,27 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 	return syncedCards, nil
 }
 
-func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
-	// Конвертируем наши модели в DTO для gRPC
+// SyncShortTexts вызывает RPC для краткой синхронизации текстов.
+func (c *Client) SyncShortTexts(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
+	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
+	for _, item := range shortItems {
+		if item.Deleted {
+			continue
+		}
+		pbItems = append(pbItems, item.ToProto())
+	}
+
+	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
+	resp, err := c.Note.NotesShortSync(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetLocalIds(), nil
+}
+
+// SyncShortCards вызывает RPC для краткой синхронизации карт.
+func (c *Client) SyncShortCards(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
 	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
 	for _, item := range shortItems {
 		if item.Deleted {
@@ -167,19 +186,45 @@ func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]
 		return nil, err
 	}
 
+	return resp.GetLocalIds(), nil
+}
 
-	oldItems := resp.GetLocalIds()
-	if oldItems != nil {
-		syncedItems := make([]string, 0, len(oldItems))
-		for _, item := range oldItems {
-			if item != "" {
-				syncedItems = append(syncedItems, oldItems...)
-			}
+// SyncShortPasswords вызывает RPC для краткой синхронизации паролей.
+func (c *Client) SyncShortPasswords(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
+	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
+	for _, item := range shortItems {
+		if item.Deleted {
+			continue
 		}
-		return syncedItems, nil
+		pbItems = append(pbItems, item.ToProto())
 	}
-	
-	return []string{}, nil
+
+	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
+	resp, err := c.Password.PasswordsShortSync(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetLocalIds(), nil
+}
+
+// SyncShortFiles вызывает RPC для краткой синхронизации файлов.
+func (c *Client) SyncShortFiles(ctx context.Context, shortItems []model.SyncInfo) ([]string, error) {
+	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
+	for _, item := range shortItems {
+		if item.Deleted {
+			continue
+		}
+		pbItems = append(pbItems, item.ToProto())
+	}
+
+	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
+	resp, err := c.File.FilesShortSync(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.GetLocalIds(), nil
 }
 
 // SyncPasswords вызывает RPC для синхронизации паролей.

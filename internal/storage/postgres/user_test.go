@@ -124,8 +124,8 @@ func (suite *UserRepoTestSuite) TestCreateAndFindByLogin() {
 			ID:           uuid.New(),
 			Login:        givenLogin,
 			PasswordHash: string(hashedPassword),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
+			CreatedAt:    time.Now().Unix(),
+			UpdatedAt:    time.Now().Unix(),
 		}
 
 		err = userRepo.Create(ctx, userToCreate)

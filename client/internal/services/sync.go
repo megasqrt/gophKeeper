@@ -40,7 +40,7 @@ func (s *SyncService) Sync(ctx context.Context) error {
 	}
 
 	// Получаем учетные данные для запросов
-	_, token, deviceID, err := s.storage.GetUserCredentials()
+	_, token, deviceID, _, err := s.storage.GetUserCredentials()
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (s *SyncService) syncTexts(ctx context.Context, token, deviceID string) err
 	}
 
 	// 2. Отправляем краткую информацию на сервер и получаем ID текстов, которые нужно синхронизировать полностью
-	textIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortTexts)
+	textIDsToSync, err := transport.SyncShortTexts(ctx, token, deviceID, shortTexts)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func (s *SyncService) syncCards(ctx context.Context, token, deviceID string) err
 	}
 
 	// 2. Отправляем краткую информацию на сервер и получаем ID карт, которые нужно синхронизировать полностью
-	cardIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortCards)
+	cardIDsToSync, err := transport.SyncShortCards(ctx, token, deviceID, shortCards)
 	if err != nil {
 		return err
 	}
@@ -221,7 +221,7 @@ func (s *SyncService) syncPasswords(ctx context.Context, token, deviceID string)
 	}
 
 	// 2. Отправляем краткую информацию на сервер и получаем ID паролей, которые нужно синхронизировать полностью
-	passwordIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortPasswords)
+	passwordIDsToSync, err := transport.SyncShortPasswords(ctx, token, deviceID, shortPasswords)
 	if err != nil {
 		return err
 	}
@@ -292,7 +292,7 @@ func (s *SyncService) syncFiles(ctx context.Context, token, deviceID string) err
 	}
 
 	// 2. Отправляем краткую информацию на сервер и получаем ID файлов, которые нужно синхронизировать полностью
-	fileIDsToSync, err := transport.SyncShort(ctx, token, deviceID, shortFiles)
+	fileIDsToSync, err := transport.SyncShortFiles(ctx, token, deviceID, shortFiles)
 	if err != nil {
 		return err
 	}

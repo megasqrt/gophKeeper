@@ -198,12 +198,13 @@ func (b0 RegisterRequest_builder) Build() *RegisterRequest {
 }
 
 type RegisterResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Token       *string                `protobuf:"bytes,1,opt,name=token"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Token              *string                `protobuf:"bytes,1,opt,name=token"`
+	xxx_hidden_EncryptedMasterKey []byte                 `protobuf:"bytes,2,opt,name=encrypted_master_key,json=encryptedMasterKey"`
+	XXX_raceDetectHookData        protoimpl.RaceDetectHookData
+	XXX_presence                  [1]uint32
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
@@ -241,9 +242,24 @@ func (x *RegisterResponse) GetToken() string {
 	return ""
 }
 
+func (x *RegisterResponse) GetEncryptedMasterKey() []byte {
+	if x != nil {
+		return x.xxx_hidden_EncryptedMasterKey
+	}
+	return nil
+}
+
 func (x *RegisterResponse) SetToken(v string) {
 	x.xxx_hidden_Token = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *RegisterResponse) SetEncryptedMasterKey(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedMasterKey = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
 func (x *RegisterResponse) HasToken() bool {
@@ -253,15 +269,28 @@ func (x *RegisterResponse) HasToken() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
+func (x *RegisterResponse) HasEncryptedMasterKey() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
 func (x *RegisterResponse) ClearToken() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Token = nil
 }
 
+func (x *RegisterResponse) ClearEncryptedMasterKey() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_EncryptedMasterKey = nil
+}
+
 type RegisterResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Token *string
+	Token              *string
+	EncryptedMasterKey []byte
 }
 
 func (b0 RegisterResponse_builder) Build() *RegisterResponse {
@@ -269,8 +298,12 @@ func (b0 RegisterResponse_builder) Build() *RegisterResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Token != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
 		x.xxx_hidden_Token = b.Token
+	}
+	if b.EncryptedMasterKey != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_EncryptedMasterKey = b.EncryptedMasterKey
 	}
 	return m0
 }
@@ -387,12 +420,13 @@ func (b0 LoginRequest_builder) Build() *LoginRequest {
 }
 
 type LoginResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Token       *string                `protobuf:"bytes,1,opt,name=token"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Token              *string                `protobuf:"bytes,1,opt,name=token"`
+	xxx_hidden_EncryptedMasterKey []byte                 `protobuf:"bytes,2,opt,name=encrypted_master_key,json=encryptedMasterKey"`
+	XXX_raceDetectHookData        protoimpl.RaceDetectHookData
+	XXX_presence                  [1]uint32
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *LoginResponse) Reset() {
@@ -430,9 +464,24 @@ func (x *LoginResponse) GetToken() string {
 	return ""
 }
 
+func (x *LoginResponse) GetEncryptedMasterKey() []byte {
+	if x != nil {
+		return x.xxx_hidden_EncryptedMasterKey
+	}
+	return nil
+}
+
 func (x *LoginResponse) SetToken(v string) {
 	x.xxx_hidden_Token = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *LoginResponse) SetEncryptedMasterKey(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedMasterKey = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
 func (x *LoginResponse) HasToken() bool {
@@ -442,15 +491,28 @@ func (x *LoginResponse) HasToken() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
+func (x *LoginResponse) HasEncryptedMasterKey() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
 func (x *LoginResponse) ClearToken() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Token = nil
 }
 
+func (x *LoginResponse) ClearEncryptedMasterKey() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_EncryptedMasterKey = nil
+}
+
 type LoginResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Token *string
+	Token              *string
+	EncryptedMasterKey []byte
 }
 
 func (b0 LoginResponse_builder) Build() *LoginResponse {
@@ -458,8 +520,12 @@ func (b0 LoginResponse_builder) Build() *LoginResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Token != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
 		x.xxx_hidden_Token = b.Token
+	}
+	if b.EncryptedMasterKey != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_EncryptedMasterKey = b.EncryptedMasterKey
 	}
 	return m0
 }
@@ -475,14 +541,16 @@ const file_auth_proto_rawDesc = "" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x14\n" +
-	"\x05phone\x18\x04 \x01(\tR\x05phone\"(\n" +
+	"\x05phone\x18\x04 \x01(\tR\x05phone\"Z\n" +
 	"\x10RegisterResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"@\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x120\n" +
+	"\x14encrypted_master_key\x18\x02 \x01(\fR\x12encryptedMasterKey\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"W\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\x92\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x120\n" +
+	"\x14encrypted_master_key\x18\x02 \x01(\fR\x12encryptedMasterKey2\x92\x01\n" +
 	"\vAuthService\x12E\n" +
 	"\bRegister\x12\x1b.gophkeeper.RegisterRequest\x1a\x1c.gophkeeper.RegisterResponse\x12<\n" +
 	"\x05Login\x12\x18.gophkeeper.LoginRequest\x1a\x19.gophkeeper.LoginResponseB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"

@@ -13,6 +13,7 @@ message RegisterRequest {
 
 message RegisterResponse {
     string token = 1;
+    bytes encrypted_master_key = 2; // Зашифрованный мастер-ключ пользователя (шифруется паролем)
 }
 
 message LoginRequest {
@@ -22,6 +23,7 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
+  bytes encrypted_master_key = 2; // Зашифрованный мастер-ключ пользователя (шифруется паролем)
 }
 
 service AuthService {

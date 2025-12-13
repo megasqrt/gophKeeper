@@ -75,7 +75,7 @@ func (r *TextDataRepository) Update(ctx context.Context, data *model.TextData) e
 
 // Delete помечает текстовую заметку как удаленную (soft delete).
 func (r *TextDataRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
-	query := `UPDATE text_data SET deleted_at = NOW() WHERE id = $1 AND user_id = $2`
+	query := `UPDATE text_data SET deleted_at = EXTRACT(EPOCH FROM NOW())::bigint WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)
 	return err
 }

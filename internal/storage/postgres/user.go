@@ -23,8 +23,8 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 // Create создает нового пользователя в базе данных.
 func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 	query := `
-		INSERT INTO users (id, login, password_hash, created_at, updated_at)
-		VALUES (:id, :login, :password_hash, :created_at, :updated_at)
+		INSERT INTO users (id, login, password_hash, encrypted_master_key, created_at, updated_at)
+		VALUES (:id, :login, :password_hash, :encrypted_master_key, :created_at, :updated_at)
 	`
 	_, err := r.db.NamedExecContext(ctx, query, user)
 	return err
@@ -34,7 +34,7 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 // Возвращает ErrUserNotFound, если пользователь не найден.
 func (r *UserRepository) FindByLogin(ctx context.Context, login string) (*model.User, error) {
 	var user model.User
-	query := `SELECT id, login, password_hash, created_at, updated_at FROM users WHERE login = $1`
+	query := `SELECT id, login, password_hash, encrypted_master_key, created_at, updated_at FROM users WHERE login = $1`
 
 	err := r.db.GetContext(ctx, &user, query, login)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *UserRepository) FindByLogin(ctx context.Context, login string) (*model.
 func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	query := `
 		UPDATE users
-		SET login = :login, password_hash = :password_hash, updated_at = :updated_at
+		SET login = :login, password_hash = :password_hash, encrypted_master_key = :encrypted_master_key, updated_at = :updated_at
 		WHERE id = :id
 	`
 	_, err := r.db.NamedExecContext(ctx, query, user)

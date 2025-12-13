@@ -92,9 +92,40 @@ func SyncCards(ctx context.Context, token, deviceID string, localCards []model.C
 	return client.SyncCards(ctx, localCards)
 }
 
-func SyncShort(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+// SyncShortTexts проксирует вызов для краткой синхронизации текстов.
+func SyncShortTexts(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
 	ctx = withAuth(ctx, token, deviceID)
-	return client.SyncShort(ctx, shortItems)
+	return client.SyncShortTexts(ctx, shortItems)
+}
+
+// SyncShortCards проксирует вызов для краткой синхронизации карт.
+func SyncShortCards(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+	ctx = withAuth(ctx, token, deviceID)
+	return client.SyncShortCards(ctx, shortItems)
+}
+
+// SyncShortPasswords проксирует вызов для краткой синхронизации паролей.
+func SyncShortPasswords(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+	ctx = withAuth(ctx, token, deviceID)
+	return client.SyncShortPasswords(ctx, shortItems)
+}
+
+// SyncShortFiles проксирует вызов для краткой синхронизации файлов.
+func SyncShortFiles(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+	ctx = withAuth(ctx, token, deviceID)
+	return client.SyncShortFiles(ctx, shortItems)
 }
 
 // SyncPasswords проксирует вызов к gRPC клиенту.

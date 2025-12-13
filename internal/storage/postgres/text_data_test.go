@@ -43,8 +43,8 @@ func (suite *TextDataRepoTestSuite) SetupSuite() {
 		ID:           uuid.New(),
 		Login:        "text_user",
 		PasswordHash: "some_hash",
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		CreatedAt:    time.Now().Unix(),
+		UpdatedAt:    time.Now().Unix(),
 	}
 	err = userRepo.Create(context.Background(), testUser)
 	suite.Require().NoError(err)
@@ -67,8 +67,8 @@ func (suite *TextDataRepoTestSuite) TestTextDataRepository() {
 			Title:     "Test Note",
 			Text:      text,
 			Checksum:  hex.EncodeToString(h.Sum(nil)),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			CreatedAt: time.Now().Unix(),
+			UpdatedAt: time.Now().Unix(),
 		}
 
 		err := repo.Create(ctx, data)
@@ -103,7 +103,7 @@ func (suite *TextDataRepoTestSuite) TestTextDataRepository() {
 		h := sha256.New()
 		h.Write([]byte(createdData.Text))
 		createdData.Checksum = hex.EncodeToString(h.Sum(nil))
-		createdData.UpdatedAt = time.Now()
+		createdData.UpdatedAt = time.Now().Unix()
 
 		err := repo.Update(ctx, createdData)
 		suite.Require().NoError(err)
