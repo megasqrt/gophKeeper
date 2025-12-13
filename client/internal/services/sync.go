@@ -39,6 +39,12 @@ func (s *SyncService) Sync(ctx context.Context) error {
 		s.lastSyncTime = 0
 	}
 
+	// Инициализируем Encryptor перед синхронизацией (если еще не инициализирован)
+	// Это необходимо для расшифровки данных, полученных с сервера
+	if err := s.storage.InitializeEncryptor(""); err != nil {
+		s.log.Warn().Err(err).Msg("Failed to initialize Encryptor, data may be stored encrypted")
+	}
+
 	// Получаем учетные данные для запросов
 	_, token, deviceID, _, err := s.storage.GetUserCredentials()
 	if err != nil {

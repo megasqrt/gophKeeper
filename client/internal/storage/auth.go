@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 
+	"gophKeeper/client/internal/services"
 	"go.etcd.io/bbolt"
 )
 
@@ -125,4 +126,66 @@ func (s *BboltStorage) GetUserCredentials() (login, token, device string, encryp
 	})
 	s.log.Info().Str("Login", login).Bool("hasToken", token != "").Msg("Retrieved user credentials")
 	return login, token, device, encryptedMasterKey, err
+}
+
+// InitializeEncryptor инициализирует Encryptor из сохраненного мастер-ключа
+// Автоматически получает пароль из хранилища (если хранилище разблокировано)
+// Если password передан, использует его; иначе пытается получить из хранилища
+func (s *BboltStorage) InitializeEncryptor(password string) error {
+	// Если пароль не передан, пытаемся получить его из хранилища
+	if password == "" {
+		var err error
+		password, err = s.getPasswordFromStorage()
+		if err != nil {
+			s.log.Debug().Err(err).Msg("Could not get password from storage, skipping Encryptor initialization")
+			return nil // Не критично, просто пропускаем инициализацию
+		}
+	}
+
+	login, _, _, encryptedMasterKey, err := s.GetUserCredentials()
+	if err != nil {
+		return fmt.Errorf("failed to get user credentials: %w", err)
+	}
+
+	if len(encryptedMasterKey) == 0 {
+		// Нет сохраненного мастер-ключа, ничего не делаем
+		s.log.Debug().Msg("No master key found, skipping Encryptor initialization")
+		return nil
+	}
+
+	// Расшифровываем мастер-ключ паролем пользователя
+	encryptionService := services.NewEncryptionService()
+	if err := encryptionService.DecryptMasterKey(encryptedMasterKey, password, []byte(login)); err != nil {
+		return fmt.Errorf("failed to decrypt master key: %w", err)
+	}
+
+	// Регистрируем EncryptionService глобально
+	services.SetGlobalEncryptionService(encryptionService)
+	s.log.Info().Msg("Encryptor initialized successfully")
+	return nil
+}
+
+// getPasswordFromStorage получает пароль из хранилища (если хранилище разблокировано)
+func (s *BboltStorage) getPasswordFromStorage() (string, error) {
+	if s.key == nil {
+		return "", fmt.Errorf("storage is locked")
+	}
+
+	var password string
+	err := s.db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(configBucket)
+		passwordBytes := b.Get(passwordKey)
+		if len(passwordBytes) == 0 {
+			return fmt.Errorf("password not found in storage")
+		}
+
+		decryptedPassword, err := s.decrypt(passwordBytes)
+		if err != nil {
+			return fmt.Errorf("could not decrypt password: %w", err)
+		}
+		password = string(decryptedPassword)
+		return nil
+	})
+
+	return password, err
 }

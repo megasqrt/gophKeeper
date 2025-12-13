@@ -54,17 +54,15 @@ ALTER TABLE devices
     ALTER COLUMN updated_at TYPE BIGINT USING (EXTRACT(EPOCH FROM updated_at))::bigint;
 
 -- Re-create the trigger function to handle the new data types.
--- The old function will not work as it is expecting the old data types.
--- The history table columns are already converted to BIGINT.
--- The OLD record in the trigger function will have the TIMESTAMPTZ type, so we need to convert it.
+-- After migration 002, all timestamp columns are already BIGINT, so we don't need to extract EPOCH.
 CREATE OR REPLACE FUNCTION log_login_password_history()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO login_passwords_history (id, user_id, login_data, password_data, metadata, created_at, updated_at, deleted_at)
     VALUES (OLD.id, OLD.user_id, OLD.login_data, OLD.password_data, OLD.metadata,
-            (EXTRACT(EPOCH FROM OLD.created_at))::bigint,
-            (EXTRACT(EPOCH FROM OLD.updated_at))::bigint,
-            (EXTRACT(EPOCH FROM OLD.deleted_at))::bigint);
+            OLD.created_at,
+            OLD.updated_at,
+            OLD.deleted_at);
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;

@@ -107,6 +107,14 @@ func (s *NoteService) NotesSync(ctx context.Context, req *pb.NotesSyncRequest) (
 		note := clientModel.FromProtoText(pbNote)
 		// Используем LocalID клиента как ключ
 		clientNotes[note.LocalID] = &note
+		s.log.Debug().
+			Str("local_id", note.LocalID).
+			Str("server_id", note.ServerID).
+			Str("title", note.Title).
+			Int("text_len", len(note.Text)).
+			Str("checksum", note.Checksum).
+			Bool("deleted", note.Deleted).
+			Msg("Converted note from proto")
 	}
 
 	// Получаем все заметки пользователя из БД
@@ -153,10 +161,26 @@ func (s *NoteService) NotesSync(ctx context.Context, req *pb.NotesSyncRequest) (
 				UpdatedAt: time.Now().Unix(),
 			}
 
+			s.log.Info().
+				Str("local_id", localID).
+				Str("new_id", dbNote.ID.String()).
+				Str("title", dbNote.Title).
+				Int("text_len", len(dbNote.Text)).
+				Str("checksum", dbNote.Checksum).
+				Msg("Creating new note")
+
 			if err := s.noteRepo.Create(ctx, dbNote); err != nil {
-				s.log.Error().Err(err).Msgf("failed to create note for local_id %s", localID)
+				s.log.Error().Err(err).
+					Str("local_id", localID).
+					Str("note_id", dbNote.ID.String()).
+					Msg("failed to create note")
 				continue
 			}
+
+			s.log.Info().
+				Str("local_id", localID).
+				Str("note_id", dbNote.ID.String()).
+				Msg("Note created successfully")
 
 			// Конвертируем обратно в клиентскую модель для отправки
 			responseNote := clientModel.TextData{

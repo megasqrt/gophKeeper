@@ -106,12 +106,12 @@ func (c *Client) CheckHealth(token string) (bool, error) {
 // SyncTexts вызывает RPC для синхронизации текстовых заметок.
 func (c *Client) SyncTexts(ctx context.Context, localTexts []model.TextData) ([]model.TextData, error) {
 	// Конвертируем наши модели в DTO для gRPC
-	pbNotes := make([]*pb.NoteItem, len(localTexts))
-	for i, t := range localTexts {
+	pbNotes := make([]*pb.NoteItem, 0, len(localTexts))
+	for _, t := range localTexts {
 		if t.Deleted {
 			continue
 		}
-		pbNotes[i] = t.ToProto()
+		pbNotes = append(pbNotes, t.ToProto())
 	}
 
 	req := pb.NotesSyncRequest_builder{Notes: pbNotes}.Build()

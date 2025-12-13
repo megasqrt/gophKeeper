@@ -60,7 +60,7 @@ func (r *PasswordRepository) GetByUserID(ctx context.Context, userID uuid.UUID) 
 
 // Delete помечает пароль как удаленный (soft delete).
 func (r *PasswordRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
-	query := `UPDATE login_passwords SET deleted_at = EXTRACT(EPOCH FROM NOW())::bigint WHERE id = $1 AND user_id = $2`
+	query := `UPDATE login_passwords SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)
 	return err
 }
