@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog"
 )
 
 type viewState int
@@ -32,9 +33,10 @@ type CardListModel struct {
 	cards        []model.Card // Добавляем поле для хранения полных данных карт
 	width        int
 	height       int
+	log          *zerolog.Logger
 }
 
-func NewCardListModel(storage domain.LocalStorage) *CardListModel {
+func NewCardListModel(storage domain.LocalStorage, log *zerolog.Logger) *CardListModel {
 	columns := []table.Column{
 		{Title: "Card Number", Width: 20},
 		{Title: "Holder", Width: 25},
@@ -65,6 +67,7 @@ func NewCardListModel(storage domain.LocalStorage) *CardListModel {
 		storage: storage,
 		form:    NewCardForm(storage, nil),
 		table:   tbl,
+		log:     log,
 	}
 	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
 		return func() tea.Msg {

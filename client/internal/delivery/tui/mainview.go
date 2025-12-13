@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog"
 )
 
 // viewState определяет, какой вид сейчас активен в главном окне.
@@ -83,6 +84,7 @@ type MainViewModel struct {
 	storage      domain.LocalStorage
 	width        int
 	height       int
+	log          *zerolog.Logger
 }
 
 type serverStatusMsg struct{ tokenValid bool }
@@ -92,7 +94,7 @@ type checkNowMsg struct{}
 
 // NewMainViewModel создает главную модель представления.
 // syncer - это сервис для синхронизации данных.
-func NewMainViewModel(cfg *config.Config, storage domain.LocalStorage, syncer *services.SyncService) *MainViewModel {
+func NewMainViewModel(cfg *config.Config, storage domain.LocalStorage, syncer *services.SyncService, log *zerolog.Logger) *MainViewModel {
 	items := []list.Item{
 		item("💳 Credit Cards"),
 		item("🔑 Passwords"),
@@ -117,12 +119,13 @@ func NewMainViewModel(cfg *config.Config, storage domain.LocalStorage, syncer *s
 		isSyncing:     false,
 		cfg:           cfg,
 		storage:       storage,
-		cardModel:     NewCardListModel(storage),
-		passModel:     NewPassListModel(storage),
-		textModel:     NewTextEditModel(storage),
+		cardModel:     NewCardListModel(storage, log),
+		passModel:     NewPassListModel(storage, log),
+		textModel:     NewTextEditModel(storage, log),
 		fileModel:     NewFileUploadModel(storage),
 		settingsModel: NewSettingsModel(),
 		registerModel: InitialModel(storage, cfg, syncer),
+		log:           log,
 	}
 }
 
@@ -175,19 +178,6 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case backToMenuMsg:
 		m.state = mainMenu
 		return m, nil
-	// Явным образом обрабатываем сообщения об удалении от дочерних моделей
-	case deleteCardMsg:
-		m.cardModel, cmd = m.cardModel.Update(msg)
-		return m, cmd
-	case deletePassMsg:
-		m.passModel, cmd = m.passModel.Update(msg)
-		return m, cmd
-	case deleteTextMsg:
-		m.textModel, cmd = m.textModel.Update(msg)
-		return m, cmd
-	case deleteFileMsg:
-		m.fileModel, cmd = m.fileModel.Update(msg)
-		return m, cmd
 
 	case tea.KeyMsg:
 		// Если мы не в главном меню, передаем управление дочерней модели

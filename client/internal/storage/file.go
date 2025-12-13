@@ -182,7 +182,29 @@ func (s *BboltStorage) GetFilesByIDs(ids []string) ([]model.FileData, error) {
 // DeleteFileByID помечает файл как удаленный (soft delete).
 // Для физического удаления используется отдельный метод по команде пользователя из TUI.
 func (s *BboltStorage) DeleteFileByID(id string) error {
+	s.log.Info().Str("file_id", id).Msg("Marking file as deleted")
 	return s.markAsDeleted(fileMetaBucket, id, func() interface{} {
 		return &model.FileData{}
+	})
+}
+
+// DeleteHardFileByID физически удаляет файл (метаданные и содержимое) из хранилища.
+func (s *BboltStorage) DeleteHardFileByID(id string) error {
+	s.log.Info().Str("file_id", id).Msg("Hard deleting file")
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		// Удаляем метаданные
+		metaBucket := tx.Bucket(fileMetaBucket)
+		if err := metaBucket.Delete([]byte(id)); err != nil {
+			return fmt.Errorf("could not delete file metadata for id '%s': %w", id, err)
+		}
+
+		// Удаляем содержимое файла
+		dataBucket := tx.Bucket(fileDataBucket)
+		if err := dataBucket.Delete([]byte(id)); err != nil {
+			// Это не критичная ошибка, если содержимого не было, но логируем ее
+			s.log.Warn().Str("file_id", id).Err(err).Msg("Could not delete file content, it might not have existed")
+		}
+
+		return nil
 	})
 }

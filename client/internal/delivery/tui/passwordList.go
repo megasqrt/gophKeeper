@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog"
 )
 
 // pass list has its own viewstate because it has different views from cards
@@ -31,9 +32,10 @@ type PassListModel struct {
 	passs        []model.Password // Добавляем поле для хранения полных данных
 	width        int
 	height       int
+	log          *zerolog.Logger
 }
 
-func NewPassListModel(storage domain.LocalStorage) *PassListModel {
+func NewPassListModel(storage domain.LocalStorage, log *zerolog.Logger) *PassListModel {
 	columns := []table.Column{
 		{Title: "Login", Width: 20},
 		{Title: "Password", Width: 25},
@@ -64,6 +66,7 @@ func NewPassListModel(storage domain.LocalStorage) *PassListModel {
 		storage: storage,
 		form:    NewPassForm(storage, nil),
 		table:   tbl,
+		log:     log,
 	}
 	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
 		return func() tea.Msg {

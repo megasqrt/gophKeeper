@@ -59,7 +59,7 @@ func NewApp(ctx context.Context) *App {
 	}
 
 	// 1. Создаем модель без указателя на программу.
-	rootModel := tui.NewRootModel(store, cfg, syncService)
+	rootModel := tui.NewRootModel(store, cfg, syncService, log)
 	// 2. Создаем программу с этой моделью.
 	p := tea.NewProgram(rootModel)
 	// 3. Теперь, когда программа создана, устанавливаем указатель на нее в модели.

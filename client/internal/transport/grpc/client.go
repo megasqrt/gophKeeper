@@ -173,7 +173,6 @@ func (c *Client) SyncShort(ctx context.Context, shortItems []model.SyncInfo) ([]
 		syncedItems := make([]string, 0, len(oldItems))
 		for _, item := range oldItems {
 			if item != "" {
-				// Используем server_id как временную меру, после регенерации будет local_id напрямую
 				syncedItems = append(syncedItems, oldItems...)
 			}
 		}

@@ -13,6 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog"
 )
 
 type textItemDelegate struct{}
@@ -65,9 +66,10 @@ type TextEditModel struct {
 	width, height int
 	err           error
 	keys          keyMap
+	log           *zerolog.Logger
 }
 
-func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
+func NewTextEditModel(storage domain.LocalStorage, log *zerolog.Logger) *TextEditModel {
 	// 1. Создаем список (list)
 	l := list.New([]list.Item{}, textItemDelegate{}, 0, 15)
 	l.Title = "Your Secure Notes"
@@ -108,6 +110,7 @@ func NewTextEditModel(storage domain.LocalStorage) *TextEditModel {
 		state:      tableView, // По умолчанию фокус на списке
 		focusIndex: 0,
 		keys:       keys,
+		log:        log,
 	}
 	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
 		return func() tea.Msg {

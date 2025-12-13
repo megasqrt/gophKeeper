@@ -58,6 +58,7 @@ type LocalStorage interface {
 	SaveFile(data *models.FileData, content []byte) error
 	SaveFileMetadata(data *models.FileData) error
 	DeleteFileByID(id string) error
+	DeleteHardFileByID(id string) error
 
 	Close() error
 }

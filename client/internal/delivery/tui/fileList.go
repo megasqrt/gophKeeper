@@ -220,114 +220,13 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.state == confirmDeleteState {
-		newConfirmModel, newCmd := m.confirmModel.Update(msg)
-		if _, ok := newConfirmModel.(ConfirmModel); ok {
-			m.confirmModel = newConfirmModel.(ConfirmModel)
-		}
-		return m, newCmd
-	}
-
+	// --- 1. Handle Messages First ---
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-		m.updateLayout()
-		m.confirmModel.setSize(msg.Width, msg.Height)
-
-	case tea.KeyMsg:
-		if m.uploading {
-			break // Игнорируем клавиши во время загрузки
-		}
-
-		switch {
-		case key.Matches(msg, m.keys.Back):
-			if m.state == browsingState {
-				m.state = mainListState
-				return m, nil
-			}
-			return m, func() tea.Msg { return backToMenuMsg{} }
-
-		case key.Matches(msg, m.keys.AddFiles):
-			m.state = browsingState
-			m.browser = newFileBrowserModel()
-			return m, m.browser.Init()
-
-		case key.Matches(msg, m.keys.Upload):
-			if item := m.list.SelectedItem(); item != nil {
-				if fileItem, ok := item.(FileItem); ok && !fileItem.IsUploaded {
-					return m, m.startUpload(fileItem)
-				}
-			}
-
-		case key.Matches(msg, m.keys.Download):
-			if item := m.list.SelectedItem(); item != nil {
-				if fileItem, ok := item.(FileItem); ok && fileItem.IsUploaded {
-					return m, m.downloadSelectedFile(fileItem)
-				}
-			}
-
-		case key.Matches(msg, m.keys.Delete):
-			if m.state == mainListState {
-				if item, ok := m.list.SelectedItem().(FileItem); ok {
-					m.state = confirmDeleteState
-					m.confirmModel.SetPrompt(fmt.Sprintf("файл '%s'", item.Name))
-					return m, nil
-				}
-			}
-		case key.Matches(msg, m.keys.Refresh):
-			return m, m.loadFiles
-		}
-
-	case FileSelectMsg:
-		m.state = mainListState
-		if len(msg.Files) > 0 {
-			// Файл был выбран, добавляем его и сразу начинаем загрузку.
-			path := msg.Files[0]
-			info, err := os.Stat(path)
-			if err != nil {
-				m.err = err
-				return m, nil
-			}
-			fileItem := FileItem{
-				Name:       filepath.Base(path),
-				Path:       path,
-				Size:       info.Size(),
-				IsUploaded: false,
-			}
-			m.list.InsertItem(len(m.list.Items()), fileItem)
-			return m, m.startUpload(fileItem)
-		}
-		// Если msg.Files пуст (нажали esc в браузере), просто возвращаемся.
-		return m, nil
-
-	case UploadProgressMsg:
-		if m.uploading {
-			m.uploadProgress = msg.Progress
-			// Обновляем прогресс в модели
-			cmd = m.progress.SetPercent(m.uploadProgress)
-			cmds = append(cmds, cmd)
-			return m, tea.Batch(cmds...) //m,nil
-		}
-
-	case UploadCompleteMsg:
-		m.uploading = false
-		m.uploadProgress = 0
-		m.currentFile = nil
-		// Сбрасываем прогресс
-		cmd = m.progress.SetPercent(0)
-		cmds = append(cmds, cmd)
-		if msg.Error != nil {
-			m.err = msg.Error
-		}
-		return m, tea.Batch(append(cmds, m.loadFiles)...) // Перезагружаем список
-
 	case deleteFileMsg:
 		m.state = mainListState
 		if msg.confirmed {
 			if item, ok := m.list.SelectedItem().(FileItem); ok {
-				// Используем DeleteFileByID для soft delete (помечает как удаленный)
-				err := m.storage.DeleteFileByID(item.GetLocalID())
+				err := m.storage.DeleteHardFileByID(item.GetLocalID())
 				if err != nil {
 					m.err = err
 				} else {
@@ -337,34 +236,121 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		m.updateLayout()
+		m.confirmModel.setSize(msg.Width, msg.Height)
+		// No return, allow other updates
+
+	case FileSelectMsg:
+		m.state = mainListState
+		if len(msg.Files) > 0 {
+			path := msg.Files[0]
+			info, err := os.Stat(path)
+			if err != nil {
+				m.err = err
+			} else {
+				fileItem := FileItem{
+					Name:       filepath.Base(path),
+					Path:       path,
+					Size:       info.Size(),
+					IsUploaded: false,
+				}
+				m.list.InsertItem(len(m.list.Items()), fileItem)
+				return m, m.startUpload(fileItem)
+			}
+		}
+		return m, nil // Return after handling
+
+	case UploadProgressMsg:
+		if m.uploading {
+			m.uploadProgress = msg.Progress
+			cmd = m.progress.SetPercent(m.uploadProgress)
+			return m, cmd
+		}
+
+	case UploadCompleteMsg:
+		m.uploading = false
+		m.uploadProgress = 0
+		m.currentFile = nil
+		cmd = m.progress.SetPercent(0)
+		if msg.Error != nil {
+			m.err = msg.Error
+		}
+		return m, tea.Batch(cmd, m.loadFiles)
+
 	case DownloadCompleteMsg:
-		m.err = nil    // Сбрасываем предыдущую ошибку
-		m.infoMsg = "" // Сбрасываем предыдущее инфо-сообщение
+		m.err = nil
+		m.infoMsg = ""
 		if msg.Error != nil {
 			m.err = msg.Error
 		} else {
 			m.infoMsg = fmt.Sprintf("✅ File '%s' saved to %s", msg.FileName, msg.SavePath)
 		}
+		// No return, allow other updates
 
 	case []list.Item:
 		m.list.SetItems(msg)
+		// No return
 
 	case error:
 		m.err = msg
+		// No return
 	}
 
-	// После обработки глобальных сообщений, передаем управление дочерней модели
+	// --- 2. Delegate based on state ---
+	if m.state == confirmDeleteState {
+		_, cmd = m.confirmModel.Update(msg)
+		return m, cmd
+	}
 	if m.state == browsingState {
-		newBrowser, browserCmd := m.browser.Update(msg)
-		m.browser = newBrowser.(fileBrowserModel)
-		return m, browserCmd
+		var browserModel tea.Model
+		browserModel, cmd = m.browser.Update(msg)
+		m.browser = browserModel.(fileBrowserModel)
+		return m, cmd
 	}
 
-	// Обновляем вложенные модели
+	// --- 3. Handle Key Presses for main list ---
 	if !m.uploading {
-		m.list, cmd = m.list.Update(msg)
-		cmds = append(cmds, cmd)
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch {
+			case key.Matches(keyMsg, m.keys.Back):
+				return m, func() tea.Msg { return backToMenuMsg{} }
+
+			case key.Matches(keyMsg, m.keys.AddFiles):
+				m.state = browsingState
+				m.browser = newFileBrowserModel()
+				return m, m.browser.Init()
+
+			case key.Matches(keyMsg, m.keys.Upload):
+				if item := m.list.SelectedItem(); item != nil {
+					if fileItem, ok := item.(FileItem); ok && !fileItem.IsUploaded {
+						return m, m.startUpload(fileItem)
+					}
+				}
+			case key.Matches(keyMsg, m.keys.Download):
+				if item := m.list.SelectedItem(); item != nil {
+					if fileItem, ok := item.(FileItem); ok && fileItem.IsUploaded {
+						return m, m.downloadSelectedFile(fileItem)
+					}
+				}
+			case key.Matches(keyMsg, m.keys.Delete):
+				if item, ok := m.list.SelectedItem().(FileItem); ok {
+					m.state = confirmDeleteState
+					m.confirmModel.SetPrompt(fmt.Sprintf("файл '%s'", item.Name))
+					return m, nil
+				}
+			case key.Matches(keyMsg, m.keys.Refresh):
+				return m, m.loadFiles
+			}
+		}
 	}
+
+	// Обновляем список для обработки навигационных клавиш (↑/↓)
+	var listCmd tea.Cmd
+	m.list, listCmd = m.list.Update(msg)
+	cmds = append(cmds, listCmd)
 
 	m.viewport, cmd = m.viewport.Update(msg)
 	cmds = append(cmds, cmd)
