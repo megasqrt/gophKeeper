@@ -48,11 +48,11 @@ func (m *ConfirmModel) setSize(w, h int) {
 	m.height = h
 }
 
-func (m ConfirmModel) Init() tea.Cmd {
+func (m *ConfirmModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -64,15 +64,15 @@ func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusIndex = 1
 			}
 		case "enter":
-			return m, m.callback(m.focusIndex == 0) // 0 is "Да"
+			return m, tea.Sequence(m.callback(m.focusIndex == 0), tea.ClearScreen) // 0 is "Да"
 		case "esc", "q", "ctrl+c":
-			return m, m.callback(false)
+			return m, tea.Sequence(m.callback(false), tea.ClearScreen)
 		}
 	}
 	return m, nil
 }
 
-func (m ConfirmModel) View() string {
+func (m *ConfirmModel) View() string {
 	var yesButton, noButton string
 
 	if m.focusIndex == 0 {
@@ -100,7 +100,7 @@ func (m ConfirmModel) View() string {
 	return dialog
 }
 
-func (m ConfirmModel) GetPrompt() string {
+func (m *ConfirmModel) GetPrompt() string {
 	return m.prompt
 }
 

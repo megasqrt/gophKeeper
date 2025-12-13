@@ -107,27 +107,8 @@ func (m *PassListModel) Init() tea.Cmd {
 func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	if m.state == confirmDeleteView {
-		newConfirmModel, newCmd := m.confirmModel.Update(msg)
-		if _, ok := newConfirmModel.(ConfirmModel); ok {
-			m.confirmModel = newConfirmModel.(ConfirmModel)
-		}
-		return m, newCmd
-	}
-
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
-		m.confirmModel.setSize(msg.Width, msg.Height)
-
-	case passFormBackMsg:
-		m.state = tableView
-		return m, nil
-	case passFormSavedMsg:
-		m.Load() // Просто перезагружаем данные в таблицу
-		m.state = tableView
-		return m, nil
-
+	// First, handle messages that change state or come from commands
 	case deletePassMsg:
 		m.state = tableView
 		if msg.confirmed {
@@ -141,6 +122,26 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, nil
+
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.confirmModel.setSize(msg.Width, msg.Height)
+
+	case passFormBackMsg:
+		m.state = tableView
+		return m, nil
+	case passFormSavedMsg:
+		m.Load() // Just reload the data in the table
+		m.state = tableView
+		return m, nil
+	}
+
+	// Then, delegate to sub-models based on the current state
+	if m.state == confirmDeleteView {
+		// confirmModel is updated in-place due to pointer receiver in its Update method.
+		// We just need the command.
+		_, cmd = m.confirmModel.Update(msg)
+		return m, cmd
 	}
 
 	if m.state == formView {
@@ -150,6 +151,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	// Handle key presses for the main table view
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -157,7 +159,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
-			m.form = NewPassForm(m.storage, nil) // Создаем новую чистую форму
+			m.form = NewPassForm(m.storage, nil) // Create a new clean form
 			return m, m.form.Init()
 		case "e", "enter":
 			if len(m.passs) == 0 {
@@ -165,7 +167,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			selectedPass := m.passs[m.table.Cursor()]
 			m.state = formView
-			m.form = NewPassForm(m.storage, &selectedPass) // Передаем выбранный пароль в форму
+			m.form = NewPassForm(m.storage, &selectedPass) // Pass the selected password to the form
 			return m, m.form.Init()
 
 		case "ctrl+d":

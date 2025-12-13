@@ -107,31 +107,10 @@ func (m *CardListModel) Init() tea.Cmd {
 func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	if m.state == confirmDeleteView {
-		// Pass messages to the confirmation model
-		newConfirmModel, newCmd := m.confirmModel.Update(msg)
-		if _, ok := newConfirmModel.(ConfirmModel); ok {
-			m.confirmModel = newConfirmModel.(ConfirmModel)
-		}
-		return m, newCmd
-	}
-
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
-		m.confirmModel.setSize(msg.Width, msg.Height)
-
-	case cardFormBackMsg:
-		m.state = tableView
-		return m, nil
-
-	case cardFormSavedMsg:
-		m.Load() // Просто перезагружаем данные в таблицу
-		m.state = tableView
-		return m, nil
-
+	// First, handle messages that change state or come from commands
 	case deleteCardMsg:
-		m.state = tableView
+		m.state = tableView // Exit confirmation view
 		if msg.confirmed {
 			if len(m.cards) > 0 {
 				selectedCard := m.cards[m.table.Cursor()]
@@ -143,6 +122,27 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, nil
+
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		m.confirmModel.setSize(msg.Width, msg.Height)
+
+	case cardFormBackMsg:
+		m.state = tableView
+		return m, nil
+
+	case cardFormSavedMsg:
+		m.Load() // Just reload the data in the table
+		m.state = tableView
+		return m, nil
+	}
+
+	// Then, delegate to sub-models based on the current state
+	if m.state == confirmDeleteView {
+		// confirmModel is updated in-place due to pointer receiver in its Update method.
+		// We just need the command.
+		_, cmd = m.confirmModel.Update(msg)
+		return m, cmd
 	}
 
 	if m.state == formView {
@@ -152,6 +152,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
+	// Handle key presses for the main table view
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -159,7 +160,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, func() tea.Msg { return backToMenuMsg{} }
 		case "a": // 'a' for "add"
 			m.state = formView
-			m.form = NewCardForm(m.storage, nil) // Создаем новую чистую форму
+			m.form = NewCardForm(m.storage, nil) // Create a new clean form
 			return m, m.form.Init()
 		case "e", "enter":
 			if len(m.cards) == 0 {
@@ -167,7 +168,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			selectedCard := m.cards[m.table.Cursor()]
 			m.state = formView
-			m.form = NewCardForm(m.storage, &selectedCard) // Передаем выбранную карту в форму
+			m.form = NewCardForm(m.storage, &selectedCard) // Pass the selected card to the form
 			return m, m.form.Init()
 		case "ctrl+d":
 			if m.state == tableView && len(m.cards) > 0 {

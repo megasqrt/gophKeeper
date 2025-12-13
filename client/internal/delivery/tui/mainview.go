@@ -175,6 +175,19 @@ func (m *MainViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case backToMenuMsg:
 		m.state = mainMenu
 		return m, nil
+	// Явным образом обрабатываем сообщения об удалении от дочерних моделей
+	case deleteCardMsg:
+		m.cardModel, cmd = m.cardModel.Update(msg)
+		return m, cmd
+	case deletePassMsg:
+		m.passModel, cmd = m.passModel.Update(msg)
+		return m, cmd
+	case deleteTextMsg:
+		m.textModel, cmd = m.textModel.Update(msg)
+		return m, cmd
+	case deleteFileMsg:
+		m.fileModel, cmd = m.fileModel.Update(msg)
+		return m, cmd
 
 	case tea.KeyMsg:
 		// Если мы не в главном меню, передаем управление дочерней модели

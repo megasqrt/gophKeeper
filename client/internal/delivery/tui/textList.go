@@ -185,28 +185,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	if m.state == confirmDeleteView {
-		newConfirmModel, newCmd := m.confirmModel.Update(msg)
-		if _, ok := newConfirmModel.(ConfirmModel); ok {
-			m.confirmModel = newConfirmModel.(ConfirmModel)
-		}
-		return m, newCmd
-	}
-
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.height = msg.Height
-		m.width = msg.Width
-		m.confirmModel.setSize(m.width, m.height)
-		listWidth := int(float64(msg.Width) * 0.4) // 40% ширины для списка
-		editorWidth := msg.Width - listWidth
-		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
-		m.list.SetWidth(listWidth)
-		m.titleInput.Width = editorWidth - 4 // отступы
-		m.editor.SetWidth(editorWidth)
-		m.editor.SetHeight(msg.Height - 6) // Оставляем место для поля заголовка и отступов
-		return m, nil
-
 	case deleteTextMsg:
 		m.state = tableView
 		if msg.confirmed {
@@ -221,6 +200,28 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case tea.WindowSizeMsg:
+		m.height = msg.Height
+		m.width = msg.Width
+		m.confirmModel.setSize(m.width, m.height)
+		listWidth := int(float64(msg.Width) * 0.4) // 40% ширины для списка
+		editorWidth := msg.Width - listWidth
+		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
+		m.list.SetWidth(listWidth)
+		m.titleInput.Width = editorWidth - 4 // отступы
+		m.editor.SetWidth(editorWidth)
+		m.editor.SetHeight(msg.Height - 6) // Оставляем место для поля заголовка и отступов
+		return m, nil
+	}
+
+	if m.state == confirmDeleteView {
+		// confirmModel is updated in-place due to pointer receiver in its Update method.
+		// We just need the command.
+		_, cmd = m.confirmModel.Update(msg)
+		return m, cmd
+	}
+
+	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Back):
