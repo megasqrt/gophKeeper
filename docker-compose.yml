@@ -38,7 +38,7 @@ services:
       - ADDRESS=:9090
       - DATABASE_URL=postgres://postgres:pwd@postgres:5432/gophkeeper?sslmode=disable
       - DEBUG=true
-      - MIGRATIONS_PATH=file://internal/storage/postgres/migrations
+      - MIGRATIONS_PATH=file://server/internal/storage/postgres/migrations
 
       - ENABLE_REFLECTION=true
 

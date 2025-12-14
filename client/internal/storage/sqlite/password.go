@@ -1,0 +1,224 @@
+package sqlite
+
+import (
+	"crypto/sha256"
+	"database/sql"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	models "gophKeeper/pkg/grpchelper"
+	"strconv"
+	"time"
+)
+
+// calculatePasswordChecksum вычисляет checksum для пароля на основе всех полей данных.
+func calculatePasswordChecksum(login, password, description string) string {
+	h := sha256.New()
+	h.Write([]byte(login))
+	h.Write([]byte(password))
+	h.Write([]byte(description))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// passwordData структура для маршалинга/анмаршалинга данных пароля
+type passwordData struct {
+	Login       string `json:"login"`
+	Password    string `json:"password"`
+	Description string `json:"description"`
+}
+
+// encryptPasswordData шифрует данные пароля
+func (s *SqliteStorage) encryptPasswordData(passData *models.Password) ([]byte, error) {
+	data := passwordData{
+		Login:       passData.Login,
+		Password:    passData.Password,
+		Description: passData.Description,
+	}
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal password data: %w", err)
+	}
+
+	encryptedData, err := s.encrypt(jsonData)
+	if err != nil {
+		return nil, fmt.Errorf("could not encrypt password data: %w", err)
+	}
+
+	return encryptedData, nil
+}
+
+// decryptPasswordData расшифровывает данные пароля
+func (s *SqliteStorage) decryptPasswordData(encryptedData []byte) (*passwordData, error) {
+	decryptedData, err := s.decrypt(encryptedData)
+	if err != nil {
+		return nil, fmt.Errorf("could not decrypt password data: %w", err)
+	}
+
+	var data passwordData
+	if err := json.Unmarshal(decryptedData, &data); err != nil {
+		return nil, fmt.Errorf("could not unmarshal password data: %w", err)
+	}
+
+	return &data, nil
+}
+
+func (s *SqliteStorage) SavePass(passData *models.Password) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	now := time.Now().Unix()
+	if passData.CreateTime == 0 {
+		passData.CreateTime = now
+	}
+	passData.ChangeTime = now
+	passData.Checksum = calculatePasswordChecksum(passData.Login, passData.Password, passData.Description)
+
+	// Шифруем данные пароля
+	encryptedData, err := s.encryptPasswordData(passData)
+	if err != nil {
+		return err
+	}
+
+	// Используем транзакцию для атомарности
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("could not begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var deletedAt sql.NullInt64
+	if passData.Deleted {
+		deletedAt = sql.NullInt64{Valid: true, Int64: now}
+	}
+
+	// INSERT новой записи
+	_, err = tx.Exec(`
+		INSERT INTO credentials 
+		(data, checksum, created_at, updated_at, deleted_at,client_version) 
+		VALUES (?, ?, ?, ?, ?,0)`,
+		encryptedData, passData.Checksum, passData.CreateTime, passData.ChangeTime, deletedAt)
+	if err != nil {
+		return fmt.Errorf("could not save password: %w", err)
+	}
+
+	return tx.Commit()
+}
+
+func (s *SqliteStorage) UpdatePass(passData *models.Password) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Проверяем наличие LocalID
+	if passData.LocalID == "" {
+		return errors.New("LocalID is required for update")
+	}
+
+	// Конвертируем LocalID в int
+	idInt, err := strconv.ParseInt(passData.LocalID, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid LocalID format: %w", err)
+	}
+
+	now := time.Now().Unix()
+	passData.ChangeTime = now
+	passData.Checksum = calculatePasswordChecksum(passData.Login, passData.Password, passData.Description)
+
+	// Шифруем данные пароля
+	encryptedData, err := s.encryptPasswordData(passData)
+	if err != nil {
+		return err
+	}
+
+	// Используем транзакцию для атомарности
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("could not begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var deletedAt sql.NullInt64
+	if passData.Deleted {
+		deletedAt = sql.NullInt64{Valid: true, Int64: now}
+	}
+
+	// UPDATE существующей записи
+	_, err = tx.Exec(`
+		UPDATE credentials 
+		SET data = ?, checksum = ?, updated_at = ?, deleted_at = ?
+		WHERE id = ?`,
+		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, idInt)
+	if err != nil {
+		return fmt.Errorf("could not update password: %w", err)
+	}
+
+	return tx.Commit()
+}
+
+func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	rows, err := s.db.Query(`
+		SELECT id, data, checksum, created_at, updated_at, deleted_at 
+		FROM credentials 
+		WHERE deleted_at IS NULL
+		ORDER BY updated_at DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("could not query passwords: %w", err)
+	}
+	defer rows.Close()
+
+	var passwords []models.Password
+	for rows.Next() {
+		var id int64
+		var encryptedData []byte
+		var checksum string
+		var createTime, updateTime int64
+		var deletedAt sql.NullInt64
+
+		if err := rows.Scan(&id, &encryptedData, &checksum, &createTime, &updateTime, &deletedAt); err != nil {
+			s.log.Error().Err(err).Msg("Failed to scan password")
+			continue
+		}
+
+		// Расшифровываем данные пароля
+		data, err := s.decryptPasswordData(encryptedData)
+		if err != nil {
+			s.log.Error().Err(err).Int64("id", id).Msg("Failed to decrypt password data")
+			continue
+		}
+
+		// Собираем модель из метаданных (колонки) и данных (JSON)
+		p := models.Password{
+			LocalID:     strconv.FormatInt(id, 10),
+			Login:       data.Login,
+			Password:    data.Password,
+			Description: data.Description,
+			Checksum:    checksum,
+			CreateTime:  createTime,
+			ChangeTime:  updateTime,
+			Deleted:     deletedAt.Valid,
+		}
+
+		passwords = append(passwords, p)
+	}
+
+	return passwords, rows.Err()
+}
+
+func (s *SqliteStorage) DeletePass(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Конвертируем string ID в int
+	idInt, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid id format: %w", err)
+	}
+
+	now := time.Now().Unix()
+	_, err = s.db.Exec("UPDATE credentials SET deleted_at = ? WHERE id = ?", now, idInt)
+	return err
+}

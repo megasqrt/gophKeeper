@@ -1,0 +1,51 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/pkg/proto";
+
+import "common.proto";
+
+// CardItem представляет данные кредитной карты
+message CardItem {
+    string local_id = 1; // Локальный идентификатор клиента
+    string server_id = 2; // Идентификатор на сервере
+    string number = 3; // Номер карты (зашифрован, base64)
+    string holder = 4; // Держатель карты (зашифрован, base64)
+    string expiry = 5; // Срок действия (MM/YY) (зашифрован, base64)
+    string cvv = 6; // CVV код (зашифрован, base64)
+    string metadata = 7; // Дополнительные метаданные (зашифрован, base64)
+    string checksum = 8; // Контрольная сумма для синхронизации
+    TimeMap timemap = 9; // Временные метки
+    bool deleted = 10; // Флаг удаления (soft delete)
+}
+
+message RemoveCardRequest {
+    string local_id = 1; // Локальный идентификатор карты для удаления
+}
+
+message RemoveCardResponse {}
+
+message GetCardsRequest {}
+
+message GetCardsResponse {
+    repeated CardItem cards = 1; // Список всех карт пользователя
+}
+
+message CardsSyncRequest {
+    repeated CardItem cards = 1; // Карты для синхронизации
+}
+
+service CardService {
+    // UpdateCard обновляет существующую карту или создает новую
+    rpc UpdateCard(CardItem) returns (Response);
+    
+    // RemoveCard помечает карту как удаленную (soft delete)
+    rpc RemoveCard(RemoveCardRequest) returns (RemoveCardResponse);
+    
+    // GetCards возвращает все карты пользователя
+    rpc GetCards(GetCardsRequest) returns (GetCardsResponse);
+    
+    // CardsSync выполняет полную синхронизацию карт
+    rpc CardsSync(CardsSyncRequest) returns (GetCardsResponse);
+}

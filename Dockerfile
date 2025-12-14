@@ -14,7 +14,7 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/server .
-COPY --from=builder /app/internal/storage/postgres/migrations ./internal/storage/postgres/migrations
+COPY --from=builder /app/server/internal/storage/postgres/migrations ./server/internal/storage/postgres/migrations
 COPY --from=builder /app/certs ./certs
 
 ENTRYPOINT ["./server"]

@@ -85,7 +85,7 @@ func (m *PassListModel) Load() {
 }
 
 func (m *PassListModel) loadPasss() ([]table.Row, []model.Password) {
-	allPasswords, err := m.storage.GetPasss()
+	allPasswords, err := m.storage.GetPasswords()
 	if err != nil {
 		//	m.log.Error().Err(err).Msg("get passs error")
 		return []table.Row{}, []model.Password{}

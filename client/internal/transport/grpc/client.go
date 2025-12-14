@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	"gophKeeper/client/internal/config"
-	pb "gophKeeper/internal/proto/gen"
 	model "gophKeeper/pkg/grpchelper"
+	pb "gophKeeper/pkg/proto"
 	"strings"
 	"time"
 
@@ -151,82 +151,6 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 	return syncedCards, nil
 }
 
-// SyncShortTexts вызывает RPC для краткой синхронизации текстов.
-func (c *Client) SyncShortTexts(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
-	for _, item := range shortItems {
-		pbItems = append(pbItems, item.ToProto())
-	}
-
-	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
-	resp, err := c.Note.NotesShortSync(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ShortSyncResult{
-		LocalIDs:  resp.GetLocalIds(),
-		ServerIDs: resp.GetServerIds(),
-	}, nil
-}
-
-// SyncShortCards вызывает RPC для краткой синхронизации карт.
-func (c *Client) SyncShortCards(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
-	for _, item := range shortItems {
-		pbItems = append(pbItems, item.ToProto())
-	}
-
-	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
-	resp, err := c.Card.CardsShortSync(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ShortSyncResult{
-		LocalIDs:  resp.GetLocalIds(),
-		ServerIDs: resp.GetServerIds(),
-	}, nil
-}
-
-// SyncShortFiles вызывает RPC для краткой синхронизации файлов.
-func (c *Client) SyncShortFiles(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
-	for _, item := range shortItems {
-		pbItems = append(pbItems, item.ToProto())
-	}
-
-	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
-	resp, err := c.File.FilesShortSync(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ShortSyncResult{
-		LocalIDs:  resp.GetLocalIds(),
-		ServerIDs: resp.GetServerIds(),
-	}, nil
-}
-
-// SyncShortPasswords вызывает RPC для краткой синхронизации паролей.
-func (c *Client) SyncShortPasswords(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	pbItems := make([]*pb.ShortItem, 0, len(shortItems))
-	for _, item := range shortItems {
-		pbItems = append(pbItems, item.ToProto())
-	}
-
-	req := pb.ShortSyncRequest_builder{Items: pbItems}.Build()
-	resp, err := c.Password.PasswordsShortSync(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ShortSyncResult{
-		LocalIDs:  resp.GetLocalIds(),
-		ServerIDs: resp.GetServerIds(),
-	}, nil
-}
-
 // SyncPasswords вызывает RPC для синхронизации паролей.
 func (c *Client) SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error) {
 	// Конвертируем наши модели в DTO для gRPC
@@ -248,7 +172,7 @@ func (c *Client) SyncPasswords(ctx context.Context, localPasswords []model.Passw
 	return syncedPasswords, nil
 }
 
-func (c *Client) GetPasswordsByServerIDs(ctx context.Context, ids []string) ([]model.Password, error){
+func (c *Client) GetPasswordsByServerIDs(ctx context.Context, ids []string) ([]model.Password, error) {
 	req := pb.GetPasswordsByServerIDsRequest_builder{ServerIds: ids}.Build()
 	resp, err := c.Password.GetPasswordsByServerIDs(ctx, req)
 	if err != nil {

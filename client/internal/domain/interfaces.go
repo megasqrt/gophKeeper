@@ -22,48 +22,40 @@ type LocalStorage interface {
 	LocalRegister(user, password string) error
 	SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error
 	GetUserCredentials() (login, token, deviceID string, encryptedMasterKey []byte, err error)
-	InitializeEncryptor(password string) error                                           // Инициализирует Encryptor из сохраненного мастер-ключа (password может быть пустым, тогда будет получен из хранилища)
-	InitializeEncryptorWithData(password, login string, encryptedMasterKey []byte) error // Инициализирует Encryptor с уже полученными данными (избегает повторного вызова GetUserCredentials)
+	//InitializeEncryptor(password string) error                                           // Инициализирует Encryptor из сохраненного мастер-ключа (password может быть пустым, тогда будет получен из хранилища)
+	//InitializeEncryptorWithData(password, login string, encryptedMasterKey []byte) error // Инициализирует Encryptor с уже полученными данными (избегает повторного вызова GetUserCredentials)
 
 	SaveCard(cardData *models.Card) error
 	UpdateCard(cardData *models.Card) error
 	GetCards() ([]models.Card, error)
 	GetCardsByIDs(ids []string) ([]models.Card, error)
-	GetShortCards() ([]models.SyncInfo, error)
+
 	DeleteCard(id string) error
-	DeleteHardCard(id string) error
 
 	SaveLastSyncTime(t int64) error
 	GetLastSyncTime() (int64, error)
 
 	SavePass(passData *models.Password) error
 	UpdatePass(passData *models.Password) error
-	UpdatePasswords(passData *[]models.Password) error
-	GetPasss() ([]models.Password, error)
-	GetPasswordsByIDs(ids []string) ([]models.Password, error)
-	GetPasswordsByServerIDs(serverIDs []string) ([]models.Password, error)
-	GetShortPasswords() ([]models.SyncInfo, error)
+	//UpdatePasswords(passData *[]models.Password) error
+	GetPasswords() ([]models.Password, error)
 	DeletePass(id string) error
-	DeleteHardPass(id string) error
 
 	SaveText(textData *models.TextData) error
 	UpdateText(textData *models.TextData) error
 	GetTexts() ([]models.TextData, error)
 	GetTextsByIDs(ids []string) ([]models.TextData, error)
-	//GetTextsByServerIDs(serverIDs []string) ([]models.TextData, error)
-	GetShortTexts() ([]models.SyncInfo, error)
+
 	DeleteText(id string) error
-	DeleteHardText(id string) error
 
 	GetFiles() ([]models.FileData, error)
 	GetFilesByIDs(ids []string) ([]models.FileData, error)
-	GetShortFiles() ([]models.SyncInfo, error)
+
 	GetFileByID(id string) (map[string]interface{}, error)
 	UpdateFile(data *models.FileData) error
 	SaveFile(data *models.FileData, content []byte) error
 	SaveFileMetadata(data *models.FileData) error
 	DeleteFileByID(id string) error
-	DeleteHardFileByID(id string) error
 
 	Close() error
 }

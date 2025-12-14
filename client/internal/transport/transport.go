@@ -7,7 +7,7 @@ import (
 	grpc "gophKeeper/client/internal/transport/grpc"
 	model "gophKeeper/pkg/grpchelper"
 
-	pb "gophKeeper/internal/proto/gen"
+	pb "gophKeeper/pkg/proto"
 
 	"google.golang.org/grpc/metadata"
 
@@ -131,42 +131,6 @@ func SyncCards(ctx context.Context, localCards []model.Card) ([]model.Card, erro
 	}
 	ctx = withAuth(ctx)
 	return client.SyncCards(ctx, localCards)
-}
-
-// SyncShortTexts проксирует вызов для краткой синхронизации текстов.
-func SyncShortTexts(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	if client == nil {
-		return nil, ErrClientNotInitialized
-	}
-	ctx = withAuth(ctx)
-	return client.SyncShortTexts(ctx, shortItems)
-}
-
-// SyncShortCards проксирует вызов для краткой синхронизации карт.
-func SyncShortCards(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	if client == nil {
-		return nil, ErrClientNotInitialized
-	}
-	ctx = withAuth(ctx)
-	return client.SyncShortCards(ctx, shortItems)
-}
-
-// SyncShortPasswords проксирует вызов для краткой синхронизации паролей.
-func SyncShortPasswords(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	if client == nil {
-		return nil, ErrClientNotInitialized
-	}
-	ctx = withAuth(ctx)
-	return client.SyncShortPasswords(ctx, shortItems)
-}
-
-// SyncShortFiles проксирует вызов для краткой синхронизации файлов.
-func SyncShortFiles(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
-	if client == nil {
-		return nil, ErrClientNotInitialized
-	}
-	ctx = withAuth(ctx)
-	return client.SyncShortFiles(ctx, shortItems)
 }
 
 // SyncPasswords проксирует вызов к gRPC клиенту.

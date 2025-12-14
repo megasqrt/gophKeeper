@@ -2,7 +2,7 @@ package grpchelper
 
 import (
 	"fmt"
-	pb "gophKeeper/internal/proto/gen"
+	pb "gophKeeper/pkg/proto"
 )
 
 // --- TextData Converters ---
@@ -151,7 +151,7 @@ func (c *SyncInfo) ToProto() *pb.ShortItem {
 		LocalId:  &c.LocalID,
 		ServerId: &c.ServerID,
 		Checksum: &c.Checksum,
-		Type:  &opType,
+		Type:     &opType,
 	}.Build()
 }
 

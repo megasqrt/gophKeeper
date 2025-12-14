@@ -10,7 +10,7 @@ echo:
 	go version
 
 run_s:
-	KEY=$(KEY) DATABASE_URL=$(DATABASE_URL) go run cmd/server/main.go
+	KEY=$(KEY) DATABASE_URL=$(DATABASE_URL) go run server/cmd/server/main.go
 
 run_c: copy-certs-to-client
 	KEY=$(KEY) go run client/cmd/main.go
@@ -27,7 +27,7 @@ race:
 	go test -v -race ./...
 
 build:
-	go build -o server cmd/server/main.go
+	go build -o server server/cmd/server/main.go
 	go build -o tui-client client/cmd/main.go
 
 cover:
@@ -61,8 +61,8 @@ PROTO_FILES = \
 	card.proto \
 	file.proto
 
-PROTO_DIR = internal/proto
-OUT_DIR = internal/proto/gen
+PROTO_DIR = server/internal/proto
+OUT_DIR = pkg/proto
 
 proto_tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -72,14 +72,13 @@ proto_tools:
 proto: proto-clean
 	@echo "Генерация protobuf кода..."
 	@mkdir -p $(OUT_DIR)
-	@cd $(PROTO_DIR) && \
-	for proto in $(PROTO_FILES); do \
+	@for proto in $(PROTO_FILES); do \
 		echo "  Генерация: $$proto"; \
 		protoc --go_opt=default_api_level=API_OPAQUE \
-			--go_out=$(notdir $(OUT_DIR)) --go_opt=paths=source_relative \
-			--go-grpc_out=$(notdir $(OUT_DIR)) --go-grpc_opt=paths=source_relative \
-			-I. \
-			$$proto; \
+			--go_out=$(OUT_DIR) --go_opt=paths=source_relative \
+			--go-grpc_out=$(OUT_DIR) --go-grpc_opt=paths=source_relative \
+			-I$(PROTO_DIR) \
+			$(PROTO_DIR)/$$proto; \
 	done;
 	@echo "Генерация завершена!"
 
@@ -146,3 +145,4 @@ clean-certs:
 
 tools:
 	go install github.com/bufbuild/buf/cmd/buf@latest
+	go get github.com/mattn/go-sqlite3

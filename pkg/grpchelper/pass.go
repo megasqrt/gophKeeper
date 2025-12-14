@@ -4,13 +4,19 @@ package grpchelper
 type Password struct {
 	LocalID     string
 	ServerID    string
+
 	Login       string
 	Password    string
 	Description string
+	
 	Checksum    string
+	
 	CreateTime  int64
 	ChangeTime  int64
 	SyncTime    int64
+	ClientVersion int64 
+    ServerVersion int64
+
 	Deleted     bool
 }
 

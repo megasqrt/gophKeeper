@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"gophKeeper/client/internal/config"
 	"gophKeeper/client/internal/delivery/tui"
+	"gophKeeper/client/internal/domain"
 	"gophKeeper/client/internal/services"
-	"gophKeeper/client/internal/storage"
+	"gophKeeper/client/internal/storage/sqlite"
 	"gophKeeper/client/internal/transport"
 	logger "gophKeeper/pkg/logger"
+	migrations "gophKeeper/pkg/migrations/sqlite"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/rs/zerolog"
@@ -17,7 +20,7 @@ import (
 
 type App struct {
 	Logger  *zerolog.Logger
-	Storage *storage.BboltStorage
+	Storage domain.LocalStorage
 	Tui     *tui.RootModel
 }
 
@@ -36,10 +39,23 @@ func NewApp(ctx context.Context) *App {
 	log.Info().Str("log_path", cfg.LogPath).Msg("Logging to file")
 
 	// Инициализируем хранилище.
-	store, err := storage.NewBboltStorage(cfg.DBPath, *log)
+	store, err := sqlite.NewSqliteStorage(cfg.DBPath, *log)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to initialize storage")
 	}
+
+	// Получаем абсолютный путь к миграциям
+	migrationsPath, err := filepath.Abs("client/internal/storage/sqlite/migrations")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to get absolute path to migrations")
+	}
+
+	manager, err := migrations.NewManager(cfg.DBPath, migrationsPath)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to run migrations")
+	}
+	manager.Up()
+	log.Info().Msg("Successfully run migrations.")
 
 	// Initialize the transport layer.
 	if err := transport.Init(ctx, cfg, log); err != nil {

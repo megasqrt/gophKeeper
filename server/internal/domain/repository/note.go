@@ -1,0 +1,16 @@
+package repository
+
+import (
+	"context"
+	"gophKeeper/server/internal/domain/model"
+
+	"github.com/google/uuid"
+)
+
+// TextDataRepository определяет интерфейс для работы с текстовыми заметками
+type TextDataRepository interface {
+	Create(ctx context.Context, note *model.TextData) error
+	Update(ctx context.Context, note *model.TextData) error
+	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TextData, error)
+	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
+}

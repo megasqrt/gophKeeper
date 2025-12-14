@@ -6,7 +6,7 @@ import (
 	"gophKeeper/client/internal/domain"
 	"time"
 
-	model "gophKeeper/pkg/grpchelper"
+	//model "gophKeeper/pkg/grpchelper"
 
 	"gophKeeper/client/internal/transport"
 
@@ -54,15 +54,6 @@ func (s *SyncService) Sync(ctx context.Context) error {
 
 	_, token, deviceID, _, err := s.storage.GetUserCredentials()
 	if err != nil {
-		// Проверяем тип ошибки для более понятного сообщения
-		if err.Error() == "storage is locked, cannot decrypt" ||
-			err.Error() == "storage is locked, cannot encrypt" {
-			return fmt.Errorf("storage is locked, please unlock with correct password before syncing")
-		}
-		if err.Error() == "cipher: message authentication failed" ||
-			err.Error() == "could not decrypt token: cipher: message authentication failed" {
-			return fmt.Errorf("incorrect password: storage was unlocked with wrong password, please unlock with correct password")
-		}
 		return fmt.Errorf("failed to get user credentials: %w", err)
 	}
 
@@ -70,13 +61,13 @@ func (s *SyncService) Sync(ctx context.Context) error {
 	// Это необходимо для расшифровки данных паролей, полученных с сервера
 	// InitializeEncryptor с пустым паролем попытается получить пароль из хранилища
 	// Если хранилище разблокировано, пароль будет получен и Encryptor инициализирован
-	if err := s.storage.InitializeEncryptor(""); err != nil {
-		s.log.Warn().Err(err).Msg("Failed to initialize Encryptor, some data may not be decryptable")
-		// Не возвращаем ошибку, так как это может быть не критично для синхронизации
-		// Но логируем предупреждение
-	} else {
-		s.log.Debug().Msg("Encryptor initialization completed")
-	}
+	// if err := s.storage.InitializeEncryptor(""); err != nil {
+	// 	s.log.Warn().Err(err).Msg("Failed to initialize Encryptor, some data may not be decryptable")
+	// 	// Не возвращаем ошибку, так как это может быть не критично для синхронизации
+	// 	// Но логируем предупреждение
+	// } else {
+	// 	s.log.Debug().Msg("Encryptor initialization completed")
+	// }
 
 	// Добавляем token и deviceID в контекст
 	ctx = transport.WithAuthCredentials(ctx, token, deviceID)
@@ -108,50 +99,6 @@ func (s *SyncService) Sync(ctx context.Context) error {
 func (s *SyncService) syncTexts(ctx context.Context) error {
 	s.log.Info().Msg("Syncing text notes...")
 
-	// 1. Получаем краткую информацию о текстах
-	shortTexts, err := s.storage.GetShortTexts()
-	if err != nil {
-		return err
-	}
-
-	//TODO: remove
-	s.log.Debug().Msgf("Found %d short texts to sync", len(shortTexts))
-
-	for i, info := range shortTexts {
-		s.log.Debug().Msgf("local [%d] LocalID: %s, ServerID: %s \n", i, info.LocalID, info.ServerID)
-	}
-
-	// 2. Отправляем краткую информацию на сервер и получаем ID текстов, которые нужно синхронизировать полностью
-	syncResult, err := s.transport.SyncShortTexts(ctx, shortTexts)
-	if err != nil {
-		return err
-	}
-
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
-
-	// 3. Получаем полные данные текстов по LocalID (те, которые нужно отправить на сервер)
-	var localTexts []model.TextData
-
-	if len(syncResult.LocalIDs) > 0 {
-		localTexts, err = s.storage.GetTextsByIDs(syncResult.LocalIDs)
-		if err != nil {
-			return err
-		}
-
-		// 4. отправляем полные данные текстов на сервер
-		serverTexts, err := s.transport.SyncTexts(ctx, localTexts)
-		if err != nil {
-			return err
-		}
-
-		s.log.Debug().Msgf("Received %d texts from server", len(serverTexts))
-
-	}
-
-	if len(syncResult.ServerIDs) > 0 {
-		//TODO: Запись новых данных с сервера
-	}
 
 	s.log.Info().Msg("Text notes sync finished.")
 	return nil
@@ -166,8 +113,43 @@ func (s *SyncService) syncCards(ctx context.Context) error {
 
 func (s *SyncService) syncPasswords(ctx context.Context) error {
 	s.log.Info().Msg("Syncing passwords...")
+	// 1. Получаем все пароли из локального хранилища.
+	localPasswords, err := s.storage.GetPasswords()
+	if err != nil {
+		s.log.Error().Err(err).Msg("Failed to get local passwords")
+		return err
+	}
+	s.log.Debug().Int("count", len(localPasswords)).Msg("Found local passwords to sync")
 
-	
+	// 2. Отправляем локальные пароли на сервер и получаем актуальный список.
+	// Сервер сам разберется, что создать, обновить или удалить.
+	serverPasswords, err := s.transport.SyncPasswords(ctx, localPasswords)
+	if err != nil {
+		s.log.Error().Err(err).Msg("Failed to sync passwords with server")
+		return err
+	}
+	s.log.Debug().Int("count", len(serverPasswords)).Msg("Received passwords from server")
+
+	// 3. Обрабатываем ответ от сервера.
+	for _, pass := range serverPasswords {
+		// Если запись помечена как удаленная, удаляем ее локально.
+		if pass.Deleted {
+			// Мы можем удалять по LocalID, если он есть, или найти его по ServerID.
+			// Для простоты, если LocalID есть, удаляем по нему.
+			if pass.LocalID != "" {
+				if err := s.storage.DeletePass(pass.LocalID); err != nil {
+					s.log.Error().Err(err).Str("local_id", pass.LocalID).Msg("Failed to hard delete password")
+				}
+			}
+			continue
+		}
+
+		// Если LocalID пустой, это новая запись с сервера. Сохраняем ее.
+		// Если LocalID есть, это обновление существующей записи.
+		if err := s.storage.UpdatePass(&pass); err != nil {
+			s.log.Error().Err(err).Str("local_id", pass.LocalID).Str("server_id", pass.ServerID).Msg("Failed to save or update password")
+		}
+	}
 
 	s.log.Info().Msg("Passwords sync finished.")
 	return nil
