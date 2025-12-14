@@ -39,15 +39,13 @@ type regmodel struct {
 	registered    bool
 	token         string
 	attemptsLeft  int
-	syncer        *services.SyncService
 	width         int
 }
 
-func InitialModel(storage domain.LocalStorage, cfg *config.Config, syncer *services.SyncService) *regmodel {
+func InitialModel(storage domain.LocalStorage, cfg *config.Config) *regmodel {
 	m := &regmodel{
 		cfg:          cfg,
 		storage:      storage,
-		syncer:       syncer,
 		attemptsLeft: 3, // Устанавливаем 3 попытки
 	}
 

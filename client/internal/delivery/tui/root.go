@@ -33,7 +33,7 @@ type RootModel struct {
 // NewRootModel создает корневую модель.
 func NewRootModel(storage domain.LocalStorage, cfg *config.Config, syncer *services.SyncService, log *zerolog.Logger) RootModel {
 	// Всегда начинаем с экрана входа, чтобы получить пароль для ключа.
-	mainViewModel := NewMainViewModel(cfg, storage, syncer, log)
+	mainViewModel := NewMainViewModel(cfg, storage, log)
 
 	return RootModel{
 		state:   unauthorizedState, // Всегда начинаем с этого состояния

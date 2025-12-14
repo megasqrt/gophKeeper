@@ -52,10 +52,6 @@ func (s *SyncService) Sync(ctx context.Context) error {
 		s.lastSyncTime = 0
 	}
 
-	// Получаем учетные данные для запросов
-	// GetUserCredentials использует s.key для расшифровки
-	// Если s.key == nil, вернется ошибка "storage is locked"
-	// Если s.key неправильный, вернется ошибка "cipher: message authentication failed"
 	_, token, deviceID, _, err := s.storage.GetUserCredentials()
 	if err != nil {
 		// Проверяем тип ошибки для более понятного сообщения
@@ -163,86 +159,7 @@ func (s *SyncService) syncTexts(ctx context.Context) error {
 
 func (s *SyncService) syncCards(ctx context.Context) error {
 	s.log.Info().Msg("Syncing credit cards...")
-
-	// 1. Получаем краткую информацию о картах
-	shortCards, err := s.storage.GetShortCards()
-	if err != nil {
-		return err
-	}
-
-	// 2. Отправляем краткую информацию на сервер и получаем ID карт, которые нужно синхронизировать полностью
-	syncResult, err := s.transport.SyncShortCards(ctx, shortCards)
-	if err != nil {
-		return err
-	}
-
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
-
-	// 3. Получаем полные данные карт по LocalID (те, которые нужно отправить на сервер)
-	var localCards []model.Card
-	var activeLocalCards []model.Card
-
-	if len(syncResult.LocalIDs) > 0 {
-		localCards, err = s.storage.GetCardsByIDs(syncResult.LocalIDs)
-		if err != nil {
-			return err
-		}
-
-		// Фильтруем удаленные карты перед отправкой на сервер
-		activeLocalCards = make([]model.Card, 0, len(localCards))
-		for _, card := range localCards {
-			if card.Deleted {
-				continue
-			}
-			card.SyncTime = s.lastSyncTime
-			activeLocalCards = append(activeLocalCards, card)
-		}
-		s.log.Debug().Msgf("Prepared %d active cards to send to server", len(activeLocalCards))
-	}
-
-	// 4. ВСЕГДА отправляем полные данные карт на сервер (даже если список пустой)
-	// Сервер всегда возвращает все данные, которые нужно получить клиенту
-	serverCards, err := s.transport.SyncCards(ctx, activeLocalCards)
-	if err != nil {
-		return err
-	}
-
-	// 5. Обрабатываем ответ сервера
-	localSyncables := make([]domain.Syncable, len(localCards))
-	for i := range localCards {
-		localSyncables[i] = &localCards[i]
-	}
-	serverSyncables := make([]domain.Syncable, len(serverCards))
-	for i := range serverCards {
-		serverSyncables[i] = &serverCards[i]
-	}
-
-	// saveCardFunc := func(data map[string]interface{}) error {
-	// 	card, err := model.FromMapCard(data)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to convert map to card model on save: %w", err)
-	// 	}
-	// 	// Если в данных уже есть LocalID, используем UpdateCard вместо SaveCard
-	// 	if card.LocalID != "" {
-	// 		s.log.Warn().Str("local_id", card.LocalID).Msg("Card has LocalID in saveFunc, using UpdateCard instead")
-	// 		return s.storage.UpdateCard(&card)
-	// 	}
-	// 	return s.storage.SaveCard(&card)
-	// }
-	// updateCardFunc := func(data map[string]interface{}) error {
-	// 	card, err := model.FromMapCard(data)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to convert map to card model on update: %w", err)
-	// 	}
-	// 	return s.storage.UpdateCard(&card)
-	// }
-
-	// s.processSyncResults(localSyncables, serverSyncables, saveCardFunc, updateCardFunc,
-	// 	s.storage.DeleteCard,
-	// 	"card",
-	// )
-
+	//TODO:
 	s.log.Info().Msg("Credit cards sync finished.")
 	return nil
 }
@@ -250,112 +167,7 @@ func (s *SyncService) syncCards(ctx context.Context) error {
 func (s *SyncService) syncPasswords(ctx context.Context) error {
 	s.log.Info().Msg("Syncing passwords...")
 
-	// 1. Получаем краткую информацию о паролях которые нужно синхронизировать
-	shortPasswords, err := s.storage.GetShortPasswords()
-	if err != nil {
-		return err
-	}
-
-	// 2. Отправляем краткую информацию на сервер и получаем ID паролей, которые нужно синхронизировать полностью
-	syncResult, err := s.transport.SyncShortPasswords(ctx, shortPasswords)
-	if err != nil {
-		return err
-	}
-
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
-
-	if len(syncResult.LocalIDs) > 0 {
-		localPasswords, err := s.storage.GetPasswordsByIDs(syncResult.LocalIDs)
-		if err != nil {
-			return err
-		}
-
-		// 4. отправляем полные данные паролей на сервер
-		serverPasswords, err := s.transport.SyncPasswords(ctx, localPasswords)
-		if err != nil {
-			return err
-		}
-
-		// Обрабатываем пароли, возвращенные сервером
-		// Отдельно обрабатываем удаленные и обычные пароли
-		var passwordsToUpdate []model.Password
-		for _, pass := range serverPasswords {
-			if pass.Deleted {
-				// Сервер помечает пароль как удаленный (был удален на другом устройстве)
-				// Помечаем его как удаленный локально
-				if pass.LocalID != "" {
-					if err := s.storage.DeletePass(pass.LocalID); err != nil {
-						s.log.Error().Err(err).Str("local_id", pass.LocalID).Msg("Failed to mark password as deleted")
-						continue
-					}
-					s.log.Info().Str("local_id", pass.LocalID).Msg("Password marked as deleted (deleted on server)")
-				}
-			} else {
-				// Обычное обновление - добавляем в список для обновления
-				passwordsToUpdate = append(passwordsToUpdate, pass)
-			}
-		}
-
-		// Обновляем не удаленные пароли
-		if len(passwordsToUpdate) > 0 {
-			err = s.storage.UpdatePasswords(&passwordsToUpdate)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	// Получаем пароли с сервера по ServerIDs
-	if len(syncResult.ServerIDs) > 0 {
-		s.log.Debug().Msgf("Fetching %d passwords from server", len(syncResult.ServerIDs))
-
-		// Запрашиваем все пароли с сервера (включая те, что уже есть локально, чтобы узнать об удалении)
-		serverPasswords, err := s.transport.GetPasswordsByServerIDs(ctx, syncResult.ServerIDs)
-		if err != nil {
-			s.log.Error().Err(err).Msg("Failed to fetch passwords from server")
-			return err
-		}
-
-		var savedCount, updatedCount, deletedCount int
-		for _, pass := range serverPasswords {
-			if pass.Deleted {
-				// Пароль удален на сервере - помечаем его как удаленный локально
-				// Ищем локальный пароль по ServerID
-				localPasswords, err := s.storage.GetPasswordsByServerIDs([]string{pass.ServerID})
-				if err == nil && len(localPasswords) > 0 {
-					// Помечаем как удаленный
-					if err := s.storage.DeletePass(localPasswords[0].LocalID); err != nil {
-						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to mark password as deleted")
-						continue
-					}
-					deletedCount++
-					s.log.Info().Str("server_id", pass.ServerID).Msg("Password marked as deleted (deleted on server)")
-				}
-			} else {
-				// Проверяем, существует ли пароль локально по ServerID
-				localPasswords, err := s.storage.GetPasswordsByServerIDs([]string{pass.ServerID})
-				if err == nil && len(localPasswords) > 0 {
-					// Пароль уже существует - обновляем его
-					pass.LocalID = localPasswords[0].LocalID
-					if err := s.storage.UpdatePass(&pass); err != nil {
-						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to update password")
-						continue
-					}
-					updatedCount++
-				} else {
-					// Пароль не существует - создаем новый
-					if err := s.storage.SavePass(&pass); err != nil {
-						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to save password")
-						continue
-					}
-					savedCount++
-				}
-			}
-		}
-
-		s.log.Info().Msgf("Successfully processed passwords: %d saved, %d updated, %d marked as deleted", savedCount, updatedCount, deletedCount)
-	}
+	
 
 	s.log.Info().Msg("Passwords sync finished.")
 	return nil
@@ -363,82 +175,7 @@ func (s *SyncService) syncPasswords(ctx context.Context) error {
 
 func (s *SyncService) syncFiles(ctx context.Context) error {
 	s.log.Info().Msg("Syncing file metadata...")
-
-	// 1. Получаем краткую информацию о файлах
-	shortFiles, err := s.storage.GetShortFiles()
-	if err != nil {
-		return err
-	}
-
-	// 2. Отправляем краткую информацию на сервер и получаем ID файлов, которые нужно синхронизировать полностью
-	syncResult, err := s.transport.SyncShortFiles(ctx, shortFiles)
-	if err != nil {
-		return err
-	}
-
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
-
-	// 3. Получаем полные метаданные файлов по LocalID (те, которые нужно отправить на сервер)
-	var localFiles []model.FileData
-	var activeLocalFiles []model.FileData
-
-	if len(syncResult.LocalIDs) > 0 {
-		localFiles, err = s.storage.GetFilesByIDs(syncResult.LocalIDs)
-		if err != nil {
-			return err
-		}
-
-		// Фильтруем удаленные файлы перед отправкой на сервер
-		activeLocalFiles = make([]model.FileData, 0, len(localFiles))
-		for _, file := range localFiles {
-			if file.Deleted {
-				continue
-			}
-			file.SyncTime = s.lastSyncTime
-			activeLocalFiles = append(activeLocalFiles, file)
-		}
-		s.log.Debug().Msgf("Prepared %d active files to send to server", len(activeLocalFiles))
-	}
-
-	// 4. ВСЕГДА отправляем полные метаданные файлов на сервер (даже если список пустой)
-	// Сервер всегда возвращает все данные, которые нужно получить клиенту
-	serverFiles, err := s.transport.SyncFiles(ctx, activeLocalFiles)
-	if err != nil {
-		return err
-	}
-
-	// 5. Обрабатываем ответ сервера
-	localSyncables := make([]domain.Syncable, len(localFiles))
-	for i := range localFiles {
-		localSyncables[i] = &localFiles[i]
-	}
-	serverSyncables := make([]domain.Syncable, len(serverFiles))
-	for i := range serverFiles {
-		serverSyncables[i] = &serverFiles[i]
-	}
-
-	// saveFileFunc := func(data map[string]interface{}) error {
-	// 	file, err := model.FromMapFile(data)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to convert map to file model on save: %w", err)
-	// 	}
-	// 	// Если в данных уже есть LocalID, используем UpdateFile вместо SaveFileMetadata
-	// 	if file.LocalID != "" {
-	// 		s.log.Warn().Str("local_id", file.LocalID).Msg("File has LocalID in saveFunc, using UpdateFile instead")
-	// 		return s.storage.UpdateFile(&file)
-	// 	}
-	// 	return s.storage.SaveFileMetadata(&file)
-	// }
-	// updateFileFunc := func(data map[string]interface{}) error {
-	// 	file, err := model.FromMapFile(data)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to convert map to file model on update: %w", err)
-	// 	}
-	// 	return s.storage.UpdateFile(&file)
-	// }
-	//s.processSyncResults(localSyncables, serverSyncables, saveFileFunc, updateFileFunc, s.storage.DeleteFileByID, "file")
-
+	//TODO:
 	s.log.Info().Msg("File metadata sync finished.")
 	return nil
 }

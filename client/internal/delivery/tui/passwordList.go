@@ -100,6 +100,7 @@ func (m *PassListModel) loadPasss() ([]table.Row, []model.Password) {
 			displayedPasswords = append(displayedPasswords, pass)
 		}
 	}
+	m.log.Debug().Msgf("Loaded %d passwords and data %v", len(rows),displayedPasswords)
 	return rows, displayedPasswords
 }
 
