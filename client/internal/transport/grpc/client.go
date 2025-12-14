@@ -224,7 +224,6 @@ func (c *Client) SyncShortPasswords(ctx context.Context, shortItems []model.Sync
 	return &model.ShortSyncResult{
 		LocalIDs:  resp.GetLocalIds(),
 		ServerIDs: resp.GetServerIds(),
-		DeletedIDs: resp.GetDeletedIds(),
 	}, nil
 }
 

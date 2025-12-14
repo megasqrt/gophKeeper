@@ -29,7 +29,6 @@ type SyncInfo struct {
 type ShortSyncResult struct {
 	LocalIDs  []string // ID элементов для отправки на сервер
 	ServerIDs []string // ID элементов для получения с сервера
-	DeletedIDs []string // ID элементов для удаления
 }
 
 // InterfaceToString safely converts an interface{} to a string.

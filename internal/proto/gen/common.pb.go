@@ -445,12 +445,11 @@ func (b0 ShortSyncRequest_builder) Build() *ShortSyncRequest {
 
 // ShortSyncResponse возвращает список локальных ID элементов, которые нужно синхронизировать полностью
 type ShortSyncResponse struct {
-	state                 protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_LocalIds   []string               `protobuf:"bytes,1,rep,name=local_ids,json=localIds"`
-	xxx_hidden_ServerIds  []string               `protobuf:"bytes,2,rep,name=server_ids,json=serverIds"`
-	xxx_hidden_DeletedIds []string               `protobuf:"bytes,3,rep,name=deleted_ids,json=deletedIds"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_LocalIds  []string               `protobuf:"bytes,1,rep,name=local_ids,json=localIds"`
+	xxx_hidden_ServerIds []string               `protobuf:"bytes,2,rep,name=server_ids,json=serverIds"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ShortSyncResponse) Reset() {
@@ -492,13 +491,6 @@ func (x *ShortSyncResponse) GetServerIds() []string {
 	return nil
 }
 
-func (x *ShortSyncResponse) GetDeletedIds() []string {
-	if x != nil {
-		return x.xxx_hidden_DeletedIds
-	}
-	return nil
-}
-
 func (x *ShortSyncResponse) SetLocalIds(v []string) {
 	x.xxx_hidden_LocalIds = v
 }
@@ -507,16 +499,11 @@ func (x *ShortSyncResponse) SetServerIds(v []string) {
 	x.xxx_hidden_ServerIds = v
 }
 
-func (x *ShortSyncResponse) SetDeletedIds(v []string) {
-	x.xxx_hidden_DeletedIds = v
-}
-
 type ShortSyncResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	LocalIds   []string
-	ServerIds  []string
-	DeletedIds []string
+	LocalIds  []string
+	ServerIds []string
 }
 
 func (b0 ShortSyncResponse_builder) Build() *ShortSyncResponse {
@@ -525,7 +512,6 @@ func (b0 ShortSyncResponse_builder) Build() *ShortSyncResponse {
 	_, _ = b, x
 	x.xxx_hidden_LocalIds = b.LocalIds
 	x.xxx_hidden_ServerIds = b.ServerIds
-	x.xxx_hidden_DeletedIds = b.DeletedIds
 	return m0
 }
 
@@ -547,13 +533,11 @@ const file_common_proto_rawDesc = "" +
 	"\bResponse\x12\x1b\n" +
 	"\tserver_id\x18\x01 \x01(\tR\bserverId\"?\n" +
 	"\x10ShortSyncRequest\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.gophkeeper.ShortItemR\x05items\"p\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.gophkeeper.ShortItemR\x05items\"O\n" +
 	"\x11ShortSyncResponse\x12\x1b\n" +
 	"\tlocal_ids\x18\x01 \x03(\tR\blocalIds\x12\x1d\n" +
 	"\n" +
-	"server_ids\x18\x02 \x03(\tR\tserverIds\x12\x1f\n" +
-	"\vdeleted_ids\x18\x03 \x03(\tR\n" +
-	"deletedIdsB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"
+	"server_ids\x18\x02 \x03(\tR\tserverIdsB\x1fZ\x1dgophKeeper/internal/proto/genb\beditionsp\xe8\a"
 
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_common_proto_goTypes = []any{

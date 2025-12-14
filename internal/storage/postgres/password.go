@@ -91,11 +91,21 @@ func (r *PasswordRepository) GetServerIDsNotInList(ctx context.Context, userID u
 // Delete помечает пароль как удаленный (soft delete).
 func (r *PasswordRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
 	query := `UPDATE login_passwords SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
-	_, err := r.db.ExecContext(ctx, query, id, userID)
-	return err
+	result, err := r.db.ExecContext(ctx, query, id, userID)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("no rows were updated, password not found or user mismatch")
+	}
+	return nil
 }
 
-// GetByServerIDs извлекает пароли по их серверным ID для указанного пользователя.
+// GetByServerIDs извлекает пароли по их серверным ID для указанного пользователя (включая удаленные).
 func (r *PasswordRepository) GetByServerIDs(ctx context.Context, userID uuid.UUID, serverIDs []string) ([]*model.Password, error) {
 	if len(serverIDs) == 0 {
 		return nil, nil
@@ -105,7 +115,7 @@ func (r *PasswordRepository) GetByServerIDs(ctx context.Context, userID uuid.UUI
 	query, args, err := sqlx.In(`
 		SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at 
 		FROM login_passwords 
-		WHERE user_id = ? AND id::text IN (?) AND deleted_at IS NULL
+		WHERE user_id = ? AND id::text IN (?)
 	`, userID, serverIDs)
 	if err != nil {
 		return nil, err

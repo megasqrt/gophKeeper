@@ -131,8 +131,8 @@ func (s *SyncService) syncTexts(ctx context.Context) error {
 		return err
 	}
 
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive, %d local Ids to deleted",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs), len(syncResult.DeletedIDs))
+	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
+		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
 
 	// 3. Получаем полные данные текстов по LocalID (те, которые нужно отправить на сервер)
 	var localTexts []model.TextData
@@ -151,10 +151,6 @@ func (s *SyncService) syncTexts(ctx context.Context) error {
 
 		s.log.Debug().Msgf("Received %d texts from server", len(serverTexts))
 
-	}
-
-	if len(syncResult.DeletedIDs) > 0 {
-		//TODO: реализовать удаление помеченных на удаление данных
 	}
 
 	if len(syncResult.ServerIDs) > 0 {
@@ -266,8 +262,8 @@ func (s *SyncService) syncPasswords(ctx context.Context) error {
 		return err
 	}
 
-	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive, %d local Ids to deleted",
-		len(syncResult.LocalIDs), len(syncResult.ServerIDs), len(syncResult.DeletedIDs))
+	s.log.Debug().Msgf("Short sync result: %d local IDs to send, %d server IDs to receive",
+		len(syncResult.LocalIDs), len(syncResult.ServerIDs))
 
 	if len(syncResult.LocalIDs) > 0 {
 		localPasswords, err := s.storage.GetPasswordsByIDs(syncResult.LocalIDs)
@@ -275,79 +271,90 @@ func (s *SyncService) syncPasswords(ctx context.Context) error {
 			return err
 		}
 
-		// 4. отправляем полные данные текстов на сервер
+		// 4. отправляем полные данные паролей на сервер
 		serverPasswords, err := s.transport.SyncPasswords(ctx, localPasswords)
 		if err != nil {
 			return err
 		}
 
-		// запись серве id
-		err = s.storage.UpdatePasswords(&serverPasswords)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	// 5. Удаляем пароли, помеченные на удаление
-	if len(syncResult.DeletedIDs) > 0 {
-		s.log.Debug().Msgf("Deleting %d passwords marked for deletion", len(syncResult.DeletedIDs))
-		for _, localID := range syncResult.DeletedIDs {
-			if err := s.storage.DeleteHardPass(localID); err != nil {
-				s.log.Error().Err(err).Str("local_id", localID).Msg("Failed to delete password")
-				// Продолжаем удаление остальных, даже если одно не удалось
-				continue
-			}
-		}
-		s.log.Info().Msgf("Successfully deleted %d passwords", len(syncResult.DeletedIDs))
-	}
-
-	// 6. Получаем новые пароли с сервера по ServerIDs
-	if len(syncResult.ServerIDs) > 0 {
-		s.log.Debug().Msgf("Fetching %d new passwords from server", len(syncResult.ServerIDs))
-
-		// Проверяем, какие из запрошенных ServerID уже есть локально.
-		existingLocalPasswords, err := s.storage.GetPasswordsByServerIDs(syncResult.ServerIDs)
-		if err != nil {
-			return err
-		}
-
-		// Создаем карту существующих ServerID для быстрой проверки.
-		existingServerIDs := make(map[string]struct{})
-		for _, pass := range existingLocalPasswords {
-			existingServerIDs[pass.ServerID] = struct{}{}
-		}
-
-		// Формируем список ServerID, которые действительно нужно запросить с сервера.
-		var serverIDsToRequest []string
-		for _, serverID := range syncResult.ServerIDs {
-			if _, found := existingServerIDs[serverID]; !found {
-				serverIDsToRequest = append(serverIDsToRequest, serverID)
+		// Обрабатываем пароли, возвращенные сервером
+		// Отдельно обрабатываем удаленные и обычные пароли
+		var passwordsToUpdate []model.Password
+		for _, pass := range serverPasswords {
+			if pass.Deleted {
+				// Сервер помечает пароль как удаленный (был удален на другом устройстве)
+				// Помечаем его как удаленный локально
+				if pass.LocalID != "" {
+					if err := s.storage.DeletePass(pass.LocalID); err != nil {
+						s.log.Error().Err(err).Str("local_id", pass.LocalID).Msg("Failed to mark password as deleted")
+						continue
+					}
+					s.log.Info().Str("local_id", pass.LocalID).Msg("Password marked as deleted (deleted on server)")
+				}
+			} else {
+				// Обычное обновление - добавляем в список для обновления
+				passwordsToUpdate = append(passwordsToUpdate, pass)
 			}
 		}
 
-		var serverPasswords []model.Password
-		if len(serverIDsToRequest) > 0 {
-			s.log.Debug().Msgf("Requesting %d passwords from server that are not present locally", len(serverIDsToRequest))
-			serverPasswords, err = s.transport.GetPasswordsByServerIDs(ctx, serverIDsToRequest)
+		// Обновляем не удаленные пароли
+		if len(passwordsToUpdate) > 0 {
+			err = s.storage.UpdatePasswords(&passwordsToUpdate)
 			if err != nil {
-				s.log.Error().Err(err).Msg("Failed to fetch passwords from server")
 				return err
 			}
-		} else {
-			s.log.Debug().Msg("All required server passwords already exist locally. No need to fetch.")
+		}
+	}
+
+	// Получаем пароли с сервера по ServerIDs
+	if len(syncResult.ServerIDs) > 0 {
+		s.log.Debug().Msgf("Fetching %d passwords from server", len(syncResult.ServerIDs))
+
+		// Запрашиваем все пароли с сервера (включая те, что уже есть локально, чтобы узнать об удалении)
+		serverPasswords, err := s.transport.GetPasswordsByServerIDs(ctx, syncResult.ServerIDs)
+		if err != nil {
+			s.log.Error().Err(err).Msg("Failed to fetch passwords from server")
+			return err
 		}
 
-		var savedCount int
+		var savedCount, updatedCount, deletedCount int
 		for _, pass := range serverPasswords {
-			if err := s.storage.SavePass(&pass); err != nil {
-				s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to save new password")
-				continue
+			if pass.Deleted {
+				// Пароль удален на сервере - помечаем его как удаленный локально
+				// Ищем локальный пароль по ServerID
+				localPasswords, err := s.storage.GetPasswordsByServerIDs([]string{pass.ServerID})
+				if err == nil && len(localPasswords) > 0 {
+					// Помечаем как удаленный
+					if err := s.storage.DeletePass(localPasswords[0].LocalID); err != nil {
+						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to mark password as deleted")
+						continue
+					}
+					deletedCount++
+					s.log.Info().Str("server_id", pass.ServerID).Msg("Password marked as deleted (deleted on server)")
+				}
+			} else {
+				// Проверяем, существует ли пароль локально по ServerID
+				localPasswords, err := s.storage.GetPasswordsByServerIDs([]string{pass.ServerID})
+				if err == nil && len(localPasswords) > 0 {
+					// Пароль уже существует - обновляем его
+					pass.LocalID = localPasswords[0].LocalID
+					if err := s.storage.UpdatePass(&pass); err != nil {
+						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to update password")
+						continue
+					}
+					updatedCount++
+				} else {
+					// Пароль не существует - создаем новый
+					if err := s.storage.SavePass(&pass); err != nil {
+						s.log.Error().Err(err).Str("server_id", pass.ServerID).Msg("Failed to save password")
+						continue
+					}
+					savedCount++
+				}
 			}
-			savedCount++
 		}
 
-		s.log.Info().Msgf("Successfully saved %d new passwords from server", savedCount)
+		s.log.Info().Msgf("Successfully processed passwords: %d saved, %d updated, %d marked as deleted", savedCount, updatedCount, deletedCount)
 	}
 
 	s.log.Info().Msg("Passwords sync finished.")
@@ -435,94 +442,3 @@ func (s *SyncService) syncFiles(ctx context.Context) error {
 	s.log.Info().Msg("File metadata sync finished.")
 	return nil
 }
-
-// processSyncResults — это универсальный метод для обработки результатов синхронизации.
-// func (s *SyncService) processSyncResults(
-// 	localItems []domain.Syncable,
-// 	serverItems []domain.Syncable,
-// 	saveFunc func(map[string]interface{}) error,
-// 	updateFunc func(map[string]interface{}) error,
-// 	deleteFunc func(string) error,
-// 	entityName string,
-// ) {
-// 	// Создаем map для быстрого доступа к локальным элементам по их LocalID.
-// 	localItemsMapByLocalID := make(map[string]domain.Syncable)
-// 	// Также создаем map по ServerID для поиска существующих записей
-// 	localItemsMapByServerID := make(map[string]domain.Syncable)
-// 	for _, item := range localItems {
-// 		localItemsMapByLocalID[item.GetLocalID()] = item
-// 		// Если у элемента есть ServerID, добавляем его в map по ServerID
-// 		if serverID := item.GetServerID(); serverID != "" {
-// 			localItemsMapByServerID[serverID] = item
-// 		}
-// 	}
-
-// 	for _, serverItem := range serverItems {
-// 		serverLocalID := serverItem.GetLocalID()
-// 		serverServerID := serverItem.GetServerID()
-
-// 		// Проверяем, не помечен ли элемент как удаленный на сервере
-// 		if itemWithDelete, ok := serverItem.(interface{ GetDeleted() bool }); ok && itemWithDelete.GetDeleted() {
-// 			// Ищем локальную запись по LocalID или ServerID
-// 			var localItem domain.Syncable
-// 			var found bool
-// 			if serverLocalID != "" {
-// 				localItem, found = localItemsMapByLocalID[serverLocalID]
-// 			}
-// 			if !found && serverServerID != "" {
-// 				localItem, found = localItemsMapByServerID[serverServerID]
-// 			}
-// 			if found {
-// 				s.log.Info().Str("local_id", localItem.GetLocalID()).Str("server_id", serverServerID).Msgf("Marking local %s as deleted, following server state", entityName)
-// 				// Мы не удаляем запись, а обновляем ее, устанавливая флаг Deleted
-// 				dataToSave := serverItem.ToMap()
-// 				// Устанавливаем правильный LocalID для обновления
-// 				dataToSave["local_id"] = localItem.GetLocalID()
-// 				updateFunc(dataToSave)
-// 			}
-// 			continue // Переходим к следующему элементу
-// 		}
-
-// 		dataToSave := serverItem.ToMap()
-
-// 		// Ищем локальную запись сначала по LocalID, затем по ServerID
-// 		var localItem domain.Syncable
-// 		var found bool
-// 		if serverLocalID != "" {
-// 			localItem, found = localItemsMapByLocalID[serverLocalID]
-// 		}
-// 		if !found && serverServerID != "" {
-// 			localItem, found = localItemsMapByServerID[serverServerID]
-// 			if found {
-// 				// Если нашли по ServerID, но LocalID отличается, обновляем LocalID в данных
-// 				dataToSave["local_id"] = localItem.GetLocalID()
-// 				s.log.Info().Str("local_id", localItem.GetLocalID()).Str("server_id", serverServerID).Msgf("Found existing %s by server_id, will update", entityName)
-// 			}
-// 		}
-
-// 		if !found {
-// 			// Это действительно новая запись с сервера
-// 			s.log.Info().Str("server_id", serverServerID).Msgf("Creating new local %s from server", entityName)
-// 			if err := saveFunc(dataToSave); err != nil {
-// 				s.log.Error().Err(err).Str("server_id", serverServerID).Msgf("Failed to save new local %s", entityName)
-// 			}
-// 			continue
-// 		}
-
-// 		// Запись найдена, проверяем, нужно ли обновление
-// 		if localItem.GetServerID() == "" && serverServerID != "" {
-// 			s.log.Info().Str("local_id", localItem.GetLocalID()).Str("server_id", serverServerID).Msgf("Local %s synced, saving server_id", entityName)
-// 			if err := updateFunc(dataToSave); err != nil {
-// 				s.log.Error().Err(err).Str("local_id", localItem.GetLocalID()).Msgf("Failed to update %s with server_id", entityName)
-// 			}
-// 		} else if serverItem.GetChangeTime() > localItem.GetChangeTime() {
-// 			s.log.Info().Str("local_id", localItem.GetLocalID()).Msgf("Updating local %s from server (newer version found)", entityName)
-// 			if err := updateFunc(dataToSave); err != nil {
-// 				s.log.Error().Err(err).Str("local_id", localItem.GetLocalID()).Msgf("Failed to update local %s from server", entityName)
-// 			}
-// 		} else {
-// 			s.log.Debug().Str("local_id", localItem.GetLocalID()).Msgf("Local %s is up to date, skipping", entityName)
-// 		}
-// 	}
-
-// }

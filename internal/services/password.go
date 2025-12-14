@@ -76,7 +76,6 @@ func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortS
 
 	// Определяем, какие пароли нужно синхронизировать полностью
 	var localIDsToSync []string
-	var localIDsToDeleted []string
 
 	// 1. Определяем LocalIDs для отправки с клиента на сервер
 	for _, shortItem := range req.GetItems() {
@@ -105,8 +104,6 @@ func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortS
 		case "delete":
 			// Пароль удален на клиенте
 			if localServerID == "" {
-				// Пароль еще не был синхронизирован с сервером, просто помечаем для удаления локально
-				localIDsToDeleted = append(localIDsToDeleted, localID)
 				continue
 			}
 
@@ -126,7 +123,6 @@ func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortS
 				}
 				s.log.Info().Str("server_id", localServerID).Msg("Password marked as deleted on server")
 			}
-			localIDsToDeleted = append(localIDsToDeleted, localID)
 		}
 	}
 
@@ -141,12 +137,21 @@ func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortS
 		return nil, status.Error(codes.Internal, "failed to retrieve missing server IDs")
 	}
 
-	s.log.Info().Msgf("Returning %d local IDs, %d server IDs, and %d deleted IDs for full sync",
-		len(localIDsToSync), len(serverIDsToSync), len(localIDsToDeleted))
+	// 3. Добавляем удаленные пароли, которые есть у клиента, но удалены на сервере
+	// Это необходимо, чтобы клиент узнал об удалении и пометил пароли как удаленные локально
+	for _, deletedPass := range serverDeletedPasswords {
+		deletedServerID := deletedPass.ID.String()
+		// Если у клиента есть этот пароль (в clientServerIDs), но он удален на сервере
+		if clientServerIDs[deletedServerID] {
+			serverIDsToSync = append(serverIDsToSync, deletedServerID)
+		}
+	}
+
+	s.log.Info().Msgf("Returning %d local IDs, %d server IDs",
+		len(localIDsToSync), len(serverIDsToSync))
 	return pb.ShortSyncResponse_builder{
-		LocalIds:   localIDsToSync,
-		ServerIds:  serverIDsToSync,
-		DeletedIds: localIDsToDeleted,
+		LocalIds:  localIDsToSync,
+		ServerIds: serverIDsToSync,
 	}.Build(), nil
 }
 
@@ -194,6 +199,8 @@ func (s *PasswordService) PasswordsSync(ctx context.Context, req *pb.PasswordsSy
 						s.log.Error().Err(err).Str("server_id", serverID.String()).Msg("failed to delete password")
 					} else {
 						s.log.Info().Str("server_id", serverID.String()).Msg("Password marked as deleted by client")
+						// Удаляем из карты, чтобы он не был отправлен клиенту обратно
+						delete(serverPasswordsMap, serverID)
 					}
 				}
 			}
@@ -218,19 +225,21 @@ func (s *PasswordService) PasswordsSync(ctx context.Context, req *pb.PasswordsSy
 				continue
 			}
 
-			// Конвертируем обратно в клиентскую модель для отправки
-			responsePass := clientModel.Password{
-				LocalID:     localID,
-				ServerID:    dbPass.ID.String(),
-				Login:       dbPass.Login,
-				Password:    dbPass.Password,
-				Description: dbPass.Description,
-				Checksum:    dbPass.Checksum,
-				ChangeTime:  dbPass.UpdatedAt,
-				SyncTime:    dbPass.UpdatedAt,
-				Deleted:     false,
-			}
-			passwordsToClient = append(passwordsToClient, responsePass.ToProto())
+			// Конвертируем обратно в протобуф для отправки (без шифрования)
+			serverIDStr := dbPass.ID.String()
+			passwordsToClient = append(passwordsToClient, pb.PasswordItem_builder{
+				LocalId:     &localID,
+				ServerId:    &serverIDStr,
+				Login:       &dbPass.Login,
+				Password:    &dbPass.Password,
+				Description: &dbPass.Description,
+				Checksum:    &dbPass.Checksum,
+				Timemap: pb.TimeMap_builder{
+					ChangeTime: &dbPass.UpdatedAt,
+					SyncTime:   &dbPass.UpdatedAt,
+				}.Build(),
+				Deleted: &[]bool{false}[0],
+			}.Build())
 		} else {
 			// Существующий пароль
 			serverID, err := uuid.Parse(clientPass.ServerID)
@@ -358,17 +367,24 @@ func (s *PasswordService) GetPasswordsByServerIDs(ctx context.Context, req *pb.G
 	// Конвертируем модели БД в protobuf-модели для ответа
 	passwordsToClient := make([]*pb.PasswordItem, 0, len(passwords))
 	for _, pass := range passwords {
-		responsePass := clientModel.Password{
-			// LocalID здесь не важен, клиент сам его найдет или создаст
-			ServerID:    pass.ID.String(),
-			Login:       pass.Login,
-			Password:    pass.Password,
-			Description: pass.Description,
-			Checksum:    pass.Checksum,
-			ChangeTime:  pass.UpdatedAt,
-			SyncTime:    time.Now().Unix(), // Время синхронизации
-		}
-		passwordsToClient = append(passwordsToClient, responsePass.ToProto())
+		// Определяем, удален ли пароль на основе deleted_at
+		isDeleted := pass.DeletedAt != nil && *pass.DeletedAt > 0
+
+		serverID := pass.ID.String()
+		syncTime := time.Now().Unix()
+
+		passwordsToClient = append(passwordsToClient, pb.PasswordItem_builder{
+			ServerId:    &serverID,
+			Login:       &pass.Login,
+			Password:    &pass.Password,
+			Description: &pass.Description,
+			Checksum:    &pass.Checksum,
+			Timemap: pb.TimeMap_builder{
+				ChangeTime: &pass.UpdatedAt,
+				SyncTime:   &syncTime,
+			}.Build(),
+			Deleted: &isDeleted,
+		}.Build())
 	}
 
 	s.log.Info().Msgf("Sending %d passwords back to client", len(passwordsToClient))
