@@ -11,11 +11,11 @@ type TextData struct {
 	Deleted    bool
 }
 
-func (t TextData) GetLocalID() string      { return t.LocalID }
-func (t TextData) GetServerID() string     { return t.ServerID }
-func (t TextData) GetChangeTime() int64 { return t.ChangeTime }
-func (t *TextData) SetLocalID(id string)   { t.LocalID = id }
-func (t TextData) GetDeleted() bool        { return t.Deleted }
+func (t TextData) GetLocalID() string       { return t.LocalID }
+func (t TextData) GetServerID() string      { return t.ServerID }
+func (t TextData) GetChangeTime() int64     { return t.ChangeTime }
+func (t *TextData) SetLocalID(id string)    { t.LocalID = id }
+func (t TextData) GetDeleted() bool         { return t.Deleted }
 func (t *TextData) SetDeleted(deleted bool) { t.Deleted = deleted }
 
 func (i TextData) FilterValue() string { return i.Title }

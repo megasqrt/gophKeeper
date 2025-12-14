@@ -5,12 +5,31 @@ import (
 	"strconv"
 )
 
+type OpType string
+
+const (
+    Create  OpType = "create"
+    Update  OpType = "update"
+    Delete  OpType = "delete"
+    //Restore OpType = "restore"
+)
+
 // SyncInfo представляет минимальный набор данных для синхронизации.
 type SyncInfo struct {
 	LocalID  string `json:"id"`
 	ServerID string `json:"server_id"`
 	Checksum string `json:"checksum"`
-	Deleted  bool   `json:"deleted"`
+	ChangeTime int64 `json:"change_time"`
+	SyncTime int64 `json:"sync_time"`
+	OperationType  OpType `json:"operation_type"`
+
+}
+
+// ShortSyncResult содержит результат краткой синхронизации
+type ShortSyncResult struct {
+	LocalIDs  []string // ID элементов для отправки на сервер
+	ServerIDs []string // ID элементов для получения с сервера
+	DeletedIDs []string // ID элементов для удаления
 }
 
 // InterfaceToString safely converts an interface{} to a string.

@@ -3,8 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     login VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    encrypted_master_key BYTEA,
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL
 );
 
 -- Создание таблицы для хранения пар логин/пароль
@@ -14,9 +15,10 @@ CREATE TABLE IF NOT EXISTS login_passwords (
     login_data TEXT NOT NULL,
     password_data TEXT NOT NULL,
     metadata TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    checksum VARCHAR(64),
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    deleted_at BIGINT
 );
 
 -- Создание таблицы для истории изменений login_passwords
@@ -27,31 +29,35 @@ CREATE TABLE IF NOT EXISTS login_passwords_history (
     login_data TEXT NOT NULL,
     password_data TEXT NOT NULL,
     metadata TEXT,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    deleted_at TIMESTAMPTZ
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    deleted_at BIGINT
 );
 
 -- Создание таблицы для хранения произвольных текстовых данных
 CREATE TABLE IF NOT EXISTS text_data (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    data TEXT NOT NULL,
-    metadata TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    title VARCHAR(255),
+    text TEXT,
+    checksum VARCHAR(64),
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    deleted_at BIGINT
 );
 
 -- Создание таблицы для хранения произвольных бинарных данных
 CREATE TABLE IF NOT EXISTS binary_data (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    data BYTEA NOT NULL,
+    data BYTEA, -- Nullable, так как на сервере хранятся только метаданные
     metadata TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    name VARCHAR(255),
+    size BIGINT,
+    checksum VARCHAR(64),
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    deleted_at BIGINT
 );
 
 -- Создание таблицы для хранения данных банковских карт
@@ -63,9 +69,10 @@ CREATE TABLE IF NOT EXISTS bank_cards (
     expiry_date_data TEXT NOT NULL,
     cvc_data TEXT NOT NULL,
     metadata TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    checksum VARCHAR(64),
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
+    deleted_at BIGINT
 );
 
 -- Создание таблицы для устройств пользователя
@@ -74,12 +81,13 @@ CREATE TABLE IF NOT EXISTS devices (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     device_id VARCHAR(255) NOT NULL, -- Уникальный идентификатор устройства
     device_name VARCHAR(255), -- Имя устройства для пользователя
-    last_sync_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_sync_at BIGINT,
+    created_at BIGINT NOT NULL,
+    updated_at BIGINT NOT NULL,
     UNIQUE (user_id, device_id)
 );
 
+-- Создание индексов
 CREATE INDEX IF NOT EXISTS idx_login_passwords_user_id ON login_passwords(user_id);
 CREATE INDEX IF NOT EXISTS idx_text_data_user_id ON text_data(user_id);
 CREATE INDEX IF NOT EXISTS idx_binary_data_user_id ON binary_data(user_id);
@@ -92,7 +100,10 @@ CREATE OR REPLACE FUNCTION log_login_password_history()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO login_passwords_history (id, user_id, login_data, password_data, metadata, created_at, updated_at, deleted_at)
-    VALUES (OLD.id, OLD.user_id, OLD.login_data, OLD.password_data, OLD.metadata, OLD.created_at, OLD.updated_at, OLD.deleted_at);
+    VALUES (OLD.id, OLD.user_id, OLD.login_data, OLD.password_data, OLD.metadata,
+            OLD.created_at,
+            OLD.updated_at,
+            OLD.deleted_at);
     RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;

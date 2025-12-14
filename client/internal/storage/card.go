@@ -56,6 +56,8 @@ func (s *BboltStorage) GetCards() ([]model.Card, error) {
 
 // GetShortCards извлекает краткую информацию о картах для синхронизации.
 func (s *BboltStorage) GetShortCards() ([]model.SyncInfo, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Msg("Retrieving all info cards from storage")
 	var syncInfos []model.SyncInfo
 
@@ -68,12 +70,20 @@ func (s *BboltStorage) GetShortCards() ([]model.SyncInfo, error) {
 				return nil // Пропускаем поврежденные записи
 			}
 
+			opType, shouldSync := determineOpType(card.Deleted, card.ChangeTime,card.SyncTime,card.ServerID)
+			if !shouldSync {
+				return nil
+			}
+
 			syncInfos = append(syncInfos, model.SyncInfo{
-				LocalID:  card.LocalID,
-				ServerID: card.ServerID,
-				Checksum: card.Checksum,
-				Deleted:  card.Deleted,
+				LocalID:       card.LocalID,
+				ServerID:      card.ServerID,
+				Checksum:      card.Checksum,
+				ChangeTime:    card.ChangeTime,
+				SyncTime:      card.SyncTime,
+				OperationType: opType,
 			})
+
 			return nil
 		})
 	})
@@ -83,6 +93,8 @@ func (s *BboltStorage) GetShortCards() ([]model.SyncInfo, error) {
 
 // GetCardsByIDs извлекает карты по их идентификаторам.
 func (s *BboltStorage) GetCardsByIDs(ids []string) ([]model.Card, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Int("count", len(ids)).Msg("Retrieving cards by IDs from storage")
 	var cards []model.Card
 

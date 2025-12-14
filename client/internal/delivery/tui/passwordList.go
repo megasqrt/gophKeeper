@@ -117,7 +117,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.confirmed {
 			if len(m.passs) > 0 {
 				selectedPass := m.passs[m.table.Cursor()]
-				err := m.storage.DeleteHardPass(selectedPass.GetLocalID())
+				err := m.storage.DeletePass(selectedPass.GetLocalID())
 				if err != nil {
 					// TODO: handle error
 				}

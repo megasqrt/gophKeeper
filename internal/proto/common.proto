@@ -15,7 +15,7 @@ message ShortItem {
     string local_id = 1;   // Локальный идентификатор клиента
     string server_id = 2;  // Идентификатор на сервере (может быть пустым для новых элементов)
     string checksum = 3;   // Контрольная сумма данных для определения изменений
-    bool deleted = 4;      // Флаг удаления (soft delete)
+    string type = 4;      // Тип предпологаемой операции
 }
 
 // Response используется для возврата server_id после операций
@@ -30,5 +30,7 @@ message ShortSyncRequest {
 
 // ShortSyncResponse возвращает список локальных ID элементов, которые нужно синхронизировать полностью
 message ShortSyncResponse {
-    repeated string local_ids = 1;  // Список локальных ID для полной синхронизации
+    repeated string local_ids = 1;   // Список локальных ID для полной синхронизации (от клиента на сервер)
+    repeated string server_ids = 2;  // Список серверных ID элементов, которых нет на клиенте (для получения с сервера)
+    repeated string deleted_ids = 3;  // Список локальных ID элементов, которые нужно удалить (от клиента на сервер)
 }

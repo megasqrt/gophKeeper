@@ -226,7 +226,7 @@ func (m *FileUploadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = mainListState
 		if msg.confirmed {
 			if item, ok := m.list.SelectedItem().(FileItem); ok {
-				err := m.storage.DeleteHardFileByID(item.GetLocalID())
+				err := m.storage.DeleteFileByID(item.GetLocalID())
 				if err != nil {
 					m.err = err
 				} else {

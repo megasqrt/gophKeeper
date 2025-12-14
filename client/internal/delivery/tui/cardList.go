@@ -117,7 +117,7 @@ func (m *CardListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.confirmed {
 			if len(m.cards) > 0 {
 				selectedCard := m.cards[m.table.Cursor()]
-				err := m.storage.DeleteHardCard(selectedCard.GetLocalID())
+				err := m.storage.DeleteCard(selectedCard.GetLocalID())
 				if err != nil {
 					// TODO: handle error
 				}

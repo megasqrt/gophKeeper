@@ -193,7 +193,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = tableView
 		if msg.confirmed {
 			if item, ok := m.list.SelectedItem().(textItem); ok && item.GetLocalID() != "" {
-				err := m.storage.DeleteHardText(item.GetLocalID())
+				err := m.storage.DeleteText(item.GetLocalID())
 				if err != nil {
 					m.err = err
 				} else {

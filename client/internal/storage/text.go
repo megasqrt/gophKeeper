@@ -54,6 +54,8 @@ func (s *BboltStorage) GetTexts() ([]model.TextData, error) {
 
 // GetShortTexts извлекает краткую информацию о текстах для синхронизации.
 func (s *BboltStorage) GetShortTexts() ([]model.SyncInfo, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Msg("Retrieving all info texts from storage")
 	var syncInfos []model.SyncInfo
 
@@ -66,12 +68,20 @@ func (s *BboltStorage) GetShortTexts() ([]model.SyncInfo, error) {
 				return nil // Пропускаем поврежденные записи
 			}
 
+			opType, shouldSync := determineOpType(text.Deleted, text.ChangeTime,text.SyncTime,text.ServerID)
+			if !shouldSync {
+				return nil
+			}
+
 			syncInfos = append(syncInfos, model.SyncInfo{
-				LocalID:  text.LocalID,
-				ServerID: text.ServerID,
-				Checksum: text.Checksum,
-				Deleted:  text.Deleted,
+				LocalID:       text.LocalID,
+				ServerID:      text.ServerID,
+				Checksum:      text.Checksum,
+				ChangeTime:    text.ChangeTime,
+				SyncTime:      text.SyncTime,
+				OperationType: opType,
 			})
+
 			return nil
 		})
 	})
@@ -79,8 +89,10 @@ func (s *BboltStorage) GetShortTexts() ([]model.SyncInfo, error) {
 	return syncInfos, err
 }
 
-// GetTextsByIDs извлекает тексты по их идентификаторам.
+// GetTextsByIDs извлекает тексты по их локальным идентификаторам.
 func (s *BboltStorage) GetTextsByIDs(ids []string) ([]model.TextData, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Int("count", len(ids)).Msg("Retrieving texts by IDs from storage")
 	var texts []model.TextData
 

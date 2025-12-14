@@ -59,12 +59,6 @@ func (s *CardService) CardsShortSync(ctx context.Context, req *pb.ShortSyncReque
 		localID := shortItem.GetLocalId()
 		serverID := shortItem.GetServerId()
 		clientChecksum := shortItem.GetChecksum()
-		clientDeleted := shortItem.GetDeleted()
-
-		// Если карта удалена на клиенте, пропускаем
-		if clientDeleted {
-			continue
-		}
 
 		// Если это новая карта (нет server_id), нужно синхронизировать
 		if serverID == "" {

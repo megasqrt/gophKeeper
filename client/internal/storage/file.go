@@ -22,6 +22,8 @@ func calculateFileChecksum(file *model.FileData) string {
 
 // SaveFile сохраняет данные файла в хранилище.
 func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		// Бакет для метаданных
 		metaBucket := tx.Bucket(fileMetaBucket)
@@ -49,6 +51,8 @@ func (s *BboltStorage) SaveFile(fileData *model.FileData, content []byte) error 
 
 // SaveFileMetadata сохраняет только метаданные файла. Используется при синхронизации.
 func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.log.Info().Str("file_name", fileData.Name).Msg("Saving file metadata")
 	fileData.ChangeTime = time.Now().Unix()
 	fileData.Checksum = calculateFileChecksum(fileData)
@@ -57,6 +61,8 @@ func (s *BboltStorage) SaveFileMetadata(fileData *model.FileData) error {
 
 // UpdateFile обновляет данные существующего файла.
 func (s *BboltStorage) UpdateFile(fileData *model.FileData) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.log.Info().Str("file_id", fileData.LocalID).Msg("Updating file")
 	fileData.ChangeTime = time.Now().Unix()
 	fileData.Checksum = calculateFileChecksum(fileData)
@@ -85,6 +91,8 @@ func (s *BboltStorage) GetFiles() ([]model.FileData, error) {
 
 // GetFileByID извлекает один файл по ID, включая его содержимое.
 func (s *BboltStorage) GetFileByID(id string) (map[string]interface{}, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Str("file_id", id).Msg("Retrieving file from storage")
 	var result map[string]interface{}
 
@@ -126,6 +134,8 @@ func (s *BboltStorage) GetFileByID(id string) (map[string]interface{}, error) {
 
 // GetShortFiles извлекает краткую информацию о файлах для синхронизации.
 func (s *BboltStorage) GetShortFiles() ([]model.SyncInfo, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Msg("Retrieving all info files from storage")
 	var syncInfos []model.SyncInfo
 
@@ -138,12 +148,20 @@ func (s *BboltStorage) GetShortFiles() ([]model.SyncInfo, error) {
 				return nil // Пропускаем поврежденные записи
 			}
 
+			opType, shouldSync := determineOpType(file.Deleted, file.ChangeTime,file.SyncTime,file.ServerID)
+			if !shouldSync {
+				return nil
+			}
+
 			syncInfos = append(syncInfos, model.SyncInfo{
-				LocalID:  file.LocalID,
-				ServerID: file.ServerID,
-				Checksum: file.Checksum,
-				Deleted:  file.Deleted,
+				LocalID:       file.LocalID,
+				ServerID:      file.ServerID,
+				Checksum:      file.Checksum,
+				ChangeTime:    file.ChangeTime,
+				SyncTime:      file.SyncTime,
+				OperationType: opType,
 			})
+
 			return nil
 		})
 	})
@@ -153,6 +171,8 @@ func (s *BboltStorage) GetShortFiles() ([]model.SyncInfo, error) {
 
 // GetFilesByIDs извлекает метаданные файлов по их идентификаторам.
 func (s *BboltStorage) GetFilesByIDs(ids []string) ([]model.FileData, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Int("count", len(ids)).Msg("Retrieving files by IDs from storage")
 	var files []model.FileData
 
@@ -190,6 +210,8 @@ func (s *BboltStorage) DeleteFileByID(id string) error {
 
 // DeleteHardFileByID физически удаляет файл (метаданные и содержимое) из хранилища.
 func (s *BboltStorage) DeleteHardFileByID(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.log.Info().Str("file_id", id).Msg("Hard deleting file")
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		// Удаляем метаданные
