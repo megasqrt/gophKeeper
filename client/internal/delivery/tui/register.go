@@ -241,6 +241,13 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 			return errMsg(fmt.Errorf("failed to parse token: %w", err))
 		}
 
+		// Сохраняем пароль в хранилище для последующего использования
+		// Это необходимо для того, чтобы InitializeEncryptor мог получить пароль из хранилища
+		// LocalRegister сохраняет логин и пароль, инициализирует ключ шифрования
+		// if err := storage.LocalRegister(login, password); err != nil {
+		// 	return errMsg(fmt.Errorf("failed to save password to storage: %w", err))
+		// }
+
 		// Сохраняем токен и зашифрованный мастер-ключ
 		encryptedMasterKey := res.GetEncryptedMasterKey()
 		if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID, encryptedMasterKey); err != nil {

@@ -66,16 +66,31 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 }
 
 // FromMapText converts a map to a domain TextData model.
+// Расшифровывает чувствительные данные (Title, Text) после получения, если установлен Encryptor.
 func FromMapText(data map[string]interface{}) (TextData, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
 	changeTime, _ := InterfaceToInt64(data["changeTime"])
 	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
+	title := InterfaceToString(data["title"])
+	text := InterfaceToString(data["text"])
+
+	// Расшифровываем данные, если установлен Encryptor
+	// Это необходимо для данных, которые могли быть сохранены в зашифрованном виде
+	if encryptor := GetGlobalEncryptor(); encryptor != nil {
+		if decryptedTitle, err := encryptor.DecryptString(title); err == nil {
+			title = decryptedTitle
+		}
+		if decryptedText, err := encryptor.DecryptString(text); err == nil {
+			text = decryptedText
+		}
+	}
+
 	return TextData{
 		LocalID:    InterfaceToString(data["id"]),
 		ServerID:   InterfaceToString(data["server_id"]),
-		Title:      InterfaceToString(data["title"]),
-		Text:       InterfaceToString(data["text"]),
+		Title:      title,
+		Text:       text,
 		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,
@@ -131,11 +146,12 @@ func (c *Card) ToProto() *pb.CardItem {
 }
 
 func (c *SyncInfo) ToProto() *pb.ShortItem {
+	opType := string(c.OperationType)
 	return pb.ShortItem_builder{
 		LocalId:  &c.LocalID,
 		ServerId: &c.ServerID,
 		Checksum: &c.Checksum,
-		Deleted:  &c.Deleted,
+		Type:  &opType,
 	}.Build()
 }
 
@@ -200,19 +216,45 @@ func (c *Card) ToMap() map[string]interface{} {
 }
 
 // FromMapCard converts a map to a domain Card model.
+// Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromMapCard(data map[string]interface{}) (Card, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
 	changeTime, _ := InterfaceToInt64(data["changeTime"])
 	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
+	number := InterfaceToString(data["number"])
+	holder := InterfaceToString(data["holder"])
+	expiry := InterfaceToString(data["expiry"])
+	cvv := InterfaceToString(data["cvv"])
+	metadata := InterfaceToString(data["metadata"])
+
+	// Расшифровываем данные, если установлен Encryptor
+	if encryptor := GetGlobalEncryptor(); encryptor != nil {
+		if decryptedNumber, err := encryptor.DecryptString(number); err == nil {
+			number = decryptedNumber
+		}
+		if decryptedHolder, err := encryptor.DecryptString(holder); err == nil {
+			holder = decryptedHolder
+		}
+		if decryptedExpiry, err := encryptor.DecryptString(expiry); err == nil {
+			expiry = decryptedExpiry
+		}
+		if decryptedCvv, err := encryptor.DecryptString(cvv); err == nil {
+			cvv = decryptedCvv
+		}
+		if decryptedMetadata, err := encryptor.DecryptString(metadata); err == nil {
+			metadata = decryptedMetadata
+		}
+	}
+
 	return Card{
 		LocalID:    InterfaceToString(data["id"]),
 		ServerID:   InterfaceToString(data["server_id"]),
-		Number:     InterfaceToString(data["number"]),
-		Holder:     InterfaceToString(data["holder"]),
-		Expiry:     InterfaceToString(data["expiry"]),
-		CVV:        InterfaceToString(data["cvv"]),
-		Metadata:   InterfaceToString(data["metadata"]),
+		Number:     number,
+		Holder:     holder,
+		Expiry:     expiry,
+		CVV:        cvv,
+		Metadata:   metadata,
 		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,
@@ -306,17 +348,35 @@ func (p *Password) ToMap() map[string]interface{} {
 }
 
 // FromMapPassword converts a map to a domain Password model.
+// Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromMapPassword(data map[string]interface{}) (Password, error) {
 	deleted, _ := InterfaceToBool(data["deleted"])
 	changeTime, _ := InterfaceToInt64(data["changeTime"])
 	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
+	login := InterfaceToString(data["login"])
+	password := InterfaceToString(data["password"])
+	description := InterfaceToString(data["description"])
+
+	// Расшифровываем данные, если установлен Encryptor
+	if encryptor := GetGlobalEncryptor(); encryptor != nil {
+		if decryptedLogin, err := encryptor.DecryptString(login); err == nil {
+			login = decryptedLogin
+		}
+		if decryptedPassword, err := encryptor.DecryptString(password); err == nil {
+			password = decryptedPassword
+		}
+		if decryptedDescription, err := encryptor.DecryptString(description); err == nil {
+			description = decryptedDescription
+		}
+	}
+
 	return Password{
 		LocalID:     InterfaceToString(data["id"]),
 		ServerID:    InterfaceToString(data["server_id"]),
-		Login:       InterfaceToString(data["login"]),
-		Password:    InterfaceToString(data["password"]),
-		Description: InterfaceToString(data["description"]),
+		Login:       login,
+		Password:    password,
+		Description: description,
 		Checksum:    InterfaceToString(data["checksum"]),
 		ChangeTime:  changeTime,
 		SyncTime:    syncTime,
@@ -404,6 +464,7 @@ func (f *FileData) ToMap() map[string]interface{} {
 }
 
 // FromMapFile converts a map to a domain FileData model.
+// Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromMapFile(data map[string]interface{}) (FileData, error) {
 	size, err := InterfaceToInt64(data["size"])
 	if err != nil {
@@ -413,12 +474,25 @@ func FromMapFile(data map[string]interface{}) (FileData, error) {
 	changeTime, _ := InterfaceToInt64(data["changeTime"])
 	syncTime, _ := InterfaceToInt64(data["syncTime"])
 
+	name := InterfaceToString(data["name"])
+	metadata := InterfaceToString(data["metadata"])
+
+	// Расшифровываем данные, если установлен Encryptor
+	if encryptor := GetGlobalEncryptor(); encryptor != nil {
+		if decryptedName, err := encryptor.DecryptString(name); err == nil {
+			name = decryptedName
+		}
+		if decryptedMetadata, err := encryptor.DecryptString(metadata); err == nil {
+			metadata = decryptedMetadata
+		}
+	}
+
 	return FileData{
 		LocalID:    InterfaceToString(data["id"]),
 		ServerID:   InterfaceToString(data["server_id"]),
-		Name:       InterfaceToString(data["name"]),
+		Name:       name,
 		Size:       size,
-		Metadata:   InterfaceToString(data["metadata"]),
+		Metadata:   metadata,
 		Checksum:   InterfaceToString(data["checksum"]),
 		ChangeTime: changeTime,
 		SyncTime:   syncTime,

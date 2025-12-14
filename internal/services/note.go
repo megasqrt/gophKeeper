@@ -52,19 +52,24 @@ func (s *NoteService) NotesShortSync(ctx context.Context, req *pb.ShortSyncReque
 		serverNotesMap[note.ID.String()] = note
 	}
 
+	// Создаем множество server_id, которые есть у клиента
+	clientServerIDs := make(map[string]bool)
+	for _, shortItem := range req.GetItems() {
+		serverID := shortItem.GetServerId()
+		if serverID != "" {
+			clientServerIDs[serverID] = true
+		}
+	}
+
 	// Определяем, какие заметки нужно синхронизировать полностью
 	var localIDsToSync []string
+	var serverIDsToSync []string
 
+	// 1. Определяем LocalIDs для отправки с клиента на сервер
 	for _, shortItem := range req.GetItems() {
 		localID := shortItem.GetLocalId()
 		serverID := shortItem.GetServerId()
 		clientChecksum := shortItem.GetChecksum()
-		clientDeleted := shortItem.GetDeleted()
-
-		// Если заметка удалена на клиенте, пропускаем
-		if clientDeleted {
-			continue
-		}
 
 		// Если это новая заметка (нет server_id), нужно синхронизировать
 		if serverID == "" {
@@ -87,8 +92,23 @@ func (s *NoteService) NotesShortSync(ctx context.Context, req *pb.ShortSyncReque
 		}
 	}
 
-	s.log.Info().Msgf("Returning %d local IDs for full sync", len(localIDsToSync))
-	return pb.ShortSyncResponse_builder{LocalIds: localIDsToSync}.Build(), nil
+	// 2. Определяем ServerIDs элементов, которых нет на клиенте (для получения с сервера)
+	// Оптимизация: запрашиваем из БД только те ID, которых нет у клиента
+	clientServerIDsList := make([]string, 0, len(clientServerIDs))
+	for id := range clientServerIDs {
+		clientServerIDsList = append(clientServerIDsList, id)
+	}
+	// serverIDsToSync, err = s.noteRepo.GetServerIDsNotInList(ctx, userID, clientServerIDsList)
+	// if err != nil {
+	// 	s.log.Error().Err(err).Msg("failed to get missing server IDs from db")
+	// 	return nil, status.Error(codes.Internal, "failed to retrieve missing server IDs")
+	// }
+
+	// s.log.Info().Msgf("Returning %d local IDs and %d server IDs for full sync", len(localIDsToSync), len(serverIDsToSync))
+	return pb.ShortSyncResponse_builder{
+		LocalIds:  localIDsToSync,
+		ServerIds: serverIDsToSync,
+	}.Build(), nil
 }
 
 // NotesSync выполняет полную синхронизацию текстовых заметок.

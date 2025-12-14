@@ -324,6 +324,7 @@ func checkServer(storage domain.LocalStorage) tea.Cmd {
 	}
 }
 
+//TODO 
 // performSync запускает процесс синхронизации в фоновом режиме.
 func performSync(syncer *services.SyncService) tea.Cmd {
 	return func() tea.Msg {

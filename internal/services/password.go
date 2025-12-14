@@ -29,7 +29,7 @@ func NewPasswordService(log zerolog.Logger, passRepo repository.PasswordReposito
 	}
 }
 
-// PasswordsShortSync выполняет краткую синхронизацию (только метаданные).
+// PasswordsShortSync выполняет краткую синхронизацию.
 func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortSyncRequest) (*pb.ShortSyncResponse, error) {
 	// Извлекаем userID из контекста (из JWT токена)
 	userID, ok := ctx.Value("userID").(uuid.UUID)
@@ -52,43 +52,102 @@ func (s *PasswordService) PasswordsShortSync(ctx context.Context, req *pb.ShortS
 		serverPasswordsMap[pass.ID.String()] = pass
 	}
 
-	// Определяем, какие пароли нужно синхронизировать полностью
-	var localIDsToSync []string
+	// Получаем все удаленные пароли пользователя из БД
+	serverDeletedPasswords, err := s.passRepo.GetDeletedByUserID(ctx, userID)
+	if err != nil {
+		s.log.Error().Err(err).Msg("failed to get deleted passwords from db")
+		return nil, status.Error(codes.Internal, "failed to retrieve server data")
+	}
 
+	// Создаем множество удаленных серверных паролей по server_id
+	serverDeletedPasswordsSet := make(map[string]bool)
+	for _, pass := range serverDeletedPasswords {
+		serverDeletedPasswordsSet[pass.ID.String()] = true
+	}
+
+	// Создаем множество server_id, которые есть у клиента
+	clientServerIDs := make(map[string]bool)
 	for _, shortItem := range req.GetItems() {
-		localID := shortItem.GetLocalId()
 		serverID := shortItem.GetServerId()
-		clientChecksum := shortItem.GetChecksum()
-		clientDeleted := shortItem.GetDeleted()
-
-		// Если пароль удален на клиенте, пропускаем
-		if clientDeleted {
-			continue
-		}
-
-		// Если это новый пароль (нет server_id), нужно синхронизировать
-		if serverID == "" {
-			localIDsToSync = append(localIDsToSync, localID)
-			continue
-		}
-
-		// Проверяем, есть ли пароль на сервере
-		serverPass, found := serverPasswordsMap[serverID]
-		if !found {
-			// Пароль есть у клиента, но нет на сервере - нужно синхронизировать
-			localIDsToSync = append(localIDsToSync, localID)
-			continue
-		}
-
-		// Сравниваем checksum
-		if serverPass.Checksum != clientChecksum {
-			// Checksum отличается - нужно синхронизировать
-			localIDsToSync = append(localIDsToSync, localID)
+		if serverID != "" {
+			clientServerIDs[serverID] = true
 		}
 	}
 
-	s.log.Info().Msgf("Returning %d local IDs for full sync", len(localIDsToSync))
-	return pb.ShortSyncResponse_builder{LocalIds: localIDsToSync}.Build(), nil
+	// Определяем, какие пароли нужно синхронизировать полностью
+	var localIDsToSync []string
+	var localIDsToDeleted []string
+
+	// 1. Определяем LocalIDs для отправки с клиента на сервер
+	for _, shortItem := range req.GetItems() {
+		localID := shortItem.GetLocalId()
+		localServerID := shortItem.GetServerId()
+		clientChecksum := shortItem.GetChecksum()
+		opType := shortItem.GetType()
+
+		switch opType {
+		case "create":
+			// Новый пароль от клиента - нужно синхронизировать
+			localIDsToSync = append(localIDsToSync, localID)
+		case "update":
+			// Проверяем, есть ли пароль на сервере
+			serverPass, found := serverPasswordsMap[localServerID]
+			if !found {
+				// Пароль есть у клиента, но нет на сервере - нужно синхронизировать
+				localIDsToSync = append(localIDsToSync, localID)
+				continue
+			}
+			// Сравниваем checksum
+			if serverPass.Checksum != clientChecksum {
+				// Checksum отличается - нужно синхронизировать
+				localIDsToSync = append(localIDsToSync, localID)
+			}
+		case "delete":
+			// Пароль удален на клиенте
+			if localServerID == "" {
+				// Пароль еще не был синхронизирован с сервером, просто помечаем для удаления локально
+				localIDsToDeleted = append(localIDsToDeleted, localID)
+				continue
+			}
+
+			// Проверяем, удален ли пароль уже на сервере
+			if !serverDeletedPasswordsSet[localServerID] {
+				// Пароль удален у клиента, но не удален на сервере - удаляем на сервере
+				parsedUUID, err := uuid.Parse(localServerID)
+				if err != nil {
+					s.log.Error().Err(err).Str("server_id", localServerID).Msg("failed to parse server_id for delete")
+					return nil, status.Error(codes.InvalidArgument, "invalid server_id format")
+				}
+
+				err = s.passRepo.Delete(ctx, parsedUUID, userID)
+				if err != nil {
+					s.log.Error().Err(err).Str("server_id", localServerID).Msg("failed to delete password from db")
+					return nil, status.Error(codes.Internal, "failed to delete password on server")
+				}
+				s.log.Info().Str("server_id", localServerID).Msg("Password marked as deleted on server")
+			}
+			localIDsToDeleted = append(localIDsToDeleted, localID)
+		}
+	}
+
+	// 2. Определяем ServerIDs элементов, которых нет на клиенте (для получения с сервера)
+	clientServerIDsList := make([]string, 0, len(clientServerIDs))
+	for id := range clientServerIDs {
+		clientServerIDsList = append(clientServerIDsList, id)
+	}
+	serverIDsToSync, err := s.passRepo.GetServerIDsNotInList(ctx, userID, clientServerIDsList)
+	if err != nil {
+		s.log.Error().Err(err).Msg("failed to get missing server IDs from db")
+		return nil, status.Error(codes.Internal, "failed to retrieve missing server IDs")
+	}
+
+	s.log.Info().Msgf("Returning %d local IDs, %d server IDs, and %d deleted IDs for full sync",
+		len(localIDsToSync), len(serverIDsToSync), len(localIDsToDeleted))
+	return pb.ShortSyncResponse_builder{
+		LocalIds:   localIDsToSync,
+		ServerIds:  serverIDsToSync,
+		DeletedIds: localIDsToDeleted,
+	}.Build(), nil
 }
 
 // PasswordsSync выполняет полную синхронизацию паролей.
@@ -268,6 +327,48 @@ func (s *PasswordService) PasswordsSync(ctx context.Context, req *pb.PasswordsSy
 			}
 			passwordsToClient = append(passwordsToClient, responsePass.ToProto())
 		}
+	}
+
+	s.log.Info().Msgf("Sending %d passwords back to client", len(passwordsToClient))
+	return pb.GetPasswordsResponse_builder{Passwords: passwordsToClient}.Build(), nil
+}
+
+// GetPasswordsByServerIDs получает полные данные паролей по их серверным ID.
+func (s *PasswordService) GetPasswordsByServerIDs(ctx context.Context, req *pb.GetPasswordsByServerIDsRequest) (*pb.GetPasswordsResponse, error) {
+	// Извлекаем userID из контекста (из JWT токена)
+	userID, ok := ctx.Value("userID").(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "invalid user credentials")
+	}
+
+	serverIDs := req.GetServerIds()
+	s.log.Info().Strs("server_ids", serverIDs).Msgf("Received request to get %d passwords by server IDs", len(serverIDs))
+
+	if len(serverIDs) == 0 {
+		return &pb.GetPasswordsResponse{}, nil
+	}
+
+	// Получаем пароли из репозитория
+	passwords, err := s.passRepo.GetByServerIDs(ctx, userID, serverIDs)
+	if err != nil {
+		s.log.Error().Err(err).Msg("failed to get passwords by server IDs from db")
+		return nil, status.Error(codes.Internal, "failed to retrieve server data")
+	}
+
+	// Конвертируем модели БД в protobuf-модели для ответа
+	passwordsToClient := make([]*pb.PasswordItem, 0, len(passwords))
+	for _, pass := range passwords {
+		responsePass := clientModel.Password{
+			// LocalID здесь не важен, клиент сам его найдет или создаст
+			ServerID:    pass.ID.String(),
+			Login:       pass.Login,
+			Password:    pass.Password,
+			Description: pass.Description,
+			Checksum:    pass.Checksum,
+			ChangeTime:  pass.UpdatedAt,
+			SyncTime:    time.Now().Unix(), // Время синхронизации
+		}
+		passwordsToClient = append(passwordsToClient, responsePass.ToProto())
 	}
 
 	s.log.Info().Msgf("Sending %d passwords back to client", len(passwordsToClient))

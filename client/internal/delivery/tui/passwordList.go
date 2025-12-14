@@ -119,7 +119,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selectedPass := m.passs[m.table.Cursor()]
 				err := m.storage.DeletePass(selectedPass.GetLocalID())
 				if err != nil {
-					// TODO: handle error
+					m.log.Error().Err(err).Msg("error deleting password")
 				}
 				m.Load() // Reload to reflect deletion
 			}

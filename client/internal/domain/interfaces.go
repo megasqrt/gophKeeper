@@ -8,6 +8,7 @@ import (
 type Syncable interface {
 	GetLocalID() string
 	GetServerID() string
+
 	GetChangeTime() int64
 	ToMap() map[string]interface{}
 }
@@ -21,7 +22,8 @@ type LocalStorage interface {
 	LocalRegister(user, password string) error
 	SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error
 	GetUserCredentials() (login, token, deviceID string, encryptedMasterKey []byte, err error)
-	InitializeEncryptor(password string) error // Инициализирует Encryptor из сохраненного мастер-ключа (password может быть пустым, тогда будет получен из хранилища)
+	InitializeEncryptor(password string) error                                           // Инициализирует Encryptor из сохраненного мастер-ключа (password может быть пустым, тогда будет получен из хранилища)
+	InitializeEncryptorWithData(password, login string, encryptedMasterKey []byte) error // Инициализирует Encryptor с уже полученными данными (избегает повторного вызова GetUserCredentials)
 
 	SaveCard(cardData *models.Card) error
 	UpdateCard(cardData *models.Card) error
@@ -36,8 +38,10 @@ type LocalStorage interface {
 
 	SavePass(passData *models.Password) error
 	UpdatePass(passData *models.Password) error
+	UpdatePasswords(passData *[]models.Password) error
 	GetPasss() ([]models.Password, error)
 	GetPasswordsByIDs(ids []string) ([]models.Password, error)
+	GetPasswordsByServerIDs(serverIDs []string) ([]models.Password, error)
 	GetShortPasswords() ([]models.SyncInfo, error)
 	DeletePass(id string) error
 	DeleteHardPass(id string) error
@@ -46,10 +50,10 @@ type LocalStorage interface {
 	UpdateText(textData *models.TextData) error
 	GetTexts() ([]models.TextData, error)
 	GetTextsByIDs(ids []string) ([]models.TextData, error)
+	//GetTextsByServerIDs(serverIDs []string) ([]models.TextData, error)
 	GetShortTexts() ([]models.SyncInfo, error)
 	DeleteText(id string) error
 	DeleteHardText(id string) error
-
 
 	GetFiles() ([]models.FileData, error)
 	GetFilesByIDs(ids []string) ([]models.FileData, error)

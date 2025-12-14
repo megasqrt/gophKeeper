@@ -8,7 +8,6 @@ import (
 	"gophKeeper/client/internal/services"
 	"gophKeeper/client/internal/transport"
 
-	//"gophKeeper/client/internal/transport"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/spinner"
@@ -205,6 +204,9 @@ func performLogin(cfg *config.Config, storage domain.LocalStorage, password stri
 					// Сохраняем полученный мастер-ключ
 					if err := storage.SaveUserCredentials(login, res.GetToken(), deviceID, res.GetEncryptedMasterKey()); err != nil {
 						// Не критично, просто логируем
+						if err != nil {
+							return errMsg(fmt.Errorf("failed to save credentials: %w", err))
+						}
 					}
 				}
 			}

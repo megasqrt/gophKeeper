@@ -9,6 +9,8 @@ import (
 
 // LocalRegister сохраняет пароль для локального пользователя и инициализирует ключ шифрования.
 func (s *BboltStorage) LocalRegister(user, password string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 		s.log.Info().Msg("Deriving encryption key from password")
@@ -37,6 +39,8 @@ var masterKeyKey = []byte("master_key")
 
 // SaveUserCredentials сохраняет токен, удаленный логин, ID устройства и зашифрованный мастер-ключ пользователя.
 func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 
@@ -84,6 +88,8 @@ func (s *BboltStorage) SaveUserCredentials(login, token, deviceID string, encryp
 
 // GetUserCredentials извлекает удаленный логин, токен, ID устройства и зашифрованный мастер-ключ пользователя.
 func (s *BboltStorage) GetUserCredentials() (login, token, device string, encryptedMasterKey []byte, err error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	err = s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
 
@@ -132,6 +138,8 @@ func (s *BboltStorage) GetUserCredentials() (login, token, device string, encryp
 // Автоматически получает пароль из хранилища (если хранилище разблокировано)
 // Если password передан, использует его; иначе пытается получить из хранилища
 func (s *BboltStorage) InitializeEncryptor(password string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	// Если пароль не передан, пытаемся получить его из хранилища
 	if password == "" {
 		var err error
@@ -147,6 +155,12 @@ func (s *BboltStorage) InitializeEncryptor(password string) error {
 		return fmt.Errorf("failed to get user credentials: %w", err)
 	}
 
+	return s.InitializeEncryptorWithData(password, login, encryptedMasterKey)
+}
+
+// InitializeEncryptorWithData инициализирует Encryptor с уже полученными данными
+// Избегает повторного вызова GetUserCredentials
+func (s *BboltStorage) InitializeEncryptorWithData(password, login string, encryptedMasterKey []byte) error {
 	if len(encryptedMasterKey) == 0 {
 		// Нет сохраненного мастер-ключа, ничего не делаем
 		s.log.Debug().Msg("No master key found, skipping Encryptor initialization")
@@ -167,6 +181,8 @@ func (s *BboltStorage) InitializeEncryptor(password string) error {
 
 // getPasswordFromStorage получает пароль из хранилища (если хранилище разблокировано)
 func (s *BboltStorage) getPasswordFromStorage() (string, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	if s.key == nil {
 		return "", fmt.Errorf("storage is locked")
 	}

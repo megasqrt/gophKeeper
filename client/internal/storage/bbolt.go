@@ -10,6 +10,7 @@ import (
 	"gophKeeper/client/internal/domain"
 	"gophKeeper/pkg/grpchelper"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -48,6 +49,7 @@ type BboltStorage struct {
 	key  []byte // Ключ шифрования, активен в течение сессии
 	log  zerolog.Logger
 	user string
+	mu   sync.RWMutex
 }
 
 // NewBboltStorage создает и инициализирует новое хранилище bbolt.
@@ -85,6 +87,8 @@ func NewBboltStorage(path string, log zerolog.Logger) (*BboltStorage, error) {
 
 // Unlock генерирует ключ шифрования из пароля и сохраняет его в сессии.
 func (s *BboltStorage) Unlock(user, password string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.log.Info().Str("user", user).Msg("Deriving encryption key from password")
 	// Используем имя пользователя как "соль" для scrypt. Это не идеально, но просто.
 	key, err := encriptPassword(user, password)
@@ -132,11 +136,15 @@ func encriptPassword(user, password string) ([]byte, error) {
 
 // IsLoggedIn проверяет, сохранен ли токен.
 func (s *BboltStorage) IsLoggedIn() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	_, token, _, _, err := s.GetUserCredentials()
 	return err == nil && token != ""
 }
 
 func (s *BboltStorage) IsFirstRun() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	s.log.Info().Msg("Checking if first run")
 	err := s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(configBucket)
@@ -156,6 +164,8 @@ func (s *BboltStorage) IsFirstRun() bool {
 
 // Close закрывает соединение с базой данных.
 func (s *BboltStorage) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.db != nil {
 		return s.db.Close()
 	}
@@ -164,18 +174,22 @@ func (s *BboltStorage) Close() error {
 
 func (s *BboltStorage) encrypt(data []byte) ([]byte, error) {
 	if s.key == nil {
+		s.log.Error().Msg("Attempted to encrypt with nil key - storage is locked")
 		return nil, errors.New("storage is locked, cannot encrypt")
 	}
 	block, err := aes.NewCipher(s.key)
 	if err != nil {
+		s.log.Error().Err(err).Msg("Failed to create cipher for encryption")
 		return nil, err
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
+		s.log.Error().Err(err).Msg("Failed to create GCM for encryption")
 		return nil, err
 	}
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		s.log.Error().Err(err).Msg("Failed to generate nonce for encryption")
 		return nil, err
 	}
 	return gcm.Seal(nonce, nonce, data, nil), nil
@@ -198,12 +212,20 @@ func (s *BboltStorage) decrypt(data []byte) ([]byte, error) {
 		return nil, errors.New("ciphertext too short")
 	}
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
-	return gcm.Open(nil, nonce, ciphertext, nil)
+	decrypted, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		// Логируем ошибку для диагностики
+		s.log.Error().Err(err).Msg("Decryption failed - key may be incorrect or data corrupted")
+		return nil, err
+	}
+	return decrypted, nil
 }
 
 // saveItem — это универсальный метод для сохранения или обновления элемента в бакете.
-// Если isNew=true, генерируется новый ID. В качестве ключа используется ID.
+// Если isNew=true, генsерируется новый ID. В качестве ключа используется ID.
 func (s *BboltStorage) saveItem(bucketName []byte, item domain.Syncable, isNew bool) error {
+	// s.mu.Lock()
+	// defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		return s.saveItemTx(tx, bucketName, item, isNew)
 	})
@@ -240,6 +262,8 @@ func (s *BboltStorage) saveItemTx(tx *bbolt.Tx, bucketName []byte, item domain.S
 
 // getAllItems — это универсальный метод для получения всех элементов из бакета.
 func (s *BboltStorage) getAllItems(bucketName []byte, newItemFunc func() interface{}) ([]interface{}, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var items []interface{}
 
 	err := s.db.View(func(tx *bbolt.Tx) error {
@@ -270,6 +294,8 @@ func (s *BboltStorage) getAllItems(bucketName []byte, newItemFunc func() interfa
 // GetAllSyncInfo извлекает только ключевые поля для синхронизации (LocalID, ServerID, Checksum)
 // из всех элементов в бакете, избегая полной дешифрации и десериализации.
 func (s *BboltStorage) GetShortSyncInfo(bucketName []byte) ([]grpchelper.SyncInfo, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var syncInfos []grpchelper.SyncInfo
 
 	err := s.db.View(func(tx *bbolt.Tx) error {
@@ -298,6 +324,8 @@ func (s *BboltStorage) GetShortSyncInfo(bucketName []byte) ([]grpchelper.SyncInf
 
 // markAsDeleted помечает элемент как удаленный, вместо физического удаления.
 func (s *BboltStorage) markAsDeleted(bucketName []byte, id string, newItemFunc func() interface{}) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		encryptedData := b.Get([]byte(id))
@@ -317,12 +345,14 @@ func (s *BboltStorage) markAsDeleted(bucketName []byte, id string, newItemFunc f
 			return fmt.Errorf("item does not support soft deletion")
 		}
 
-		return s.saveItem(bucketName, item.(domain.Syncable), false)
+		return s.saveItemTx(tx, bucketName, item.(domain.Syncable), false)
 	})
 }
 
 // getItemByID — это универсальный метод для получения одного элемента по ID.
 func (s *BboltStorage) getItemByID(bucketName []byte, id string) (map[string]interface{}, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	var result map[string]interface{}
 	err := s.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
@@ -349,6 +379,8 @@ func (s *BboltStorage) getItemByIDTx(b *bbolt.Bucket, id string) (map[string]int
 
 // deleteItem — это универсальный метод для удаления элемента из бакета по ID.
 func (s *BboltStorage) deleteItem(bucketName []byte, id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if err := b.Delete([]byte(id)); err != nil {
@@ -377,4 +409,22 @@ func (s *BboltStorage) decryptItem(data []byte, target interface{}) error {
 		return fmt.Errorf("could not unmarshal item: %w", err)
 	}
 	return nil
+}
+
+// determineOpType определяет тип операции для элемента синхронизации.
+// Возвращает тип операции и флаг, нужно ли синхронизировать элемент.
+func determineOpType(deleted bool, changeTime, syncTime int64, serverID string) (grpchelper.OpType, bool) {
+	if deleted {
+		return grpchelper.Delete, true
+	}
+
+	if serverID == "" {
+		return grpchelper.Create, true
+	}
+
+	if syncTime < changeTime {
+		return grpchelper.Update, true
+	}
+
+	return "", false // Уже синхронизировано и не менялось, синхронизация не требуется
 }

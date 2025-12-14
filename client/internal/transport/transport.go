@@ -2,9 +2,10 @@ package transport
 
 import (
 	"context"
+	"fmt"
 	"gophKeeper/client/internal/config"
+	grpc "gophKeeper/client/internal/transport/grpc"
 	model "gophKeeper/pkg/grpchelper"
-	"gophKeeper/client/internal/transport/grpc"
 
 	pb "gophKeeper/internal/proto/gen"
 
@@ -12,6 +13,43 @@ import (
 
 	"github.com/rs/zerolog"
 )
+
+// Типы для хранения token и deviceID в контексте (должны совпадать с services пакетом)
+type ContextKey string
+
+const (
+	TokenKey    ContextKey = "token"
+	DeviceIDKey ContextKey = "deviceID"
+)
+
+// WithAuthCredentials добавляет token и deviceID в контекст
+func WithAuthCredentials(ctx context.Context, token, deviceID string) context.Context {
+	ctx = context.WithValue(ctx, TokenKey, token)
+	ctx = context.WithValue(ctx, DeviceIDKey, deviceID)
+	return ctx
+}
+
+// getAuthFromContext извлекает token и deviceID из контекста
+func getAuthFromContext(ctx context.Context) (token, deviceID string, err error) {
+	tokenVal := ctx.Value(TokenKey)
+	if tokenVal == nil {
+		return "", "", fmt.Errorf("token not found in context")
+	}
+	token, ok := tokenVal.(string)
+	if !ok {
+		return "", "", fmt.Errorf("token has invalid type in context")
+	}
+
+	deviceIDVal := ctx.Value(DeviceIDKey)
+	if deviceIDVal == nil {
+		return "", "", fmt.Errorf("deviceID not found in context")
+	}
+	deviceID, ok = deviceIDVal.(string)
+	if !ok {
+		return "", "", fmt.Errorf("deviceID has invalid type in context")
+	}
+	return token, deviceID, nil
+}
 
 var (
 	// a private singleton instance of the grpc client.
@@ -78,73 +116,95 @@ func Register(ctx context.Context, login, password, email string) (*pb.RegisterR
 }
 
 // SyncTexts проксирует вызов к gRPC клиенту.
-func SyncTexts(ctx context.Context, token, deviceID string, localTexts []model.TextData) ([]model.TextData, error) {
+func SyncTexts(ctx context.Context, localTexts []model.TextData) ([]model.TextData, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+	ctx = withAuth(ctx)
 	return client.SyncTexts(ctx, localTexts)
 }
 
 // SyncCards проксирует вызов к gRPC клиенту.
-func SyncCards(ctx context.Context, token, deviceID string, localCards []model.Card) ([]model.Card, error) {
-	ctx = withAuth(ctx, token, deviceID)
+func SyncCards(ctx context.Context, localCards []model.Card) ([]model.Card, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+	ctx = withAuth(ctx)
 	return client.SyncCards(ctx, localCards)
 }
 
 // SyncShortTexts проксирует вызов для краткой синхронизации текстов.
-func SyncShortTexts(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+func SyncShortTexts(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+	ctx = withAuth(ctx)
 	return client.SyncShortTexts(ctx, shortItems)
 }
 
 // SyncShortCards проксирует вызов для краткой синхронизации карт.
-func SyncShortCards(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+func SyncShortCards(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+	ctx = withAuth(ctx)
 	return client.SyncShortCards(ctx, shortItems)
 }
 
 // SyncShortPasswords проксирует вызов для краткой синхронизации паролей.
-func SyncShortPasswords(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+func SyncShortPasswords(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+	ctx = withAuth(ctx)
 	return client.SyncShortPasswords(ctx, shortItems)
 }
 
 // SyncShortFiles проксирует вызов для краткой синхронизации файлов.
-func SyncShortFiles(ctx context.Context, token, deviceID string, shortItems []model.SyncInfo) ([]string, error) {
+func SyncShortFiles(ctx context.Context, shortItems []model.SyncInfo) (*model.ShortSyncResult, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+	ctx = withAuth(ctx)
 	return client.SyncShortFiles(ctx, shortItems)
 }
 
 // SyncPasswords проксирует вызов к gRPC клиенту.
-func SyncPasswords(ctx context.Context, token, deviceID string, localPasswords []model.Password) ([]model.Password, error) {
-	ctx = withAuth(ctx, token, deviceID)
-	return client.SyncPasswords(ctx, localPasswords)
-}
-
-// SyncFiles проксирует вызов к gRPC клиенту для синхронизации метаданных файлов.
-func SyncFiles(ctx context.Context, token, deviceID string, localFiles []model.FileData) ([]model.FileData, error) {
+func SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error) {
 	if client == nil {
 		return nil, ErrClientNotInitialized
 	}
-	ctx = withAuth(ctx, token, deviceID)
+
+	ctx = withAuth(ctx)
+	return client.SyncPasswords(ctx, localPasswords)
+}
+
+// GetPasswordsByServerIDs получает пароли с сервера по их ServerIDs.
+func GetPasswordsByServerIDs(ctx context.Context, serverPasswordIds []string) ([]model.Password, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+
+	ctx = withAuth(ctx)
+	return client.GetPasswordsByServerIDs(ctx, serverPasswordIds)
+}
+
+// SyncFiles проксирует вызов к gRPC клиенту для синхронизации метаданных файлов.
+func SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error) {
+	if client == nil {
+		return nil, ErrClientNotInitialized
+	}
+	ctx = withAuth(ctx)
 	return client.SyncFiles(ctx, localFiles)
 }
 
 // withAuth добавляет необходимые для аутентификации метаданные в контекст.
-func withAuth(ctx context.Context, token, deviceID string) context.Context {
+func withAuth(ctx context.Context) context.Context {
+	token, deviceID, err := getAuthFromContext(ctx)
+	if err != nil {
+		fmt.Errorf("failed to get auth from context: %w", err)
+		return nil
+	}
 	return metadata.AppendToOutgoingContext(ctx,
 		"authorization", "Bearer "+token,
 		"x-device-id", deviceID,
