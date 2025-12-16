@@ -8,19 +8,20 @@ import "common.proto";
 
 // FileItem представляет метаданные файла
 message FileItem {
-    string local_id = 1; // Локальный идентификатор клиента
-    string server_id = 2; // Идентификатор на сервере
+    int64 local_id = 1; // Локальный идентификатор клиента
+    int64 server_id = 2; // Идентификатор на сервере
     string name = 3; // Имя файла (зашифрован, base64)
     string metadata = 4; // Дополнительные метаданные (зашифрован, base64)
     int64 size = 5; // Размер файла в байтах
     string checksum = 6; // Контрольная сумма метаданных для синхронизации
-    TimeMap timemap = 7; // Временные метки
+    int64 change_time = 7; // Временные метки
     bool deleted = 8; // Флаг удаления (soft delete)
+    int32 version = 9; // Версия записи
 }
 
 
 message RemoveFileRequest {
-    string local_id = 1;
+    int64 local_id = 1;
 }
 
 message RemoveFileResponse {}

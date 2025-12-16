@@ -64,7 +64,7 @@ func NewApp(ctx context.Context) *App {
 	authService := services.NewService(log, userRepo, deviceRepo, cfg)
 	noteService := services.NewNoteService(log, noteRepo)
 	cardService := services.NewCardService(log, cardRepo)
-	passService := services.NewPasswordService(log, passRepo)
+	passService := services.NewPasswordService(log, passRepo, deviceRepo)
 	fileService := services.NewFileService(log, fileRepo)
 
 	// 1. Инициализируем gRPC сервер

@@ -17,7 +17,7 @@ type passFormBackMsg struct{}
 type PassFormModel struct {
 	formModel
 	storage domain.LocalStorage
-	passID  string // ID для редактируемой карты
+	passID  int64 // ID для редактируемой карты
 	err     error  // Ошибка при сохранении
 }
 
@@ -94,7 +94,8 @@ func (m PassFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					Description: m.inputs[2].Value(),
 				}
 				var err error
-				if m.passID != "" { // Если есть ID, обновляем
+				
+				if m.passID != 0 { // Если есть ID, обновляем
 					err = m.storage.UpdatePass(passData)
 				} else { // Иначе создаем новую
 					err = m.storage.SavePass(passData)

@@ -240,8 +240,8 @@ func (s *SqliteStorage) SaveUserCredentials(login, token, deviceID string, encry
 	defer tx.Rollback()
 
 	// Обновляем все поля в таблице config
-	if _, err := tx.Exec("INSERT OR REPLACE INTO config (login, user, token, device, encrypted_master_key) VALUES (?, ?, ?, ?, ?)",
-		login, login, encryptedToken, encryptedDeviceID, encryptedMasterKey); err != nil {
+	if _, err := tx.Exec("update config set login=?, token=?, device=?, encrypted_master_key=? where user=?",
+		login, encryptedToken, encryptedDeviceID, encryptedMasterKey, s.user); err != nil {
 		return err
 	}
 
@@ -415,12 +415,12 @@ func (s *SqliteStorage) GetCards() ([]models.Card, error) {
 	return cards, rows.Err()
 }
 
-func (s *SqliteStorage) GetCardsByIDs(ids []string) ([]models.Card, error) {
+func (s *SqliteStorage) GetCardsByIDs(ids []int64) ([]models.Card, error) {
 	// Not implemented yet
 	return nil, nil
 }
 
-func (s *SqliteStorage) DeleteCard(id string) error {
+func (s *SqliteStorage) DeleteCard(id int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -428,8 +428,6 @@ func (s *SqliteStorage) DeleteCard(id string) error {
 	_, err := s.db.Exec("UPDATE cards SET deleted_at = ? WHERE id = ?", now, id)
 	return err
 }
-
-
 
 func (s *SqliteStorage) SaveLastSyncTime(t int64) error {
 	s.mu.Lock()
@@ -463,10 +461,6 @@ func (s *SqliteStorage) GetLastSyncTime() (int64, error) {
 	}
 	return lastSync.Int64, nil
 }
-
-
-
-
 
 func (s *SqliteStorage) SaveText(textData *models.TextData) error {
 	s.mu.Lock()
@@ -543,12 +537,12 @@ func (s *SqliteStorage) GetTexts() ([]models.TextData, error) {
 	return texts, rows.Err()
 }
 
-func (s *SqliteStorage) GetTextsByIDs(ids []string) ([]models.TextData, error) {
+func (s *SqliteStorage) GetTextsByIDs(ids []int64) ([]models.TextData, error) {
 	// Not implemented yet
 	return nil, nil
 }
 
-func (s *SqliteStorage) DeleteText(id string) error {
+func (s *SqliteStorage) DeleteText(id int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -603,12 +597,12 @@ func (s *SqliteStorage) GetFiles() ([]models.FileData, error) {
 	return files, rows.Err()
 }
 
-func (s *SqliteStorage) GetFilesByIDs(ids []string) ([]models.FileData, error) {
+func (s *SqliteStorage) GetFilesByIDs(ids []int64) ([]models.FileData, error) {
 	// Not implemented yet
 	return nil, nil
 }
 
-func (s *SqliteStorage) GetFileByID(id string) (map[string]interface{}, error) {
+func (s *SqliteStorage) GetFileByID(id int64) (map[string]interface{}, error) {
 	// Not implemented yet
 	return nil, nil
 }
@@ -697,7 +691,7 @@ func (s *SqliteStorage) SaveFileMetadata(data *models.FileData) error {
 	return err
 }
 
-func (s *SqliteStorage) DeleteFileByID(id string) error {
+func (s *SqliteStorage) DeleteFileByID(id int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

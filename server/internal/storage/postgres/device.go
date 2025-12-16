@@ -22,7 +22,7 @@ func NewDeviceRepository(db *sqlx.DB) *DeviceRepository {
 
 // Create создает запись о новом устройстве в базе данных.
 func (r *DeviceRepository) Create(ctx context.Context, device *model.Device) error {
-	query := `INSERT INTO devices (id, user_id, device_id, device_name, created_at, updated_at) VALUES (:id, :user_id, :device_id, :device_name, :created_at, :updated_at)`
+	query := `INSERT INTO devices (id, user_id, device_name, created_at, updated_at) VALUES (:id, :user_id, :device_name, :created_at, :updated_at)`
 	_, err := r.db.NamedExecContext(ctx, query, device)
 	return err
 }
@@ -40,6 +40,15 @@ func (r *DeviceRepository) Update(ctx context.Context, device *model.Device) err
 	}
 	if rowsAffected == 0 {
 		return errors.New("no rows were updated") // Можно заменить на кастомную ошибку
+	}
+	return nil
+}
+
+func (r *DeviceRepository) SyncTime(ctx context.Context, deviceID uuid.UUID) error {
+	query := `UPDATE devices SET last_sync = :last_sync WHERE id = :id`
+	_, err := r.db.NamedExecContext(ctx, query, deviceID)
+	if err != nil {
+		return err
 	}
 	return nil
 }

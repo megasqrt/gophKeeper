@@ -1,20 +1,20 @@
 package grpchelper
 
 type TextData struct {
-	LocalID    string
-	ServerID   string
+	LocalID    int64
+	ServerID   int64
 	Title      string
 	Text       string
 	Checksum   string
 	ChangeTime int64
-	SyncTime   int64
 	Deleted    bool
+	Version    int32
 }
 
-func (t TextData) GetLocalID() string       { return t.LocalID }
-func (t TextData) GetServerID() string      { return t.ServerID }
+func (t TextData) GetLocalID() int64       { return t.LocalID }
+func (t TextData) GetServerID() int64      { return t.ServerID }
 func (t TextData) GetChangeTime() int64     { return t.ChangeTime }
-func (t *TextData) SetLocalID(id string)    { t.LocalID = id }
+func (t *TextData) SetLocalID(id int64)    { t.LocalID = id }
 func (t TextData) GetDeleted() bool         { return t.Deleted }
 func (t *TextData) SetDeleted(deleted bool) { t.Deleted = deleted }
 
@@ -29,7 +29,7 @@ func (t *TextData) ToMap() map[string]interface{} {
 		"text":       t.Text,
 		"checksum":   t.Checksum,
 		"changeTime": t.ChangeTime,
-		"syncTime":   t.SyncTime,
 		"deleted":    t.Deleted,
+		"version":    t.Version,
 	}
 }

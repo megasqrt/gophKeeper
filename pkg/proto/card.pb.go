@@ -23,16 +23,17 @@ const (
 // CardItem представляет данные кредитной карты
 type CardItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId"`
+	xxx_hidden_LocalId     int64                  `protobuf:"varint,1,opt,name=local_id,json=localId"`
+	xxx_hidden_ServerId    int64                  `protobuf:"varint,2,opt,name=server_id,json=serverId"`
 	xxx_hidden_Number      *string                `protobuf:"bytes,3,opt,name=number"`
 	xxx_hidden_Holder      *string                `protobuf:"bytes,4,opt,name=holder"`
 	xxx_hidden_Expiry      *string                `protobuf:"bytes,5,opt,name=expiry"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,6,opt,name=cvv"`
 	xxx_hidden_Metadata    *string                `protobuf:"bytes,7,opt,name=metadata"`
 	xxx_hidden_Checksum    *string                `protobuf:"bytes,8,opt,name=checksum"`
-	xxx_hidden_Timemap     *TimeMap               `protobuf:"bytes,9,opt,name=timemap"`
+	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,9,opt,name=change_time,json=changeTime"`
 	xxx_hidden_Deleted     bool                   `protobuf:"varint,10,opt,name=deleted"`
+	xxx_hidden_Version     int32                  `protobuf:"varint,11,opt,name=version"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -64,24 +65,18 @@ func (x *CardItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *CardItem) GetLocalId() string {
+func (x *CardItem) GetLocalId() int64 {
 	if x != nil {
-		if x.xxx_hidden_LocalId != nil {
-			return *x.xxx_hidden_LocalId
-		}
-		return ""
+		return x.xxx_hidden_LocalId
 	}
-	return ""
+	return 0
 }
 
-func (x *CardItem) GetServerId() string {
+func (x *CardItem) GetServerId() int64 {
 	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
+		return x.xxx_hidden_ServerId
 	}
-	return ""
+	return 0
 }
 
 func (x *CardItem) GetNumber() string {
@@ -144,11 +139,11 @@ func (x *CardItem) GetChecksum() string {
 	return ""
 }
 
-func (x *CardItem) GetTimemap() *TimeMap {
+func (x *CardItem) GetChangeTime() int64 {
 	if x != nil {
-		return x.xxx_hidden_Timemap
+		return x.xxx_hidden_ChangeTime
 	}
-	return nil
+	return 0
 }
 
 func (x *CardItem) GetDeleted() bool {
@@ -158,53 +153,66 @@ func (x *CardItem) GetDeleted() bool {
 	return false
 }
 
-func (x *CardItem) SetLocalId(v string) {
-	x.xxx_hidden_LocalId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+func (x *CardItem) GetVersion() int32 {
+	if x != nil {
+		return x.xxx_hidden_Version
+	}
+	return 0
 }
 
-func (x *CardItem) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+func (x *CardItem) SetLocalId(v int64) {
+	x.xxx_hidden_LocalId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+}
+
+func (x *CardItem) SetServerId(v int64) {
+	x.xxx_hidden_ServerId = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
 }
 
 func (x *CardItem) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
 }
 
 func (x *CardItem) SetHolder(v string) {
 	x.xxx_hidden_Holder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
 }
 
 func (x *CardItem) SetExpiry(v string) {
 	x.xxx_hidden_Expiry = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
 }
 
 func (x *CardItem) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
 }
 
 func (x *CardItem) SetMetadata(v string) {
 	x.xxx_hidden_Metadata = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
 }
 
 func (x *CardItem) SetChecksum(v string) {
 	x.xxx_hidden_Checksum = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
 }
 
-func (x *CardItem) SetTimemap(v *TimeMap) {
-	x.xxx_hidden_Timemap = v
+func (x *CardItem) SetChangeTime(v int64) {
+	x.xxx_hidden_ChangeTime = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
 }
 
 func (x *CardItem) SetDeleted(v bool) {
 	x.xxx_hidden_Deleted = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+}
+
+func (x *CardItem) SetVersion(v int32) {
+	x.xxx_hidden_Version = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
 }
 
 func (x *CardItem) HasLocalId() bool {
@@ -263,11 +271,11 @@ func (x *CardItem) HasChecksum() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *CardItem) HasTimemap() bool {
+func (x *CardItem) HasChangeTime() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Timemap != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
 func (x *CardItem) HasDeleted() bool {
@@ -277,14 +285,21 @@ func (x *CardItem) HasDeleted() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
+func (x *CardItem) HasVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
 func (x *CardItem) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_LocalId = nil
+	x.xxx_hidden_LocalId = 0
 }
 
 func (x *CardItem) ClearServerId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_ServerId = nil
+	x.xxx_hidden_ServerId = 0
 }
 
 func (x *CardItem) ClearNumber() {
@@ -317,8 +332,9 @@ func (x *CardItem) ClearChecksum() {
 	x.xxx_hidden_Checksum = nil
 }
 
-func (x *CardItem) ClearTimemap() {
-	x.xxx_hidden_Timemap = nil
+func (x *CardItem) ClearChangeTime() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_ChangeTime = 0
 }
 
 func (x *CardItem) ClearDeleted() {
@@ -326,19 +342,25 @@ func (x *CardItem) ClearDeleted() {
 	x.xxx_hidden_Deleted = false
 }
 
+func (x *CardItem) ClearVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	x.xxx_hidden_Version = 0
+}
+
 type CardItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	LocalId  *string
-	ServerId *string
-	Number   *string
-	Holder   *string
-	Expiry   *string
-	Cvv      *string
-	Metadata *string
-	Checksum *string
-	Timemap  *TimeMap
-	Deleted  *bool
+	LocalId    *int64
+	ServerId   *int64
+	Number     *string
+	Holder     *string
+	Expiry     *string
+	Cvv        *string
+	Metadata   *string
+	Checksum   *string
+	ChangeTime *int64
+	Deleted    *bool
+	Version    *int32
 }
 
 func (b0 CardItem_builder) Build() *CardItem {
@@ -346,48 +368,55 @@ func (b0 CardItem_builder) Build() *CardItem {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.LocalId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
-		x.xxx_hidden_LocalId = b.LocalId
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		x.xxx_hidden_LocalId = *b.LocalId
 	}
 	if b.ServerId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
-		x.xxx_hidden_ServerId = b.ServerId
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
+		x.xxx_hidden_ServerId = *b.ServerId
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.Holder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
 		x.xxx_hidden_Holder = b.Holder
 	}
 	if b.Expiry != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
 		x.xxx_hidden_Expiry = b.Expiry
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Metadata != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
 		x.xxx_hidden_Metadata = b.Metadata
 	}
 	if b.Checksum != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
 		x.xxx_hidden_Checksum = b.Checksum
 	}
-	x.xxx_hidden_Timemap = b.Timemap
+	if b.ChangeTime != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		x.xxx_hidden_ChangeTime = *b.ChangeTime
+	}
 	if b.Deleted != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
 		x.xxx_hidden_Deleted = *b.Deleted
+	}
+	if b.Version != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		x.xxx_hidden_Version = *b.Version
 	}
 	return m0
 }
 
 type RemoveCardRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
+	xxx_hidden_LocalId     int64                  `protobuf:"varint,1,opt,name=local_id,json=localId"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -419,18 +448,15 @@ func (x *RemoveCardRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *RemoveCardRequest) GetLocalId() string {
+func (x *RemoveCardRequest) GetLocalId() int64 {
 	if x != nil {
-		if x.xxx_hidden_LocalId != nil {
-			return *x.xxx_hidden_LocalId
-		}
-		return ""
+		return x.xxx_hidden_LocalId
 	}
-	return ""
+	return 0
 }
 
-func (x *RemoveCardRequest) SetLocalId(v string) {
-	x.xxx_hidden_LocalId = &v
+func (x *RemoveCardRequest) SetLocalId(v int64) {
+	x.xxx_hidden_LocalId = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
@@ -443,13 +469,13 @@ func (x *RemoveCardRequest) HasLocalId() bool {
 
 func (x *RemoveCardRequest) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_LocalId = nil
+	x.xxx_hidden_LocalId = 0
 }
 
 type RemoveCardRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	LocalId *string
+	LocalId *int64
 }
 
 func (b0 RemoveCardRequest_builder) Build() *RemoveCardRequest {
@@ -458,7 +484,7 @@ func (b0 RemoveCardRequest_builder) Build() *RemoveCardRequest {
 	_, _ = b, x
 	if b.LocalId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_LocalId = b.LocalId
+		x.xxx_hidden_LocalId = *b.LocalId
 	}
 	return m0
 }
@@ -673,21 +699,23 @@ const file_card_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"card.proto\x12\n" +
-	"gophkeeper\x1a\fcommon.proto\"\x9d\x02\n" +
+	"gophkeeper\x1a\fcommon.proto\"\xa9\x02\n" +
 	"\bCardItem\x12\x19\n" +
-	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
-	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x16\n" +
+	"\blocal_id\x18\x01 \x01(\x03R\alocalId\x12\x1b\n" +
+	"\tserver_id\x18\x02 \x01(\x03R\bserverId\x12\x16\n" +
 	"\x06number\x18\x03 \x01(\tR\x06number\x12\x16\n" +
 	"\x06holder\x18\x04 \x01(\tR\x06holder\x12\x16\n" +
 	"\x06expiry\x18\x05 \x01(\tR\x06expiry\x12\x10\n" +
 	"\x03cvv\x18\x06 \x01(\tR\x03cvv\x12\x1a\n" +
 	"\bmetadata\x18\a \x01(\tR\bmetadata\x12\x1a\n" +
-	"\bchecksum\x18\b \x01(\tR\bchecksum\x12-\n" +
-	"\atimemap\x18\t \x01(\v2\x13.gophkeeper.TimeMapR\atimemap\x12\x18\n" +
+	"\bchecksum\x18\b \x01(\tR\bchecksum\x12\x1f\n" +
+	"\vchange_time\x18\t \x01(\x03R\n" +
+	"changeTime\x12\x18\n" +
 	"\adeleted\x18\n" +
-	" \x01(\bR\adeleted\".\n" +
+	" \x01(\bR\adeleted\x12\x18\n" +
+	"\aversion\x18\v \x01(\x05R\aversion\".\n" +
 	"\x11RemoveCardRequest\x12\x19\n" +
-	"\blocal_id\x18\x01 \x01(\tR\alocalId\"\x14\n" +
+	"\blocal_id\x18\x01 \x01(\x03R\alocalId\"\x14\n" +
 	"\x12RemoveCardResponse\"\x11\n" +
 	"\x0fGetCardsRequest\">\n" +
 	"\x10GetCardsResponse\x12*\n" +
@@ -710,26 +738,24 @@ var file_card_proto_goTypes = []any{
 	(*GetCardsRequest)(nil),    // 3: gophkeeper.GetCardsRequest
 	(*GetCardsResponse)(nil),   // 4: gophkeeper.GetCardsResponse
 	(*CardsSyncRequest)(nil),   // 5: gophkeeper.CardsSyncRequest
-	(*TimeMap)(nil),            // 6: gophkeeper.TimeMap
-	(*Response)(nil),           // 7: gophkeeper.Response
+	(*Response)(nil),           // 6: gophkeeper.Response
 }
 var file_card_proto_depIdxs = []int32{
-	6, // 0: gophkeeper.CardItem.timemap:type_name -> gophkeeper.TimeMap
-	0, // 1: gophkeeper.GetCardsResponse.cards:type_name -> gophkeeper.CardItem
-	0, // 2: gophkeeper.CardsSyncRequest.cards:type_name -> gophkeeper.CardItem
-	0, // 3: gophkeeper.CardService.UpdateCard:input_type -> gophkeeper.CardItem
-	1, // 4: gophkeeper.CardService.RemoveCard:input_type -> gophkeeper.RemoveCardRequest
-	3, // 5: gophkeeper.CardService.GetCards:input_type -> gophkeeper.GetCardsRequest
-	5, // 6: gophkeeper.CardService.CardsSync:input_type -> gophkeeper.CardsSyncRequest
-	7, // 7: gophkeeper.CardService.UpdateCard:output_type -> gophkeeper.Response
-	2, // 8: gophkeeper.CardService.RemoveCard:output_type -> gophkeeper.RemoveCardResponse
-	4, // 9: gophkeeper.CardService.GetCards:output_type -> gophkeeper.GetCardsResponse
-	4, // 10: gophkeeper.CardService.CardsSync:output_type -> gophkeeper.GetCardsResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 0: gophkeeper.GetCardsResponse.cards:type_name -> gophkeeper.CardItem
+	0, // 1: gophkeeper.CardsSyncRequest.cards:type_name -> gophkeeper.CardItem
+	0, // 2: gophkeeper.CardService.UpdateCard:input_type -> gophkeeper.CardItem
+	1, // 3: gophkeeper.CardService.RemoveCard:input_type -> gophkeeper.RemoveCardRequest
+	3, // 4: gophkeeper.CardService.GetCards:input_type -> gophkeeper.GetCardsRequest
+	5, // 5: gophkeeper.CardService.CardsSync:input_type -> gophkeeper.CardsSyncRequest
+	6, // 6: gophkeeper.CardService.UpdateCard:output_type -> gophkeeper.Response
+	2, // 7: gophkeeper.CardService.RemoveCard:output_type -> gophkeeper.RemoveCardResponse
+	4, // 8: gophkeeper.CardService.GetCards:output_type -> gophkeeper.GetCardsResponse
+	4, // 9: gophkeeper.CardService.CardsSync:output_type -> gophkeeper.GetCardsResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_card_proto_init() }

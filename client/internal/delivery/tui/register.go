@@ -145,7 +145,7 @@ func (m *regmodel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.attemptsLeft--
-		if m.attemptsLeft <= 0 {
+		if m.attemptsLeft != 0 {
 			m.err = fmt.Errorf("too many failed attempts: %w", m.err)
 			return m, tea.Quit
 		}
@@ -269,7 +269,7 @@ func performRegistration(cfg *config.Config, login, password, email string, stor
 	}
 }
 
-// getDeviceIDFromToken парсит JWT и извлекает из него device_id.
+// getDeviceIDFromToken парсит JWT и извлекает из него device id.
 func getDeviceIDFromToken(tokenString string) (string, error) {
 	// JWT состоит из 3 частей, разделенных точками. Нам нужна вторая часть (payload).
 	parts := strings.Split(tokenString, ".")

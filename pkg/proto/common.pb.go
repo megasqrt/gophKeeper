@@ -20,117 +20,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// TimeMap содержит временные метки для синхронизации
-type TimeMap struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ChangeTime  int64                  `protobuf:"varint,1,opt,name=change_time,json=changeTime"`
-	xxx_hidden_SyncTime    int64                  `protobuf:"varint,2,opt,name=sync_time,json=syncTime"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *TimeMap) Reset() {
-	*x = TimeMap{}
-	mi := &file_common_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TimeMap) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TimeMap) ProtoMessage() {}
-
-func (x *TimeMap) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *TimeMap) GetChangeTime() int64 {
-	if x != nil {
-		return x.xxx_hidden_ChangeTime
-	}
-	return 0
-}
-
-func (x *TimeMap) GetSyncTime() int64 {
-	if x != nil {
-		return x.xxx_hidden_SyncTime
-	}
-	return 0
-}
-
-func (x *TimeMap) SetChangeTime(v int64) {
-	x.xxx_hidden_ChangeTime = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
-}
-
-func (x *TimeMap) SetSyncTime(v int64) {
-	x.xxx_hidden_SyncTime = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
-}
-
-func (x *TimeMap) HasChangeTime() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *TimeMap) HasSyncTime() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
-func (x *TimeMap) ClearChangeTime() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ChangeTime = 0
-}
-
-func (x *TimeMap) ClearSyncTime() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_SyncTime = 0
-}
-
-type TimeMap_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	ChangeTime *int64
-	SyncTime   *int64
-}
-
-func (b0 TimeMap_builder) Build() *TimeMap {
-	m0 := &TimeMap{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.ChangeTime != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
-		x.xxx_hidden_ChangeTime = *b.ChangeTime
-	}
-	if b.SyncTime != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
-		x.xxx_hidden_SyncTime = *b.SyncTime
-	}
-	return m0
-}
-
 // ShortItem представляет краткую информацию об элементе для синхронизации
 type ShortItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_LocalId     *string                `protobuf:"bytes,1,opt,name=local_id,json=localId"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,2,opt,name=server_id,json=serverId"`
+	xxx_hidden_LocalId     int64                  `protobuf:"varint,1,opt,name=local_id,json=localId"`
+	xxx_hidden_ServerId    int64                  `protobuf:"varint,2,opt,name=server_id,json=serverId"`
 	xxx_hidden_Checksum    *string                `protobuf:"bytes,3,opt,name=checksum"`
 	xxx_hidden_Type        *string                `protobuf:"bytes,4,opt,name=type"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
@@ -141,7 +35,7 @@ type ShortItem struct {
 
 func (x *ShortItem) Reset() {
 	*x = ShortItem{}
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -153,7 +47,7 @@ func (x *ShortItem) String() string {
 func (*ShortItem) ProtoMessage() {}
 
 func (x *ShortItem) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,24 +58,18 @@ func (x *ShortItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *ShortItem) GetLocalId() string {
+func (x *ShortItem) GetLocalId() int64 {
 	if x != nil {
-		if x.xxx_hidden_LocalId != nil {
-			return *x.xxx_hidden_LocalId
-		}
-		return ""
+		return x.xxx_hidden_LocalId
 	}
-	return ""
+	return 0
 }
 
-func (x *ShortItem) GetServerId() string {
+func (x *ShortItem) GetServerId() int64 {
 	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
+		return x.xxx_hidden_ServerId
 	}
-	return ""
+	return 0
 }
 
 func (x *ShortItem) GetChecksum() string {
@@ -204,13 +92,13 @@ func (x *ShortItem) GetType() string {
 	return ""
 }
 
-func (x *ShortItem) SetLocalId(v string) {
-	x.xxx_hidden_LocalId = &v
+func (x *ShortItem) SetLocalId(v int64) {
+	x.xxx_hidden_LocalId = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
 }
 
-func (x *ShortItem) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
+func (x *ShortItem) SetServerId(v int64) {
+	x.xxx_hidden_ServerId = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
@@ -254,12 +142,12 @@ func (x *ShortItem) HasType() bool {
 
 func (x *ShortItem) ClearLocalId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_LocalId = nil
+	x.xxx_hidden_LocalId = 0
 }
 
 func (x *ShortItem) ClearServerId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_ServerId = nil
+	x.xxx_hidden_ServerId = 0
 }
 
 func (x *ShortItem) ClearChecksum() {
@@ -275,8 +163,8 @@ func (x *ShortItem) ClearType() {
 type ShortItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	LocalId  *string
-	ServerId *string
+	LocalId  *int64
+	ServerId *int64
 	Checksum *string
 	Type     *string
 }
@@ -287,11 +175,11 @@ func (b0 ShortItem_builder) Build() *ShortItem {
 	_, _ = b, x
 	if b.LocalId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
-		x.xxx_hidden_LocalId = b.LocalId
+		x.xxx_hidden_LocalId = *b.LocalId
 	}
 	if b.ServerId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
-		x.xxx_hidden_ServerId = b.ServerId
+		x.xxx_hidden_ServerId = *b.ServerId
 	}
 	if b.Checksum != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
@@ -307,7 +195,7 @@ func (b0 ShortItem_builder) Build() *ShortItem {
 // Response используется для возврата server_id после операций
 type Response struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ServerId    *string                `protobuf:"bytes,1,opt,name=server_id,json=serverId"`
+	xxx_hidden_ServerId    int64                  `protobuf:"varint,1,opt,name=server_id,json=serverId"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -316,7 +204,7 @@ type Response struct {
 
 func (x *Response) Reset() {
 	*x = Response{}
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +216,7 @@ func (x *Response) String() string {
 func (*Response) ProtoMessage() {}
 
 func (x *Response) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -339,18 +227,15 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *Response) GetServerId() string {
+func (x *Response) GetServerId() int64 {
 	if x != nil {
-		if x.xxx_hidden_ServerId != nil {
-			return *x.xxx_hidden_ServerId
-		}
-		return ""
+		return x.xxx_hidden_ServerId
 	}
-	return ""
+	return 0
 }
 
-func (x *Response) SetServerId(v string) {
-	x.xxx_hidden_ServerId = &v
+func (x *Response) SetServerId(v int64) {
+	x.xxx_hidden_ServerId = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
@@ -363,13 +248,13 @@ func (x *Response) HasServerId() bool {
 
 func (x *Response) ClearServerId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ServerId = nil
+	x.xxx_hidden_ServerId = 0
 }
 
 type Response_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	ServerId *string
+	ServerId *int64
 }
 
 func (b0 Response_builder) Build() *Response {
@@ -378,7 +263,7 @@ func (b0 Response_builder) Build() *Response {
 	_, _ = b, x
 	if b.ServerId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_ServerId = b.ServerId
+		x.xxx_hidden_ServerId = *b.ServerId
 	}
 	return m0
 }
@@ -386,15 +271,15 @@ func (b0 Response_builder) Build() *Response {
 // ShortSyncResponse возвращает список локальных ID элементов, которые нужно синхронизировать полностью
 type ShortSyncResponse struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_LocalIds  []string               `protobuf:"bytes,1,rep,name=local_ids,json=localIds"`
-	xxx_hidden_ServerIds []string               `protobuf:"bytes,2,rep,name=server_ids,json=serverIds"`
+	xxx_hidden_LocalIds  []int64                `protobuf:"varint,1,rep,packed,name=local_ids,json=localIds"`
+	xxx_hidden_ServerIds []int64                `protobuf:"varint,2,rep,packed,name=server_ids,json=serverIds"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ShortSyncResponse) Reset() {
 	*x = ShortSyncResponse{}
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +291,7 @@ func (x *ShortSyncResponse) String() string {
 func (*ShortSyncResponse) ProtoMessage() {}
 
 func (x *ShortSyncResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,33 +302,33 @@ func (x *ShortSyncResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *ShortSyncResponse) GetLocalIds() []string {
+func (x *ShortSyncResponse) GetLocalIds() []int64 {
 	if x != nil {
 		return x.xxx_hidden_LocalIds
 	}
 	return nil
 }
 
-func (x *ShortSyncResponse) GetServerIds() []string {
+func (x *ShortSyncResponse) GetServerIds() []int64 {
 	if x != nil {
 		return x.xxx_hidden_ServerIds
 	}
 	return nil
 }
 
-func (x *ShortSyncResponse) SetLocalIds(v []string) {
+func (x *ShortSyncResponse) SetLocalIds(v []int64) {
 	x.xxx_hidden_LocalIds = v
 }
 
-func (x *ShortSyncResponse) SetServerIds(v []string) {
+func (x *ShortSyncResponse) SetServerIds(v []int64) {
 	x.xxx_hidden_ServerIds = v
 }
 
 type ShortSyncResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	LocalIds  []string
-	ServerIds []string
+	LocalIds  []int64
+	ServerIds []int64
 }
 
 func (b0 ShortSyncResponse_builder) Build() *ShortSyncResponse {
@@ -460,29 +345,24 @@ var File_common_proto protoreflect.FileDescriptor
 const file_common_proto_rawDesc = "" +
 	"\n" +
 	"\fcommon.proto\x12\n" +
-	"gophkeeper\"G\n" +
-	"\aTimeMap\x12\x1f\n" +
-	"\vchange_time\x18\x01 \x01(\x03R\n" +
-	"changeTime\x12\x1b\n" +
-	"\tsync_time\x18\x02 \x01(\x03R\bsyncTime\"s\n" +
+	"gophkeeper\"s\n" +
 	"\tShortItem\x12\x19\n" +
-	"\blocal_id\x18\x01 \x01(\tR\alocalId\x12\x1b\n" +
-	"\tserver_id\x18\x02 \x01(\tR\bserverId\x12\x1a\n" +
+	"\blocal_id\x18\x01 \x01(\x03R\alocalId\x12\x1b\n" +
+	"\tserver_id\x18\x02 \x01(\x03R\bserverId\x12\x1a\n" +
 	"\bchecksum\x18\x03 \x01(\tR\bchecksum\x12\x12\n" +
 	"\x04type\x18\x04 \x01(\tR\x04type\"'\n" +
 	"\bResponse\x12\x1b\n" +
-	"\tserver_id\x18\x01 \x01(\tR\bserverId\"O\n" +
+	"\tserver_id\x18\x01 \x01(\x03R\bserverId\"O\n" +
 	"\x11ShortSyncResponse\x12\x1b\n" +
-	"\tlocal_ids\x18\x01 \x03(\tR\blocalIds\x12\x1d\n" +
+	"\tlocal_ids\x18\x01 \x03(\x03R\blocalIds\x12\x1d\n" +
 	"\n" +
-	"server_ids\x18\x02 \x03(\tR\tserverIdsB\x16Z\x14gophKeeper/pkg/protob\beditionsp\xe8\a"
+	"server_ids\x18\x02 \x03(\x03R\tserverIdsB\x16Z\x14gophKeeper/pkg/protob\beditionsp\xe8\a"
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_common_proto_goTypes = []any{
-	(*TimeMap)(nil),           // 0: gophkeeper.TimeMap
-	(*ShortItem)(nil),         // 1: gophkeeper.ShortItem
-	(*Response)(nil),          // 2: gophkeeper.Response
-	(*ShortSyncResponse)(nil), // 3: gophkeeper.ShortSyncResponse
+	(*ShortItem)(nil),         // 0: gophkeeper.ShortItem
+	(*Response)(nil),          // 1: gophkeeper.Response
+	(*ShortSyncResponse)(nil), // 2: gophkeeper.ShortSyncResponse
 }
 var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -503,7 +383,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

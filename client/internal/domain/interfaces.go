@@ -28,9 +28,9 @@ type LocalStorage interface {
 	SaveCard(cardData *models.Card) error
 	UpdateCard(cardData *models.Card) error
 	GetCards() ([]models.Card, error)
-	GetCardsByIDs(ids []string) ([]models.Card, error)
+	GetCardsByIDs(ids []int64) ([]models.Card, error)
 
-	DeleteCard(id string) error
+	DeleteCard(id int64) error
 
 	SaveLastSyncTime(t int64) error
 	GetLastSyncTime() (int64, error)
@@ -39,23 +39,23 @@ type LocalStorage interface {
 	UpdatePass(passData *models.Password) error
 	//UpdatePasswords(passData *[]models.Password) error
 	GetPasswords() ([]models.Password, error)
-	DeletePass(id string) error
+	DeletePass(id int64) error
 
 	SaveText(textData *models.TextData) error
 	UpdateText(textData *models.TextData) error
 	GetTexts() ([]models.TextData, error)
-	GetTextsByIDs(ids []string) ([]models.TextData, error)
+	GetTextsByIDs(ids []int64) ([]models.TextData, error)
 
-	DeleteText(id string) error
+	DeleteText(id int64) error
 
 	GetFiles() ([]models.FileData, error)
-	GetFilesByIDs(ids []string) ([]models.FileData, error)
+	GetFilesByIDs(ids []int64) ([]models.FileData, error)
 
-	GetFileByID(id string) (map[string]interface{}, error)
+	GetFileByID(id int64) (map[string]interface{}, error)
 	UpdateFile(data *models.FileData) error
 	SaveFile(data *models.FileData, content []byte) error
 	SaveFileMetadata(data *models.FileData) error
-	DeleteFileByID(id string) error
+	DeleteFileByID(id int64) error
 
 	Close() error
 }

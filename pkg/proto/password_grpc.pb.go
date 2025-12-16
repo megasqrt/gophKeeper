@@ -19,11 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PasswordService_UpdatePassword_FullMethodName          = "/gophkeeper.PasswordService/UpdatePassword"
-	PasswordService_RemovePassword_FullMethodName          = "/gophkeeper.PasswordService/RemovePassword"
-	PasswordService_GetPasswords_FullMethodName            = "/gophkeeper.PasswordService/GetPasswords"
-	PasswordService_GetPasswordsByServerIDs_FullMethodName = "/gophkeeper.PasswordService/GetPasswordsByServerIDs"
-	PasswordService_PasswordsSync_FullMethodName           = "/gophkeeper.PasswordService/PasswordsSync"
+	PasswordService_UpdatePassword_FullMethodName = "/gophkeeper.PasswordService/UpdatePassword"
+	PasswordService_RemovePassword_FullMethodName = "/gophkeeper.PasswordService/RemovePassword"
+	PasswordService_GetPasswords_FullMethodName   = "/gophkeeper.PasswordService/GetPasswords"
+	PasswordService_PasswordsSync_FullMethodName  = "/gophkeeper.PasswordService/PasswordsSync"
 )
 
 // PasswordServiceClient is the client API for PasswordService service.
@@ -33,7 +32,6 @@ type PasswordServiceClient interface {
 	UpdatePassword(ctx context.Context, in *PasswordItem, opts ...grpc.CallOption) (*Response, error)
 	RemovePassword(ctx context.Context, in *RemovePasswordRequest, opts ...grpc.CallOption) (*RemovePasswordResponse, error)
 	GetPasswords(ctx context.Context, in *GetPasswordsRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error)
-	GetPasswordsByServerIDs(ctx context.Context, in *GetPasswordsByServerIDsRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error)
 	PasswordsSync(ctx context.Context, in *PasswordsSyncRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error)
 }
 
@@ -75,16 +73,6 @@ func (c *passwordServiceClient) GetPasswords(ctx context.Context, in *GetPasswor
 	return out, nil
 }
 
-func (c *passwordServiceClient) GetPasswordsByServerIDs(ctx context.Context, in *GetPasswordsByServerIDsRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetPasswordsResponse)
-	err := c.cc.Invoke(ctx, PasswordService_GetPasswordsByServerIDs_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *passwordServiceClient) PasswordsSync(ctx context.Context, in *PasswordsSyncRequest, opts ...grpc.CallOption) (*GetPasswordsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetPasswordsResponse)
@@ -102,7 +90,6 @@ type PasswordServiceServer interface {
 	UpdatePassword(context.Context, *PasswordItem) (*Response, error)
 	RemovePassword(context.Context, *RemovePasswordRequest) (*RemovePasswordResponse, error)
 	GetPasswords(context.Context, *GetPasswordsRequest) (*GetPasswordsResponse, error)
-	GetPasswordsByServerIDs(context.Context, *GetPasswordsByServerIDsRequest) (*GetPasswordsResponse, error)
 	PasswordsSync(context.Context, *PasswordsSyncRequest) (*GetPasswordsResponse, error)
 	mustEmbedUnimplementedPasswordServiceServer()
 }
@@ -122,9 +109,6 @@ func (UnimplementedPasswordServiceServer) RemovePassword(context.Context, *Remov
 }
 func (UnimplementedPasswordServiceServer) GetPasswords(context.Context, *GetPasswordsRequest) (*GetPasswordsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPasswords not implemented")
-}
-func (UnimplementedPasswordServiceServer) GetPasswordsByServerIDs(context.Context, *GetPasswordsByServerIDsRequest) (*GetPasswordsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetPasswordsByServerIDs not implemented")
 }
 func (UnimplementedPasswordServiceServer) PasswordsSync(context.Context, *PasswordsSyncRequest) (*GetPasswordsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PasswordsSync not implemented")
@@ -204,24 +188,6 @@ func _PasswordService_GetPasswords_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PasswordService_GetPasswordsByServerIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPasswordsByServerIDsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PasswordServiceServer).GetPasswordsByServerIDs(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PasswordService_GetPasswordsByServerIDs_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PasswordServiceServer).GetPasswordsByServerIDs(ctx, req.(*GetPasswordsByServerIDsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PasswordService_PasswordsSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PasswordsSyncRequest)
 	if err := dec(in); err != nil {
@@ -258,10 +224,6 @@ var PasswordService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPasswords",
 			Handler:    _PasswordService_GetPasswords_Handler,
-		},
-		{
-			MethodName: "GetPasswordsByServerIDs",
-			Handler:    _PasswordService_GetPasswordsByServerIDs_Handler,
 		},
 		{
 			MethodName: "PasswordsSync",

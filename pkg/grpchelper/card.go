@@ -7,23 +7,23 @@ import (
 
 // Card представляет собой данные кредитной карты.
 type Card struct {
-	LocalID    string
-	ServerID   string
+	LocalID    int64
+	ServerID   int64
 	Number     string
 	Holder     string
 	Expiry     string
 	CVV        string
 	Metadata   string
 	ChangeTime int64
-	SyncTime   int64
 	Deleted    bool
 	Checksum   string
+	Version	   int32
 }
 
-func (c Card) GetLocalID() string       { return c.LocalID }
-func (c Card) GetServerID() string      { return c.ServerID }
+func (c Card) GetLocalID() int64       { return c.LocalID }
+func (c Card) GetServerID() int64      { return c.ServerID }
 func (c Card) GetChangeTime() int64     { return c.ChangeTime }
-func (c *Card) SetLocalID(id string)    { c.LocalID = id }
+func (c *Card) SetLocalID(id int64)    { c.LocalID = id }
 func (c Card) GetDeleted() bool         { return c.Deleted }
 func (c *Card) SetDeleted(deleted bool) { c.Deleted = deleted }
 func (c Card) GetChecksum() string      { return c.Checksum }

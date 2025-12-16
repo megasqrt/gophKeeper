@@ -143,16 +143,6 @@ func SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]mode
 	return client.SyncPasswords(ctx, localPasswords)
 }
 
-// GetPasswordsByServerIDs получает пароли с сервера по их ServerIDs.
-func GetPasswordsByServerIDs(ctx context.Context, serverPasswordIds []string) ([]model.Password, error) {
-	if client == nil {
-		return nil, ErrClientNotInitialized
-	}
-
-	ctx = withAuth(ctx)
-	return client.GetPasswordsByServerIDs(ctx, serverPasswordIds)
-}
-
 // SyncFiles проксирует вызов к gRPC клиенту для синхронизации метаданных файлов.
 func SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error) {
 	if client == nil {

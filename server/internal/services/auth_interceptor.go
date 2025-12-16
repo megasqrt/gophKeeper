@@ -97,8 +97,21 @@ func AuthInterceptor(log zerolog.Logger, jwtSecret []byte) grpc.UnaryServerInter
 			return nil, status.Error(codes.Unauthenticated, "invalid token: failed to parse user_id")
 		}
 
-		// Добавляем userID в контекст
+		// Извлекаем deviceID из claims
+		deviceIDValue, exists := claims["device_id"]
+		if !exists {
+			log.Warn().Interface("claims", claims).Msg("No device_id in token claims")
+			return nil, status.Error(codes.Unauthenticated, "invalid token: missing device_id")
+		}
+		deviceIDStr, ok := deviceIDValue.(string)
+		if !ok {
+			deviceIDStr = fmt.Sprintf("%v", deviceIDValue)
+			log.Debug().Str("device_id_raw", deviceIDStr).Msg("Converted device_id to string")
+		}
+
+		// Добавляем userID и deviceID в контекст
 		ctx = context.WithValue(ctx, "userID", userID)
+		ctx = context.WithValue(ctx, "deviceID", deviceIDStr)
 
 		// Вызываем следующий обработчик
 		return handler(ctx, req)

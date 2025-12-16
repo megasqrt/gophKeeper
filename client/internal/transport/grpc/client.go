@@ -172,20 +172,6 @@ func (c *Client) SyncPasswords(ctx context.Context, localPasswords []model.Passw
 	return syncedPasswords, nil
 }
 
-func (c *Client) GetPasswordsByServerIDs(ctx context.Context, ids []string) ([]model.Password, error) {
-	req := pb.GetPasswordsByServerIDsRequest_builder{ServerIds: ids}.Build()
-	resp, err := c.Password.GetPasswordsByServerIDs(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	syncedPasswords := make([]model.Password, len(resp.GetPasswords()))
-	for i, pbPass := range resp.GetPasswords() {
-		syncedPasswords[i] = model.FromProtoPassword(pbPass)
-	}
-	return syncedPasswords, nil
-}
-
 // SyncFiles вызывает RPC для синхронизации метаданных файлов.
 func (c *Client) SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error) {
 	// Конвертируем наши модели в DTO для gRPC

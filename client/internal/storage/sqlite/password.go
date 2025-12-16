@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	models "gophKeeper/pkg/grpchelper"
-	"strconv"
 	"time"
 )
 
@@ -111,14 +110,8 @@ func (s *SqliteStorage) UpdatePass(passData *models.Password) error {
 	defer s.mu.Unlock()
 
 	// Проверяем наличие LocalID
-	if passData.LocalID == "" {
+	if passData.LocalID == 0 {
 		return errors.New("LocalID is required for update")
-	}
-
-	// Конвертируем LocalID в int
-	idInt, err := strconv.ParseInt(passData.LocalID, 10, 64)
-	if err != nil {
-		return fmt.Errorf("invalid LocalID format: %w", err)
 	}
 
 	now := time.Now().Unix()
@@ -148,7 +141,7 @@ func (s *SqliteStorage) UpdatePass(passData *models.Password) error {
 		UPDATE credentials 
 		SET data = ?, checksum = ?, updated_at = ?, deleted_at = ?
 		WHERE id = ?`,
-		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, idInt)
+		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, passData.LocalID)
 	if err != nil {
 		return fmt.Errorf("could not update password: %w", err)
 	}
@@ -192,7 +185,7 @@ func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
 
 		// Собираем модель из метаданных (колонки) и данных (JSON)
 		p := models.Password{
-			LocalID:     strconv.FormatInt(id, 10),
+			LocalID:     id,
 			Login:       data.Login,
 			Password:    data.Password,
 			Description: data.Description,
@@ -208,17 +201,11 @@ func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
 	return passwords, rows.Err()
 }
 
-func (s *SqliteStorage) DeletePass(id string) error {
+func (s *SqliteStorage) DeletePass(id int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Конвертируем string ID в int
-	idInt, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return fmt.Errorf("invalid id format: %w", err)
-	}
-
 	now := time.Now().Unix()
-	_, err = s.db.Exec("UPDATE credentials SET deleted_at = ? WHERE id = ?", now, idInt)
+	_, err := s.db.Exec("UPDATE credentials SET deleted_at = ? WHERE id = ?", now, id)
 	return err
 }

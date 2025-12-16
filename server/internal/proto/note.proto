@@ -8,17 +8,18 @@ import "common.proto";
 
 // NoteItem представляет текстовую заметку
 message NoteItem {
-    string local_id = 1; // Локальный идентификатор клиента
-    string server_id = 2; // Идентификатор на сервере
+    int64 local_id = 1; // Локальный идентификатор клиента
+    int64 server_id = 2; // Идентификатор на сервере
     string title = 3; // Заголовок заметки (зашифрован, base64)
     string text = 4; // Текст заметки (зашифрован, base64)
     string checksum = 5; // Контрольная сумма для синхронизации
-    TimeMap timemap = 6; // Временные метки
+    int64 change_time = 6; // Временные метки
     bool deleted = 7; // Флаг удаления (soft delete)
+    int32 version = 8; // Версия записи
 }
 
 message RemoveNoteRequest {
-    string local_id = 1;
+    int64 local_id = 1;
 }
 
 message RemoveNoteResponse {}

@@ -20,7 +20,7 @@ type cardFormBackMsg struct{}
 type CardFormModel struct {
 	formModel
 	storage domain.LocalStorage
-	cardID  string // ID для редактируемой карты
+	cardID  int64 // ID для редактируемой карты
 	err     error  // Ошибка при сохранении
 }
 
@@ -107,7 +107,7 @@ func (m CardFormModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				var err error
-				if m.cardID != "" { // Если есть ID, обновляем
+				if m.cardID != 0 { // Если есть ID, обновляем
 					err = m.storage.UpdateCard(cardData)
 				} else { // Иначе создаем новую
 					err = m.storage.SaveCard(cardData)

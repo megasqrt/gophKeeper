@@ -167,7 +167,7 @@ func (m *TextEditModel) saveNote() {
 	selectedItem.TextData.Text = m.editor.Value()
 
 	var err error
-	if selectedItem.LocalID == "" { // Новый элемент без ID
+	if selectedItem.LocalID == 0 { // Новый элемент без ID
 		err = m.storage.SaveText(&selectedItem.TextData)
 	} else {
 		err = m.storage.UpdateText(&selectedItem.TextData)
@@ -192,7 +192,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case deleteTextMsg:
 		m.state = tableView
 		if msg.confirmed {
-			if item, ok := m.list.SelectedItem().(textItem); ok && item.GetLocalID() != "" {
+			if item, ok := m.list.SelectedItem().(textItem); ok && item.GetLocalID() !=0 {
 				err := m.storage.DeleteText(item.GetLocalID())
 				if err != nil {
 					m.err = err
@@ -273,7 +273,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.DeleteItem):
 			if m.state == tableView {
 				selectedItem, ok := m.list.SelectedItem().(textItem)
-				if ok && selectedItem.LocalID != "" {
+				if ok && selectedItem.LocalID !=0 {
 					m.state = confirmDeleteView
 					m.confirmModel.SetPrompt(fmt.Sprintf("заметку '%s'", selectedItem.Title()))
 					return m, nil

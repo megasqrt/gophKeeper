@@ -13,7 +13,6 @@ type TransportInterface interface {
 	SyncCards(ctx context.Context, localCards []model.Card) ([]model.Card, error)
 	SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error)
 	SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error)
-	GetPasswordsByServerIDs(ctx context.Context, serverPasswordIds []string) ([]model.Password, error)
 }
 
 // defaultTransport реализует TransportInterface используя реальный transport пакет
@@ -32,10 +31,6 @@ func (d *defaultTransport) SyncCards(ctx context.Context, localCards []model.Car
 
 func (d *defaultTransport) SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error) {
 	return transport.SyncPasswords(ctx, localPasswords)
-}
-
-func (d *defaultTransport) GetPasswordsByServerIDs(ctx context.Context, serverPasswordIds []string) ([]model.Password, error) {
-	return transport.GetPasswordsByServerIDs(ctx, serverPasswordIds)
 }
 
 func (d *defaultTransport) SyncFiles(ctx context.Context, localFiles []model.FileData) ([]model.FileData, error) {

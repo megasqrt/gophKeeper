@@ -136,9 +136,9 @@ func (s *SyncService) syncPasswords(ctx context.Context) error {
 		if pass.Deleted {
 			// Мы можем удалять по LocalID, если он есть, или найти его по ServerID.
 			// Для простоты, если LocalID есть, удаляем по нему.
-			if pass.LocalID != "" {
+			if pass.LocalID <= 0 {
 				if err := s.storage.DeletePass(pass.LocalID); err != nil {
-					s.log.Error().Err(err).Str("local_id", pass.LocalID).Msg("Failed to hard delete password")
+					s.log.Error().Err(err).Str("local_id", string(pass.LocalID)).Msg("Failed to hard delete password")
 				}
 			}
 			continue
@@ -147,7 +147,7 @@ func (s *SyncService) syncPasswords(ctx context.Context) error {
 		// Если LocalID пустой, это новая запись с сервера. Сохраняем ее.
 		// Если LocalID есть, это обновление существующей записи.
 		if err := s.storage.UpdatePass(&pass); err != nil {
-			s.log.Error().Err(err).Str("local_id", pass.LocalID).Str("server_id", pass.ServerID).Msg("Failed to save or update password")
+			s.log.Error().Err(err).Str("local_id", string(pass.LocalID)).Str("server_id", string(pass.ServerID)).Msg("Failed to save or update password")
 		}
 	}
 

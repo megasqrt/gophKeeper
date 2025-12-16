@@ -14,4 +14,5 @@ type DeviceRepository interface {
 	FindByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Device, error)
 	FindByID(ctx context.Context, deviceID uuid.UUID) (*model.Device, error)
 	Delete(ctx context.Context, deviceID uuid.UUID) error
+	SyncTime(ctx context.Context, deviceID uuid.UUID) error 
 }
