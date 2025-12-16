@@ -67,7 +67,7 @@ func (s *SqliteStorage) Unlock(user, password string) error {
 
 	// Проверяем ключ, пытаясь расшифровать проверочное значение
 	var passwordBytes []byte
-	err = s.db.QueryRow("SELECT password_hash FROM config WHERE login = ?", user).Scan(&passwordBytes)
+	err = s.db.QueryRow("SELECT password_hash FROM config WHERE user = ?", user).Scan(&passwordBytes)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			s.log.Error().Msg("User not found in storage")

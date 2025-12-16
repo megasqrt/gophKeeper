@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gophKeeper/server/internal/domain/model"
 
 	"github.com/google/uuid"
@@ -20,13 +21,22 @@ func NewPasswordRepository(db *sqlx.DB) *PasswordRepository {
 }
 
 // Create создает новый пароль в базе данных.
-func (r *PasswordRepository) Create(ctx context.Context, pass *model.Password) error {
+func (r *PasswordRepository) Create(ctx context.Context, pass *model.Password) (int64,error) {
 	query := `
-		INSERT INTO login_passwords (id, user_id, login_data, password_data, metadata, checksum, created_at, updated_at)
-		VALUES (:id, :user_id, :login, :password, :description, :checksum, :created_at, :updated_at)
+		INSERT INTO login_passwords (user_id, login_data, password_data, metadata, checksum, created_at, updated_at)
+		VALUES (:user_id, :login, :password, :description, :checksum, :created_at, :updated_at)
 	`
-	_, err := r.db.NamedExecContext(ctx, query, pass)
-	return err
+	result, err := r.db.NamedExecContext(ctx, query, pass)
+    if err != nil {
+        return 0, fmt.Errorf("failed to insert password: %w", err)
+    }
+    
+    // Получаем ID последней вставленной записи
+    lastInsertID, err := result.LastInsertId()
+    if err != nil {
+        return 0, fmt.Errorf("failed to get last insert ID: %w", err)
+    }
+	return lastInsertID, nil
 }
 
 // Update обновляет существующий пароль.
@@ -53,43 +63,13 @@ func (r *PasswordRepository) Update(ctx context.Context, pass *model.Password) e
 // GetByUserID извлекает все пароли для указанного пользователя.
 func (r *PasswordRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Password, error) {
 	var passwords []*model.Password
-	query := `SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at FROM login_passwords WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
+	query := `SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at, version FROM login_passwords WHERE user_id = $1 ORDER BY updated_at DESC`
 	err := r.db.SelectContext(ctx, &passwords, query, userID)
 	return passwords, err
-}
-
-// GetByUserID извлекает все пароли для указанного пользователя.
-func (r *PasswordRepository) GetDeletedByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Password, error) {
-	var passwords []*model.Password
-	query := `SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at FROM login_passwords WHERE user_id = $1 AND deleted_at IS NOT NULL ORDER BY updated_at DESC`
-	err := r.db.SelectContext(ctx, &passwords, query, userID)
-	return passwords, err
-}
-
-// GetServerIDsNotInList возвращает ID серверных записей, которых нет в списке excludeIDs.
-func (r *PasswordRepository) GetServerIDsNotInList(ctx context.Context, userID uuid.UUID, excludeIDs []string) ([]string, error) {
-	var ids []string
-	var query string
-	var err error
-
-	if len(excludeIDs) == 0 {
-		// Если список исключений пуст, возвращаем все ID
-		query = `SELECT id::text FROM login_passwords WHERE user_id = $1 AND deleted_at IS NULL`
-		err = r.db.SelectContext(ctx, &ids, query, userID)
-	} else {
-		// Используем NOT с ANY для проверки, что ID не входит в список
-		query = `SELECT id::text FROM login_passwords WHERE user_id = $1 AND deleted_at IS NULL AND NOT (id::text = ANY($2::text[]))`
-		err = r.db.SelectContext(ctx, &ids, query, userID, excludeIDs)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	return ids, nil
 }
 
 // Delete помечает пароль как удаленный (soft delete).
-func (r *PasswordRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
+func (r *PasswordRepository) Delete(ctx context.Context, id int64, userID uuid.UUID) error {
 	query := `UPDATE login_passwords SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
 	result, err := r.db.ExecContext(ctx, query, id, userID)
 	if err != nil {
@@ -105,23 +85,16 @@ func (r *PasswordRepository) Delete(ctx context.Context, id uuid.UUID, userID uu
 	return nil
 }
 
-// GetByServerIDs извлекает пароли по их серверным ID для указанного пользователя (включая удаленные).
-func (r *PasswordRepository) GetByServerIDs(ctx context.Context, userID uuid.UUID, serverIDs []string) ([]*model.Password, error) {
-	if len(serverIDs) == 0 {
-		return nil, nil
-	}
-
+//получаем все обновленные пароли споследней синхронизации
+func (r *PasswordRepository) GetUserDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Password, error) {
 	var passwords []*model.Password
-	query, args, err := sqlx.In(`
-		SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at 
-		FROM login_passwords 
-		WHERE user_id = ? AND id::text IN (?)
-	`, userID, serverIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	query = r.db.Rebind(query)
-	err = r.db.SelectContext(ctx, &passwords, query, args...)
+	query := `
+	SELECT 
+		id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at, version 
+	FROM login_passwords lp
+	LEFT JOIN devices ON login_passwords.user_id = devices.user_id
+	WHERE user_id = $1 and devices.id = $2 and lp.updated_at > devices.last_sync
+	ORDER BY updated_at DESC`
+	err := r.db.SelectContext(ctx, &passwords, query, userID,deviceID)
 	return passwords, err
 }
