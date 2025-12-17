@@ -1,0 +1,344 @@
+package tui
+
+import (
+	"fmt"
+	"gophKeeper/client/internal/domain"
+	model "gophKeeper/pkg/grpchelper"
+	"io"
+	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/rs/zerolog"
+)
+
+type textItemDelegate struct{}
+
+func (d textItemDelegate) Height() int                               { return 1 }
+func (d textItemDelegate) Spacing() int                              { return 0 }
+func (d textItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+func (d textItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(textItem)
+	if !ok {
+		return
+	}
+
+	str := i.Title()
+
+	if index == m.Index() {
+		title := selectedItemStyle.Render("> " + str)
+		fmt.Fprint(w, title)
+	} else {
+		title := itemStyle.Render(str)
+		fmt.Fprint(w, title)
+	}
+}
+
+type textItem struct {
+	model.TextData
+}
+
+func (i textItem) Title() string       { return i.TextData.Title }
+func (i textItem) FilterValue() string { return i.TextData.Title }
+
+type keyMap struct {
+	SwitchFocus key.Binding
+	Save        key.Binding
+	Back        key.Binding
+	NewItem     key.Binding
+	DeleteItem  key.Binding
+}
+
+type deleteTextMsg struct{ confirmed bool }
+
+type TextEditModel struct {
+	list          list.Model
+	editor        textarea.Model
+	titleInput    textinput.Model
+	storage       domain.LocalStorage
+	confirmModel  ConfirmModel
+	state         viewState
+	focusIndex    int // 0 = title, 1 = editor
+	width, height int
+	err           error
+	keys          keyMap
+	log           *zerolog.Logger
+}
+
+func NewTextEditModel(storage domain.LocalStorage, log *zerolog.Logger) *TextEditModel {
+	l := list.New([]list.Item{}, textItemDelegate{}, 0, 15)
+	l.Title = "Your Secure Notes"
+	l.Styles.Title = listTitleStyle
+	l.SetShowStatusBar(true)
+	l.SetShowPagination(true)
+	l.SetStatusBarItemName("note", "notes")
+
+	l.SetShowHelp(false)
+
+	t := textarea.New()
+	t.Placeholder = "Select a note to view its content..."
+	t.ShowLineNumbers = true
+
+	// Поле для ввода заголовка
+	ti := textinput.New()
+	ti.Placeholder = "Note title..."
+	ti.CharLimit = 100
+	ti.Width = 30
+
+	keys := keyMap{
+		SwitchFocus: key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "switch focus")),
+		Save:        key.NewBinding(key.WithKeys("ctrl+s"), key.WithHelp("ctrl+s", "save")),
+		Back:        key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "back to menu")),
+		NewItem:     key.NewBinding(key.WithKeys("ctrl+n"), key.WithHelp("ctrl+n", "new note")),
+		DeleteItem:  key.NewBinding(key.WithKeys("ctrl+d"), key.WithHelp("ctrl+d", "delete note")),
+	}
+
+	// 4. Собираем модель
+	m := &TextEditModel{
+		titleInput: ti,
+		list:       l,
+		editor:     t,
+		storage:    storage,
+		state:      tableView, // По умолчанию фокус на списке
+		focusIndex: 0,
+		keys:       keys,
+		log:        log,
+	}
+	m.confirmModel = NewConfirmModel("Default prompt", func(confirmed bool) tea.Cmd {
+		return func() tea.Msg {
+			return deleteTextMsg{confirmed: confirmed}
+		}
+	})
+
+	return m
+}
+
+// Load данные из хранилища и обновляет список.
+func (m *TextEditModel) Load() {
+	allTexts, err := m.storage.GetTexts()
+	if err != nil {
+		m.err = fmt.Errorf("could not load notes: %w", err)
+		m.list.SetItems(nil)
+		return
+	}
+
+	var items []list.Item
+	for _, textData := range allTexts {
+		if !textData.Deleted {
+			items = append(items, textItem{textData})
+		}
+	}
+
+	m.list.SetItems(items)
+	if len(items) == 0 {
+		m.syncEditor()
+	}
+}
+
+// syncEditor обновляет содержимое редактора в соответствии с выбранным элементом списка.
+func (m *TextEditModel) syncEditor() {
+	selectedItem, ok := m.list.SelectedItem().(textItem)
+	if !ok {
+		m.titleInput.SetValue("")
+		m.editor.Reset()
+		return
+	}
+
+	m.titleInput.SetValue(selectedItem.Title())
+	m.editor.SetValue(selectedItem.TextData.Text)
+}
+
+func (m *TextEditModel) saveNote() {
+	if m.list.SelectedItem() == nil {
+		return
+	}
+	selectedItem := m.list.SelectedItem().(textItem)
+
+	// Обновляем данные прямо в модели
+	selectedItem.TextData.Title = m.titleInput.Value()
+	selectedItem.TextData.Text = m.editor.Value()
+
+	var err error
+	if selectedItem.LocalID == 0 { // Новый элемент без ID
+		err = m.storage.SaveText(&selectedItem.TextData)
+	} else {
+		err = m.storage.UpdateText(&selectedItem.TextData)
+	}
+	if err == nil {
+		m.err = nil // Сбрасываем ошибку при успехе
+		m.Load()    // Перезагружаем, чтобы обновить данные
+	} else {
+		m.err = fmt.Errorf("could not save note: %w", err)
+	}
+}
+
+func (m *TextEditModel) Init() tea.Cmd {
+	return m.editor.Focus()
+}
+
+func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	switch msg := msg.(type) {
+	case deleteTextMsg:
+		m.state = tableView
+		if msg.confirmed {
+			if item, ok := m.list.SelectedItem().(textItem); ok && item.GetLocalID() != 0 {
+				err := m.storage.DeleteText(item.GetLocalID())
+				if err != nil {
+					m.err = err
+				} else {
+					m.Load()
+				}
+			}
+		}
+		return m, nil
+
+	case tea.WindowSizeMsg:
+		m.height = msg.Height
+		m.width = msg.Width
+		m.confirmModel.setSize(m.width, m.height)
+		listWidth := int(float64(msg.Width) * 0.4) // 40% ширины для списка
+		editorWidth := msg.Width - listWidth
+		m.list.SetHeight(msg.Height - 2) // -2 для рамки и строки помощи
+		m.list.SetWidth(listWidth)
+		m.titleInput.Width = editorWidth - 4 // отступы
+		m.editor.SetWidth(editorWidth)
+		m.editor.SetHeight(msg.Height - 6) // Оставляем место для поля заголовка и отступов
+		return m, nil
+	}
+
+	if m.state == confirmDeleteView {
+		_, cmd = m.confirmModel.Update(msg)
+		return m, cmd
+	}
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, m.keys.Back):
+			if m.state == formView {
+				m.state = tableView
+				m.saveNote()
+				return m, nil
+			}
+			return m, func() tea.Msg { return backToMenuMsg{} }
+
+		case key.Matches(msg, m.keys.SwitchFocus):
+			if m.state == tableView {
+				m.state = formView
+				m.focusIndex = 0 // Начинаем с заголовка
+				cmd = m.titleInput.Focus()
+			} else { // formView - переключаем фокус внутри формы
+				m.focusIndex = (m.focusIndex + 1) % 2 // 0 -> 1, 1 -> 0
+				if m.focusIndex == 0 {
+					m.editor.Blur()
+					cmd = m.titleInput.Focus()
+				} else {
+					m.titleInput.Blur()
+					cmd = m.editor.Focus()
+				}
+			}
+			cmds = append(cmds, cmd)
+
+		case msg.String() == "shift+tab":
+			if m.state == formView && m.focusIndex == 0 {
+				m.state = tableView // Возвращаемся к списку
+				m.saveNote()
+			}
+			cmds = append(cmds, cmd)
+
+		case key.Matches(msg, m.keys.Save):
+			m.saveNote()
+
+		case key.Matches(msg, m.keys.NewItem):
+			newItem := textItem{model.TextData{Title: "Новая заметка", Text: ""}}
+			m.list.InsertItem(0, newItem)
+			m.list.Select(0)
+			m.syncEditor()
+			m.state = formView
+			return m, m.titleInput.Focus()
+
+		case key.Matches(msg, m.keys.DeleteItem):
+			if m.state == tableView {
+				selectedItem, ok := m.list.SelectedItem().(textItem)
+				if ok && selectedItem.LocalID != 0 {
+					m.state = confirmDeleteView
+					m.confirmModel.SetPrompt(fmt.Sprintf("заметку '%s'", selectedItem.Title()))
+					return m, nil
+				}
+			}
+		}
+	}
+
+	// Обновляем компоненты в зависимости от состояния
+	if m.state == tableView {
+		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, cmd)
+		m.syncEditor() // Обновляем редактор при навигации по списку
+	} else {
+		// В режиме формы обновляем только компонент в фокусе
+		if m.focusIndex == 0 {
+			m.titleInput, cmd = m.titleInput.Update(msg)
+			cmds = append(cmds, cmd)
+		} else {
+			m.editor, cmd = m.editor.Update(msg)
+			cmds = append(cmds, cmd)
+		}
+	}
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m *TextEditModel) View() string {
+	var mainView string
+	listView := m.list.View()
+
+	rightPane := lipgloss.JoinVertical(lipgloss.Left,
+		m.titleInput.View(),
+		m.editor.View(),
+	)
+
+	// Добавляем рамку к компоненту в фокусе
+	if m.state == formView {
+		rightPane = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(rightPane)
+	} else {
+		listView = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("205")).Render(listView)
+	}
+
+	help := m.helpView()
+
+	// Соединяем все части вместе
+	mainView = lipgloss.JoinVertical(lipgloss.Left,
+		lipgloss.JoinHorizontal(lipgloss.Top, listView, rightPane),
+		help,
+	)
+
+	if m.err != nil {
+		errorText := lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("Error: " + m.err.Error())
+		mainView = lipgloss.JoinVertical(lipgloss.Left, mainView, errorText)
+	}
+
+	if m.state == confirmDeleteView {
+		dialog := m.confirmModel.View()
+		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, dialog)
+	}
+
+	return mainView
+}
+
+func (m *TextEditModel) helpView() string {
+	var parts []string
+	parts = append(parts, m.keys.NewItem.Help().Key+" "+m.keys.NewItem.Help().Desc)
+	parts = append(parts, m.keys.DeleteItem.Help().Key+" "+m.keys.DeleteItem.Help().Desc)
+	parts = append(parts, m.keys.SwitchFocus.Help().Key+" "+m.keys.SwitchFocus.Help().Desc)
+	parts = append(parts, m.keys.Save.Help().Key+" "+m.keys.Save.Help().Desc)
+	parts = append(parts, m.keys.Back.Help().Key+" "+m.keys.Back.Help().Desc)
+
+	return helpStyle.Render(strings.Join(parts, " | "))
+}

@@ -1,0 +1,44 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/pkg/proto";
+
+message DeviceInfo {
+    string id = 1;
+    string name = 2;
+}
+
+message AddDeviceRequest {
+    string name = 1;
+}
+
+message AddDeviceResponse {
+    string id = 1;
+}
+
+message RemoveDeviceRequest {
+    string id = 1;
+}
+
+message RemoveDeviceResponse {}
+
+message UpdateDeviceRequest {
+    string id = 1;
+    string name = 2;
+}
+
+message UpdateDeviceResponse {}
+
+message GetDevicesRequest {}
+
+message GetDevicesResponse {
+    repeated DeviceInfo devices = 1;
+}
+
+service DeviceService {
+    rpc AddDevice(AddDeviceRequest) returns (AddDeviceResponse);
+    rpc RemoveDevice(RemoveDeviceRequest) returns (RemoveDeviceResponse);
+    rpc UpdateDevice(UpdateDeviceRequest) returns (UpdateDeviceResponse);
+    rpc GetDevices(GetDevicesRequest) returns (GetDevicesResponse);
+}
