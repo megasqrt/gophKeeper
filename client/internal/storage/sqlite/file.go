@@ -25,7 +25,7 @@ func (s *SqliteStorage) GetFiles() ([]model.FileData, error) {
 	defer s.mu.RUnlock()
 
 	rows, err := s.db.Query(`
-		SELECT id, server_id, name, metadata, size, checksum, created_at, updated_at, deleted_at, version 
+		SELECT id, server_id, name, data, size, checksum, created_at, updated_at, deleted_at, version 
 		FROM binary_data 
 		WHERE deleted_at IS NULL`)
 	if err != nil {
@@ -96,14 +96,6 @@ func (s *SqliteStorage) SaveFile(data *model.FileData, content []byte) error {
 		return fmt.Errorf("could not encrypt file name: %w", err)
 	}
 
-	var encryptedMetadata []byte
-	if data.Metadata != "" {
-		encryptedMetadata, err = s.encryptString(data.Metadata)
-		if err != nil {
-			return fmt.Errorf("could not encrypt metadata: %w", err)
-		}
-	}
-
 	encryptedContent, err := s.encrypt(content)
 	if err != nil {
 		return fmt.Errorf("could not encrypt file content: %w", err)
@@ -111,9 +103,9 @@ func (s *SqliteStorage) SaveFile(data *model.FileData, content []byte) error {
 
 	_, err = tx.Exec(`
 		INSERT INTO binary_data 
-		(server_id, data, name, metadata, size, checksum, created_at, updated_at, deleted_at, version) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		data.ServerID, encryptedContent, encryptedName, encryptedMetadata,
+		(server_id, name, data, size, checksum, created_at, updated_at, deleted_at, version) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		data.ServerID, encryptedName, encryptedContent,
 		data.Size, data.Checksum, now, now,
 		sql.NullInt64{Valid: data.Deleted, Int64: now}, data.Version)
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 // Шифрует чувствительные данные (Title, Text) перед отправкой, если установлен Encryptor.
 func (t *TextData) ToProto() *pb.NoteItem {
 	title := t.Title
-	text := t.Text
+	text := t.Data
 
 	// Шифруем данные, если установлен Encryptor
 	if encryptor := GetGlobalEncryptor(); encryptor != nil {
@@ -38,15 +38,15 @@ func (t *TextData) ToProto() *pb.NoteItem {
 // Расшифровывает чувствительные данные (Title, Text) после получения, если установлен Encryptor.
 func FromProtoText(pbText *pb.NoteItem) TextData {
 	title := pbText.GetTitle()
-	text := pbText.GetText()
+	data := pbText.GetText()
 
 	// Расшифровываем данные, если установлен Encryptor
 	if encryptor := GetGlobalEncryptor(); encryptor != nil {
 		if decryptedTitle, err := encryptor.DecryptString(title); err == nil {
 			title = decryptedTitle
 		}
-		if decryptedText, err := encryptor.DecryptString(text); err == nil {
-			text = decryptedText
+		if decryptedText, err := encryptor.DecryptString(data); err == nil {
+			data = decryptedText
 		}
 	}
 
@@ -54,7 +54,7 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 		LocalID:    pbText.GetLocalId(),
 		ServerID:   pbText.GetServerId(),
 		Title:      title,
-		Text:       text,
+		Data:       data,
 		Checksum:   pbText.GetChecksum(),
 		ChangeTime: pbText.GetChangeTime(),
 		Deleted:    pbText.GetDeleted(),

@@ -153,8 +153,6 @@ func (s *SqliteStorage) decryptString(data []byte) (string, error) {
 	return string(decrypted), nil
 }
 
-
-
 func (s *SqliteStorage) SaveLastSyncTime(t int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -186,9 +184,6 @@ func (s *SqliteStorage) GetLastSyncTime() (int64, error) {
 	}
 	return lastSync.Int64, nil
 }
-
-
-
 
 // Close закрывает соединение с базой данных.
 func (s *SqliteStorage) Close() error {

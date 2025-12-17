@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"gophKeeper/server/internal/domain/model"
-
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -21,13 +21,18 @@ func NewFileRepository(db *sqlx.DB) *FileRepository {
 
 // Create создает новый файл в базе данных.
 // Note: поле data оставляем NULL, так как мы храним только метаданные на сервере
-func (r *FileRepository) Create(ctx context.Context, file *model.File) error {
+func (r *FileRepository) Create(ctx context.Context, file *model.File) (int64, error) {
 	query := `
-		INSERT INTO binary_data (id, user_id, name, metadata, size, checksum, data, created_at, updated_at)
-		VALUES (:id, :user_id, :name, :metadata, :size, :checksum, NULL, :created_at, :updated_at)
+		INSERT INTO binary_data ( user_id, name, metadata, size, checksum, data, created_at, updated_at, version)
+		VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9)
+		RETURNING id
 	`
-	_, err := r.db.NamedExecContext(ctx, query, file)
-	return err
+	var id int64
+	err := r.db.GetContext(ctx, &id, query, file.UserID, file.Name, file.Metadata, file.Size, file.Checksum, file.CreatedAt, file.UpdatedAt, file.Version)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert password: %w", err)
+	}
+	return id, err
 }
 
 // Update обновляет существующий файл.

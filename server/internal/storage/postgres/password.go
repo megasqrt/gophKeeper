@@ -95,8 +95,8 @@ func (r *PasswordRepository) FindByChecksum(ctx context.Context, userID uuid.UUI
 	return &pass, nil
 }
 
-// GetUserDeviceLastSinc получает все обновленные пароли с последней синхронизации.
-func (r *PasswordRepository) GetUserDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Password, error) {
+// GetDataDeviceLastSinc получает все обновленные пароли с последней синхронизации.
+func (r *PasswordRepository) GetDataDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Password, error) {
 	var passwords []*model.Password
 	query := `
 	SELECT 

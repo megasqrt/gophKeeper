@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS config (
 CREATE TABLE IF NOT EXISTS credentials (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
-    sync_time INTEGER,
     version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели Password
     checksum TEXT,                   -- Для синхронизации
@@ -24,7 +23,6 @@ CREATE TABLE IF NOT EXISTS credentials (
 CREATE TABLE IF NOT EXISTS cards (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
-    sync_time INTEGER,
     version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели Card
     checksum TEXT,
@@ -36,13 +34,13 @@ CREATE TABLE IF NOT EXISTS cards (
 CREATE TABLE IF NOT EXISTS note (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
-    sync_time INTEGER,
-    version INTEGER,
+    title TEXT NOT NULL,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели TextData
     checksum TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
-    deleted_at INTEGER
+    deleted_at INTEGER,
+    version INTEGER
 );
 
 
@@ -50,14 +48,14 @@ CREATE TABLE IF NOT EXISTS note (
 CREATE TABLE IF NOT EXISTS binary_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
-    sync_time INTEGER,
-    version INTEGER,
+    name TEXT NOT NULL,              -- Имя файла
     data BLOB NOT NULL,              -- Зашифрованное содержимое файла
-    metadata BLOB,                   -- Зашифрованный JSON метаданных FileData (без содержимого)
+    size int64,                   -- Зашифрованный JSON метаданных FileData (без содержимого)
     checksum TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL,
-    deleted_at INTEGER
+    deleted_at INTEGER,
+    version INTEGER
 );
 -- Индексы остаются теми же
 CREATE INDEX IF NOT EXISTS idx_credentials_deleted_at ON credentials(deleted_at);

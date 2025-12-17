@@ -24,24 +24,24 @@ func (s *SqliteStorage) SaveText(textData *model.TextData) error {
 
 	now := time.Now().Unix()
 	textData.ChangeTime = now
-	textData.Checksum = calculateTextChecksum(textData.Title, textData.Text)
+	textData.Checksum = calculateTextChecksum(textData.Title, textData.Data)
 
 	// Шифруем чувствительные данные
 	encryptedTitle, err := s.encryptString(textData.Title)
 	if err != nil {
 		return fmt.Errorf("could not encrypt title: %w", err)
 	}
-	encryptedText, err := s.encryptString(textData.Text)
+	encryptedText, err := s.encryptString(textData.Data)
 	if err != nil {
 		return fmt.Errorf("could not encrypt text: %w", err)
 	}
 
 	_, err = s.db.Exec(`
 		INSERT OR REPLACE INTO note 
-		(server_id, title, text, checksum, created_at, updated_at, deleted_at, version) 
+		(server_id, title, data, checksum, created_at, updated_at, deleted_at, version) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		textData.ServerID, encryptedTitle, encryptedText, textData.Checksum,
-		now, now, sql.NullInt64{Valid: textData.Deleted, Int64: now},textData.Version)
+		now, now, sql.NullInt64{Valid: textData.Deleted, Int64: now}, textData.Version)
 	return err
 }
 
@@ -54,7 +54,7 @@ func (s *SqliteStorage) GetTexts() ([]model.TextData, error) {
 	defer s.mu.RUnlock()
 
 	rows, err := s.db.Query(`
-		SELECT id, server_id, title, text, checksum, created_at, updated_at, deleted_at, version 
+		SELECT id, server_id, title, data, checksum, created_at, updated_at, deleted_at, version 
 		FROM note 
 		WHERE deleted_at IS NULL`)
 	if err != nil {
@@ -69,8 +69,16 @@ func (s *SqliteStorage) GetTexts() ([]model.TextData, error) {
 		var deletedAt sql.NullInt64
 		var createdAt int64
 
-		if err := rows.Scan(&t.LocalID, &encryptedTitle, &encryptedText, &t.Checksum,
-			&createdAt, &t.ChangeTime, &deletedAt); err != nil {
+		if err := rows.Scan(
+			&t.LocalID,
+			&t.ServerID,
+			&encryptedTitle,
+			&encryptedText,
+			&t.Checksum,
+			&createdAt,
+			&t.ChangeTime, 
+			&deletedAt,
+			&t.Version); err != nil {
 			s.log.Error().Err(err).Msg("Failed to scan text")
 			continue
 		}
@@ -80,7 +88,7 @@ func (s *SqliteStorage) GetTexts() ([]model.TextData, error) {
 			s.log.Error().Err(err).Msg("Failed to decrypt title")
 			continue
 		}
-		t.Text, err = s.decryptString(encryptedText)
+		t.Data, err = s.decryptString(encryptedText)
 		if err != nil {
 			s.log.Error().Err(err).Msg("Failed to decrypt text")
 			continue

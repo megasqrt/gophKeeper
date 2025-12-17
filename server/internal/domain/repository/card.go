@@ -13,5 +13,5 @@ type CardRepository interface {
 	Update(ctx context.Context, card *model.Card) error
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Card, error)
 	Delete(ctx context.Context, id int64, userID uuid.UUID) error
-	GetUserDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Card, error)
+	GetDataDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Card, error)
 }

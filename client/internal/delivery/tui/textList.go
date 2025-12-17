@@ -149,7 +149,7 @@ func (m *TextEditModel) syncEditor() {
 	}
 
 	m.titleInput.SetValue(selectedItem.Title())
-	m.editor.SetValue(selectedItem.TextData.Text)
+	m.editor.SetValue(selectedItem.TextData.Data)
 }
 
 func (m *TextEditModel) saveNote() {
@@ -160,7 +160,7 @@ func (m *TextEditModel) saveNote() {
 
 	// Обновляем данные прямо в модели
 	selectedItem.TextData.Title = m.titleInput.Value()
-	selectedItem.TextData.Text = m.editor.Value()
+	selectedItem.TextData.Data = m.editor.Value()
 
 	var err error
 	if selectedItem.LocalID == 0 { // Новый элемент без ID
@@ -257,7 +257,7 @@ func (m *TextEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.saveNote()
 
 		case key.Matches(msg, m.keys.NewItem):
-			newItem := textItem{model.TextData{Title: "Новая заметка", Text: ""}}
+			newItem := textItem{model.TextData{Title: "Новая заметка", Data: ""}}
 			m.list.InsertItem(0, newItem)
 			m.list.Select(0)
 			m.syncEditor()

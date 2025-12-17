@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gophKeeper/server/internal/domain/model"
 
 	"github.com/google/uuid"
@@ -20,13 +21,18 @@ func NewCardRepository(db *sqlx.DB) *CardRepository {
 }
 
 // Create создает новую карту в базе данных.
-func (r *CardRepository) Create(ctx context.Context, card *model.Card) error {
+func (r *CardRepository) Create(ctx context.Context, card *model.Card) (int64, error) {
 	query := `
-		INSERT INTO bank_cards (id, user_id, card_number_data, card_holder_data, expiry_date_data, cvc_data, metadata, checksum, created_at, updated_at)
-		VALUES (:id, :user_id, :number, :holder, :expiry, :cvv, :metadata, :checksum, :created_at, :updated_at)
+		INSERT INTO bank_cards ( user_id, card_number_data, card_holder_data, expiry_date_data, cvc_data, metadata, checksum, created_at, updated_at, version)
+		VALUES ( $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		RETURNING id
 	`
-	_, err := r.db.NamedExecContext(ctx, query, card)
-	return err
+	var id int64
+	err := r.db.GetContext(ctx, &id, query, card.UserID, card.Number, card.Holder, card.Expiry, card.CVV, card.Metadata, card.Checksum, card.CreatedAt, card.UpdatedAt, card.Version)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert password: %w", err)
+	}
+	return id, err
 }
 
 // Update обновляет существующую карту.
@@ -59,8 +65,22 @@ func (r *CardRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*
 }
 
 // Delete помечает карту как удаленную (soft delete).
-func (r *CardRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
+func (r *CardRepository) Delete(ctx context.Context, id int64, userID uuid.UUID) error {
 	query := `UPDATE bank_cards SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)
 	return err
+}
+
+// GetDataDeviceLastSinc получает все обновленные карты с последней синхронизации.
+func (r *CardRepository) GetDataDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Card, error) {
+	var cards []*model.Card
+	query := `
+	SELECT 
+		bc.id, bc.user_id, bc.card_number_data as number, bc.card_holder_data as holder, bc.expiry_date_data as expiry, bc.cvc_data as cvv, bc.metadata, bc.checksum, bc.created_at, bc.updated_at, bc.deleted_at, bc.version 
+	FROM bank_cards bc
+	LEFT JOIN devices d ON bc.user_id = d.user_id
+	WHERE bc.user_id = $1 AND d.id = $2 AND bc.updated_at > COALESCE(d.last_sync, 0)
+	ORDER BY bc.updated_at DESC`
+	err := r.db.SelectContext(ctx, &cards, query, userID, deviceID)
+	return cards, err
 }

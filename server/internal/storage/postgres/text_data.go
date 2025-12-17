@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"gophKeeper/server/internal/domain/model"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -21,13 +22,18 @@ func NewTextDataRepository(db *sqlx.DB) *TextDataRepository {
 }
 
 // Create создает новую текстовую заметку в базе данных.
-func (r *TextDataRepository) Create(ctx context.Context, data *model.TextData) error {
+func (r *TextDataRepository) Create(ctx context.Context, data *model.TextData) (int64, error) {
 	query := `
-		INSERT INTO text_data (id, user_id, title, text, checksum, created_at, updated_at)
-		VALUES (:id, :user_id, :title, :text, :checksum, :created_at, :updated_at)
+		INSERT INTO text_data ( user_id, title, text, checksum, created_at, updated_at, version)
+		VALUES ( $1, $2, $3, $4, $5, $6, $7)
+		RETURNING id
 	`
-	_, err := r.db.NamedExecContext(ctx, query, data)
-	return err
+	var id int64
+	err := r.db.GetContext(ctx, &id, query, data.UserID, data.Title, data.Text, data.Checksum, data.CreatedAt, data.UpdatedAt, data.Version)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert password: %w", err)
+	}
+	return id, err
 }
 
 // GetByID извлекает текстовую заметку по ее ID.

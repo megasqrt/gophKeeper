@@ -169,7 +169,7 @@ func (s *PasswordService) PasswordsSync(ctx context.Context, req *pb.PasswordsSy
 		}
 	}
 
-	newServerPasswords, err := s.passRepo.GetUserDeviceLastSinc(ctx, userID, deviceID)
+	newServerPasswords, err := s.passRepo.GetDataDeviceLastSinc(ctx, userID, deviceID)
 	if err != nil {
 		s.log.Error().Err(err).Msg("failed to get not sinced passwords from db")
 		return nil, status.Error(codes.Internal, "failed to retrieve server data")

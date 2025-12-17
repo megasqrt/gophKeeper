@@ -4,7 +4,7 @@ type TextData struct {
 	LocalID    int64
 	ServerID   int64
 	Title      string
-	Text       string
+	Data       string
 	Checksum   string
 	ChangeTime int64
 	Deleted    bool
@@ -26,7 +26,7 @@ func (t *TextData) ToMap() map[string]interface{} {
 		"id":         t.LocalID, // Хранилище использует "id" для LocalID
 		"server_id":  t.ServerID,
 		"title":      t.Title,
-		"text":       t.Text,
+		"data":       t.Data,
 		"checksum":   t.Checksum,
 		"changeTime": t.ChangeTime,
 		"deleted":    t.Deleted,
