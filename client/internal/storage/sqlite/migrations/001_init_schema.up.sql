@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS credentials (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
     sync_time INTEGER,
-    client_version INTEGER,
-    server_version INTEGER,
+    version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели Password
     checksum TEXT,                   -- Для синхронизации
     created_at INTEGER NOT NULL,
@@ -26,8 +25,7 @@ CREATE TABLE IF NOT EXISTS cards (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
     sync_time INTEGER,
-    client_version INTEGER,
-    server_version INTEGER,
+    version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели Card
     checksum TEXT,
     created_at INTEGER NOT NULL,
@@ -39,8 +37,7 @@ CREATE TABLE IF NOT EXISTS note (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
     sync_time INTEGER,
-    client_version INTEGER,
-    server_version INTEGER,
+    version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованный JSON всей модели TextData
     checksum TEXT,
     created_at INTEGER NOT NULL,
@@ -54,8 +51,7 @@ CREATE TABLE IF NOT EXISTS binary_data (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     server_id INTEGER,
     sync_time INTEGER,
-    client_version INTEGER,
-    server_version INTEGER,
+    version INTEGER,
     data BLOB NOT NULL,              -- Зашифрованное содержимое файла
     metadata BLOB,                   -- Зашифрованный JSON метаданных FileData (без содержимого)
     checksum TEXT,

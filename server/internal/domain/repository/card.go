@@ -9,8 +9,9 @@ import (
 
 // CardRepository определяет интерфейс для работы с картами
 type CardRepository interface {
-	Create(ctx context.Context, card *model.Card) error
+	Create(ctx context.Context, card *model.Card) (int64, error)
 	Update(ctx context.Context, card *model.Card) error
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Card, error)
-	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
+	Delete(ctx context.Context, id int64, userID uuid.UUID) error
+	GetUserDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Card, error)
 }

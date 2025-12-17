@@ -100,9 +100,9 @@ func (s *SqliteStorage) SavePass(passData *models.Password) error {
 
 	_, err = tx.Exec(`
 		INSERT INTO credentials 
-		(server_id, data, checksum, created_at, updated_at, deleted_at, client_version) 
+		(server_id, data, checksum, created_at, updated_at, deleted_at, version) 
 		VALUES (?, ?, ?, ?, ?, ?, 0)`,
-		serverID, encryptedData, passData.Checksum, passData.CreateTime, passData.ChangeTime, deletedAt)
+		serverID, encryptedData, passData.Checksum, passData.CreateTime, passData.ChangeTime, deletedAt,passData.Version)
 	if err != nil {
 		return fmt.Errorf("could not save password: %w", err)
 	}
@@ -144,9 +144,9 @@ func (s *SqliteStorage) UpdatePass(passData *models.Password) error {
 	// UPDATE существующей записи
 	_, err = tx.Exec(`
 		UPDATE credentials 
-		SET data = ?, checksum = ?, updated_at = ?, deleted_at = ?, server_id = ?
+		SET data = ?, checksum = ?, updated_at = ?, deleted_at = ?, server_id = ?, version = ?
 		WHERE id = ?`,
-		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, passData.ServerID, passData.LocalID)
+		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, passData.ServerID, passData.Version, passData.LocalID)
 	if err != nil {
 		return fmt.Errorf("could not update password: %w", err)
 	}
@@ -159,7 +159,7 @@ func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
 	defer s.mu.RUnlock()
 
 	rows, err := s.db.Query(`
-		SELECT id, server_id, data, checksum, created_at, updated_at, deleted_at 
+		SELECT id, server_id, data, checksum, created_at, updated_at, deleted_at, version 
 		FROM credentials 
 		WHERE deleted_at IS NULL
 		ORDER BY updated_at DESC`)
@@ -176,8 +176,8 @@ func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
 		var checksum string
 		var createTime, updateTime int64
 		var deletedAt sql.NullInt64
-
-		if err := rows.Scan(&id, &serverID, &encryptedData, &checksum, &createTime, &updateTime, &deletedAt); err != nil {
+		var version int32
+		if err := rows.Scan(&id, &serverID, &encryptedData, &checksum, &createTime, &updateTime, &deletedAt, &version); err != nil {
 			s.log.Error().Err(err).Msg("Failed to scan password")
 			continue
 		}
@@ -208,6 +208,7 @@ func (s *SqliteStorage) GetPasswords() ([]models.Password, error) {
 			CreateTime:  createTime,
 			ChangeTime:  updateTime,
 			Deleted:     deletedAt.Valid,
+			Version:     version,
 		}
 
 		passwords = append(passwords, p)

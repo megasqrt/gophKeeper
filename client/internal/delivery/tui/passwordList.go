@@ -161,7 +161,7 @@ func (m *PassListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+d":
 			if m.state == tableView && len(m.passs) > 0 {
 				selectedPass := m.passs[m.table.Cursor()]
-				m.confirmModel.SetPrompt(fmt.Sprintf("пароль для '%s'", selectedPass))
+				m.confirmModel.SetPrompt(fmt.Sprintf("пароль для '%v'", selectedPass))
 				m.state = confirmDeleteView
 				return m, nil
 			}
