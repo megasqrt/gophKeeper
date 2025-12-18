@@ -1,0 +1,42 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/pkg/proto";
+
+import "common.proto";
+
+// NoteItem представляет текстовую заметку
+message NoteItem {
+    int64 local_id = 1; // Локальный идентификатор клиента
+    int64 server_id = 2; // Идентификатор на сервере
+    string title = 3; // Заголовок заметки (зашифрован, base64)
+    string text = 4; // Текст заметки (зашифрован, base64)
+    string checksum = 5; // Контрольная сумма для синхронизации
+    int64 change_time = 6; // Временные метки
+    bool deleted = 7; // Флаг удаления (soft delete)
+    int32 version = 8; // Версия записи
+}
+
+message RemoveNoteRequest {
+    int64 local_id = 1;
+}
+
+message RemoveNoteResponse {}
+
+message GetNotesRequest {}
+
+message GetNotesResponse {
+    repeated NoteItem notes = 1;
+}
+
+message NotesSyncRequest {
+    repeated NoteItem notes = 1;
+}
+
+service NoteService {
+    rpc UpdateNote(NoteItem) returns (Response);
+    rpc RemoveNote(RemoveNoteRequest) returns (RemoveNoteResponse);
+    rpc GetNotes(GetNotesRequest) returns (GetNotesResponse);
+    rpc NotesSync(NotesSyncRequest) returns (GetNotesResponse);
+}

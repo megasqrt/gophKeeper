@@ -1,0 +1,91 @@
+package app
+
+import (
+	"context"
+	"gophKeeper/pkg/logger"
+	migrations "gophKeeper/pkg/migrations/pg"
+	"gophKeeper/server/internal/config"
+	"gophKeeper/server/internal/helper"
+	"gophKeeper/server/internal/services"
+	"gophKeeper/server/internal/storage/postgres"
+	"net/http"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog"
+)
+
+// Database определяет интерфейс для работы с базой данных.
+type Database interface {
+	Close() error
+}
+
+type App struct {
+	DB     Database
+	Server *services.Server
+	Logger *zerolog.Logger
+}
+
+func (a *App) Stop() {
+	a.Server.Stop()
+	a.DB.Close()
+}
+
+func NewApp(ctx context.Context, cfg config.Config) *App {
+	log := logger.NewСonsoleLogger()
+
+	helper.BuildInfoPrint()
+
+	var err error
+
+	db, err := sqlx.ConnectContext(ctx, "pgx", cfg.DatabaseURL)
+	if err != nil && cfg.DatabaseURL != "" {
+		log.Fatal().Err(err).Msg("Failed to connect to the database")
+	}
+
+	log.Info().Msg("Successfully create database storage.")
+
+	err = migrations.NewMigration(cfg.DatabaseURL).Up(cfg.MigrationsPath)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to run migrations")
+	}
+	log.Info().Msg("Successfully run migrations.")
+
+	userRepo := postgres.NewUserRepository(db)
+	deviceRepo := postgres.NewDeviceRepository(db)
+	noteRepo := postgres.NewTextDataRepository(db)
+	cardRepo := postgres.NewCardRepository(db)
+	passRepo := postgres.NewPasswordRepository(db)
+	fileRepo := postgres.NewFileRepository(db)
+
+	jwtService := services.NewJWTService([]byte(cfg.HashKey))
+	authService := services.NewService(log, userRepo, deviceRepo, jwtService, cfg)
+	noteService := services.NewNoteService(log, noteRepo)
+	cardService := services.NewCardService(log, cardRepo)
+	passService := services.NewPasswordService(log, passRepo, deviceRepo)
+	fileService := services.NewFileService(log, fileRepo)
+
+	server, err := services.New(log, authService, noteService, cardService, passService, fileService, cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create gRPC server")
+	}
+
+	go func() {
+		if err := server.Start(); err != nil {
+			log.Fatal().Err(err).Msg("Failed to start gRPC server")
+		}
+	}()
+
+	go func() {
+		log.Info().Msg("Starting pprof server on :6060")
+		if err := http.ListenAndServe(":6060", nil); err != nil {
+			log.Error().Err(err).Msg("pprof server error")
+		}
+	}()
+
+	return &App{
+		DB:     db,
+		Server: server,
+		Logger: &log,
+	}
+}

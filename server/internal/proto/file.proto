@@ -1,0 +1,44 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophKeeper/pkg/proto";
+
+import "common.proto";
+
+// FileItem представляет метаданные файла
+message FileItem {
+    int64 local_id = 1; // Локальный идентификатор клиента
+    int64 server_id = 2; // Идентификатор на сервере
+    string name = 3; // Имя файла (зашифрован, base64)
+    string metadata = 4; // Дополнительные метаданные (зашифрован, base64)
+    int64 size = 5; // Размер файла в байтах
+    string checksum = 6; // Контрольная сумма метаданных для синхронизации
+    int64 change_time = 7; // Временные метки
+    bool deleted = 8; // Флаг удаления (soft delete)
+    int32 version = 9; // Версия записи
+}
+
+
+message RemoveFileRequest {
+    int64 local_id = 1;
+}
+
+message RemoveFileResponse {}
+
+message GetFilesRequest {}
+
+message GetFilesResponse {
+    repeated FileItem files = 1;
+}
+
+message FilesSyncRequest {
+    repeated FileItem files = 1;
+}
+
+service FileService {
+    rpc UpdateFile(FileItem) returns (Response);
+    rpc RemoveFile(RemoveFileRequest) returns (RemoveFileResponse);
+    rpc GetFiles(GetFilesRequest) returns (GetFilesResponse);
+    rpc FilesSync(FilesSyncRequest) returns (GetFilesResponse);
+}

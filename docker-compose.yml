@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:alpine
+    ports: 
+      - 5432:5432
+    networks:
+      - backend-network
+    volumes:
+       - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=pwd
+      - POSTGRES_DB=gophkeeper
+    healthcheck:
+       test: ["CMD-SHELL", "pg_isready -U postgres -d gophkeeper"]
+       interval: 5s
+       timeout: 5s
+       retries: 5
+  gkeeper-server:
+    container_name: gkeeper-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #image: gkeeper-server:latest
+    ports:
+      - "9090:9090"
+    networks:
+      - backend-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    # volumes:
+    #   - ./keys:/run/keys:ro
+    #   - ./certs:/run/certs:ro
+    environment:
+      - ADDRESS=:9090
+      - DATABASE_URL=postgres://postgres:pwd@postgres:5432/gophkeeper?sslmode=disable
+      - KEY=secretKey
+      - DEBUG=true
+      - MIGRATIONS_PATH=file://migrations
+      - ENABLE_REFLECTION=true
+
+      # - PRIVATE_KEY_PATH=/run/keys/ed25519.key
+      # - PUBLIC_KEY_PATH=/run/keys/ed25519.pub
+      # - TLS_CERT_PATH=/run/certs/fullchain.pem
+      # - TLS_KEY_PATH=/run/certs/privkey.pem
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
