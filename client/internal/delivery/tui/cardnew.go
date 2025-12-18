@@ -21,7 +21,7 @@ type CardFormModel struct {
 	formModel
 	storage domain.LocalStorage
 	cardID  int64 // ID для редактируемой карты
-	err     error  // Ошибка при сохранении
+	err     error // Ошибка при сохранении
 }
 
 func NewCardForm(storage domain.LocalStorage, card *model.Card) CardFormModel {
@@ -181,8 +181,6 @@ func (m CardFormModel) View() string {
 	return docStyle.Render(b.String())
 }
 func ccnValidator(s string) error {
-	// Credit Card Number should a string less than 20 digits
-	// It should include 16 integers and 3 spaces
 	if len(s) > 16+3 {
 		return fmt.Errorf("CCN is too long")
 	}
@@ -191,13 +189,13 @@ func ccnValidator(s string) error {
 		return fmt.Errorf("CCN is invalid")
 	}
 
-	// The last digit should be a number unless it is a multiple of 4 in which
-	// case it should be a space
+	// Последний символ должен быть числом, если длина не кратна 5,
+	// в противном случае должен быть пробелом
 	if len(s)%5 == 0 && s[len(s)-1] != ' ' {
 		return fmt.Errorf("CCN must separate groups with spaces")
 	}
 
-	// The remaining digits should be integers
+	// Остальные символы должны быть цифрами
 	c := strings.ReplaceAll(s, " ", "")
 	_, err := strconv.ParseInt(c, 10, 64)
 
@@ -205,15 +203,15 @@ func ccnValidator(s string) error {
 }
 
 func expValidator(s string) error {
-	// The 3 character should be a slash (/)
-	// The rest should be numbers
+	// Третий символ должен быть слэшем (/)
+	// Остальные символы должны быть цифрами
 	e := strings.ReplaceAll(s, "/", "")
 	_, err := strconv.ParseInt(e, 10, 64)
 	if err != nil {
 		return fmt.Errorf("EXP is invalid")
 	}
 
-	// There should be only one slash and it should be in the 2nd index (3rd character)
+	// Должен быть только один слэш и он должен быть на позиции 2 (третий символ)
 	if len(s) >= 3 && (strings.Index(s, "/") != 2 || strings.LastIndex(s, "/") != 2) {
 		return fmt.Errorf("EXP is invalid")
 	}
@@ -222,9 +220,9 @@ func expValidator(s string) error {
 }
 
 func cvvValidator(s string) error {
-	// The CVV should be a number of 3 digits
-	// Since the input will already ensure that the CVV is a string of length 3,
-	// All we need to do is check that it is a number
+	// CVV должен быть числом из 3 цифр
+	// Поскольку ввод уже гарантирует, что CVV - это строка длиной 3,
+	// нам нужно только проверить, что это число
 	_, err := strconv.ParseInt(s, 10, 64)
 	return err
 }

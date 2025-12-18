@@ -98,14 +98,21 @@ func (s *SqliteStorage) SavePass(passData *models.Password) error {
 		serverID = sql.NullString{Valid: true, String: fmt.Sprintf("%d", passData.ServerID)}
 	}
 
-	_, err = tx.Exec(`
+	result, err := tx.Exec(`
 		INSERT INTO credentials 
 		(server_id, data, checksum, created_at, updated_at, deleted_at, version) 
-		VALUES (?, ?, ?, ?, ?, ?, 0)`,
-		serverID, encryptedData, passData.Checksum, passData.CreateTime, passData.ChangeTime, deletedAt,passData.Version)
+		VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		serverID, encryptedData, passData.Checksum, passData.CreateTime, passData.ChangeTime, deletedAt, passData.Version)
 	if err != nil {
 		return fmt.Errorf("could not save password: %w", err)
 	}
+
+	// Получаем ID вставленной записи
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("could not get last insert id: %w", err)
+	}
+	passData.LocalID = id
 
 	return tx.Commit()
 }
@@ -142,11 +149,15 @@ func (s *SqliteStorage) UpdatePass(passData *models.Password) error {
 	}
 
 	// UPDATE существующей записи
+	var serverID sql.NullString
+	if passData.ServerID != 0 {
+		serverID = sql.NullString{Valid: true, String: fmt.Sprintf("%d", passData.ServerID)}
+	}
 	_, err = tx.Exec(`
 		UPDATE credentials 
 		SET data = ?, checksum = ?, updated_at = ?, deleted_at = ?, server_id = ?, version = ?
 		WHERE id = ?`,
-		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, passData.ServerID, passData.Version, passData.LocalID)
+		encryptedData, passData.Checksum, passData.ChangeTime, deletedAt, serverID, passData.Version, passData.LocalID)
 	if err != nil {
 		return fmt.Errorf("could not update password: %w", err)
 	}

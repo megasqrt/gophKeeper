@@ -54,7 +54,7 @@ func (m *MockPasswordRepository) FindByChecksum(ctx context.Context, userID uuid
 	return args.Get(0).(*model.Password), args.Error(1)
 }
 
-func (m *MockPasswordRepository) GetUserDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Password, error) {
+func (m *MockPasswordRepository) GetDataDeviceLastSinc(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) ([]*model.Password, error) {
 	args := m.Called(ctx, userID, deviceID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -90,7 +90,7 @@ func TestPasswordsSync_NewPassword(t *testing.T) {
 		pass := args.Get(1).(*model.Password)
 		pass.ID = 100
 	})
-	mockPassRepo.On("GetUserDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
+	mockPassRepo.On("GetDataDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
 	mockDeviceRepo.On("SyncTime", ctx, deviceID).Return(nil)
 
 	// Создаем запрос с новым паролем (ServerID = 0)
@@ -159,7 +159,7 @@ func TestPasswordsSync_UpdatePassword(t *testing.T) {
 	// Настраиваем моки
 	mockPassRepo.On("GetByUserID", ctx, userID).Return([]*model.Password{serverPass}, nil)
 	mockPassRepo.On("Update", ctx, mock.AnythingOfType("*model.Password")).Return(nil)
-	mockPassRepo.On("GetUserDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
+	mockPassRepo.On("GetDataDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
 	mockDeviceRepo.On("SyncTime", ctx, deviceID).Return(nil)
 
 	// Создаем запрос с обновленным паролем
@@ -208,7 +208,7 @@ func TestPasswordsSync_DeletePassword(t *testing.T) {
 	// Настраиваем моки
 	mockPassRepo.On("GetByUserID", ctx, userID).Return([]*model.Password{}, nil)
 	mockPassRepo.On("Delete", ctx, serverID, userID).Return(nil)
-	mockPassRepo.On("GetUserDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
+	mockPassRepo.On("GetDataDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{}, nil)
 	mockDeviceRepo.On("SyncTime", ctx, deviceID).Return(nil)
 
 	// Создаем запрос с удаленным паролем
@@ -305,7 +305,7 @@ func TestPasswordsSync_ServerOnlyPasswords(t *testing.T) {
 
 	// Настраиваем моки
 	mockPassRepo.On("GetByUserID", ctx, userID).Return([]*model.Password{}, nil)
-	mockPassRepo.On("GetUserDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{serverOnlyPass}, nil)
+	mockPassRepo.On("GetDataDeviceLastSinc", ctx, userID, deviceID).Return([]*model.Password{serverOnlyPass}, nil)
 	mockDeviceRepo.On("SyncTime", ctx, deviceID).Return(nil)
 
 	req := pb.PasswordsSyncRequest_builder{

@@ -6,7 +6,7 @@ import (
 
 // --- TextData Converters ---
 
-// ToProto converts a domain TextData model to a Protobuf TextData model.
+// ToProto конвертирует доменную модель TextData в Protobuf модель TextData.
 // Шифрует чувствительные данные (Title, Text) перед отправкой, если установлен Encryptor.
 func (t *TextData) ToProto() *pb.NoteItem {
 	title := t.Title
@@ -23,18 +23,18 @@ func (t *TextData) ToProto() *pb.NoteItem {
 	}
 
 	return pb.NoteItem_builder{
-		LocalId:  &t.LocalID,
-		ServerId: &t.ServerID,
-		Title:    &title,
-		Text:     &text,
-		Checksum: &t.Checksum,
+		LocalId:    &t.LocalID,
+		ServerId:   &t.ServerID,
+		Title:      &title,
+		Text:       &text,
+		Checksum:   &t.Checksum,
 		ChangeTime: &t.ChangeTime,
-		Deleted: &t.Deleted,
-		Version: &t.Version,
+		Deleted:    &t.Deleted,
+		Version:    &t.Version,
 	}.Build()
 }
 
-// FromProtoText converts a Protobuf NoteItem to a domain TextData model.
+// FromProtoText конвертирует Protobuf NoteItem в доменную модель TextData.
 // Расшифровывает чувствительные данные (Title, Text) после получения, если установлен Encryptor.
 func FromProtoText(pbText *pb.NoteItem) TextData {
 	title := pbText.GetTitle()
@@ -62,7 +62,7 @@ func FromProtoText(pbText *pb.NoteItem) TextData {
 	}
 }
 
-// ToProto converts a domain Card model to a Protobuf CardData model.
+// ToProto конвертирует доменную модель Card в Protobuf модель CardData.
 // Шифрует чувствительные данные перед отправкой, если установлен Encryptor.
 func (c *Card) ToProto() *pb.CardItem {
 	number := c.Number
@@ -91,21 +91,21 @@ func (c *Card) ToProto() *pb.CardItem {
 	}
 
 	return pb.CardItem_builder{
-		LocalId:  &c.LocalID,
-		ServerId: &c.ServerID,
-		Number:   &number,
-		Holder:   &holder,
-		Expiry:   &expiry,
-		Cvv:      &cvv,
-		Metadata: &metadata,
-		Checksum: &c.Checksum,
+		LocalId:    &c.LocalID,
+		ServerId:   &c.ServerID,
+		Number:     &number,
+		Holder:     &holder,
+		Expiry:     &expiry,
+		Cvv:        &cvv,
+		Metadata:   &metadata,
+		Checksum:   &c.Checksum,
 		ChangeTime: &c.ChangeTime,
-		Deleted: &c.Deleted,
-		Version: &c.Version,
+		Deleted:    &c.Deleted,
+		Version:    &c.Version,
 	}.Build()
 }
 
-// FromProtoCard converts a Protobuf CardItem to a domain Card model.
+// FromProtoCard конвертирует Protobuf CardItem в доменную модель Card.
 // Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromProtoCard(pbCard *pb.CardItem) Card {
 	number := pbCard.GetNumber()
@@ -165,10 +165,9 @@ func (c *Card) ToMap() map[string]interface{} {
 	}
 }
 
-
 // --- Password Converters ---
 
-// ToProto converts a domain Password model to a Protobuf PasswordData model.
+// ToProto конвертирует доменную модель Password в Protobuf модель PasswordData.
 // Шифрует чувствительные данные перед отправкой, если установлен Encryptor.
 func (p *Password) ToProto() *pb.PasswordItem {
 	login := p.Login
@@ -195,13 +194,13 @@ func (p *Password) ToProto() *pb.PasswordItem {
 		Password:    &password,
 		Description: &description,
 		Checksum:    &p.Checksum,
-		ChangeTime: &p.ChangeTime,
-		Deleted: &p.Deleted,
-		Version: &p.Version,
+		ChangeTime:  &p.ChangeTime,
+		Deleted:     &p.Deleted,
+		Version:     &p.Version,
 	}.Build()
 }
 
-// FromProtoPassword converts a Protobuf PasswordItem to a domain Password model.
+// FromProtoPassword конвертирует Protobuf PasswordItem в доменную модель Password.
 // Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromProtoPassword(pbPass *pb.PasswordItem) Password {
 	login := pbPass.GetLogin()
@@ -234,7 +233,7 @@ func FromProtoPassword(pbPass *pb.PasswordItem) Password {
 	}
 }
 
-// ToMap converts a Password model to a map for storage.
+// ToMap конвертирует модель Password в map для хранения.
 func (p *Password) ToMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":          p.LocalID,
@@ -251,8 +250,7 @@ func (p *Password) ToMap() map[string]interface{} {
 
 // --- FileData Converters ---
 
-// ToProto converts a domain FileData model to a Protobuf FileData model.
-// ToProto converts a domain FileData model to a Protobuf FileData model.
+// ToProto конвертирует доменную модель FileData в Protobuf модель FileData.
 // Шифрует чувствительные данные перед отправкой, если установлен Encryptor.
 func (f *FileData) ToProto() *pb.FileItem {
 	name := f.Name
@@ -269,19 +267,19 @@ func (f *FileData) ToProto() *pb.FileItem {
 	}
 
 	return pb.FileItem_builder{
-		LocalId:  &f.LocalID,
-		ServerId: &f.ServerID,
-		Name:     &name,
-		Size:     &f.Size,
-		Metadata: &metadata,
-		Checksum: &f.Checksum,
+		LocalId:    &f.LocalID,
+		ServerId:   &f.ServerID,
+		Name:       &name,
+		Size:       &f.Size,
+		Metadata:   &metadata,
+		Checksum:   &f.Checksum,
 		ChangeTime: &f.ChangeTime,
-		Deleted: &f.Deleted,
-		Version: &f.Version,
+		Deleted:    &f.Deleted,
+		Version:    &f.Version,
 	}.Build()
 }
 
-// FromProtoFile converts a Protobuf FileItem to a domain FileData model.
+// FromProtoFile конвертирует Protobuf FileItem в доменную модель FileData.
 // Расшифровывает чувствительные данные после получения, если установлен Encryptor.
 func FromProtoFile(pbFile *pb.FileItem) FileData {
 	name := pbFile.GetName()
@@ -306,11 +304,11 @@ func FromProtoFile(pbFile *pb.FileItem) FileData {
 		Checksum:   pbFile.GetChecksum(),
 		ChangeTime: pbFile.GetChangeTime(),
 		Deleted:    pbFile.GetDeleted(),
-		Version: 	pbFile.GetVersion(),	
+		Version:    pbFile.GetVersion(),
 	}
 }
 
-// ToMap converts a FileData model to a map for storage.
+// ToMap конвертирует модель FileData в map для хранения.
 // Обратите внимание, что он возвращает map[string]interface{} из-за поля Size (int64).
 func (f *FileData) ToMap() map[string]interface{} {
 	return map[string]interface{}{
@@ -325,4 +323,3 @@ func (f *FileData) ToMap() map[string]interface{} {
 		"version":    f.Version,
 	}
 }
-

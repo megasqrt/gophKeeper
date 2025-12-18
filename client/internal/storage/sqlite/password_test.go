@@ -39,17 +39,14 @@ func setupTestStorageWithUnlock(t *testing.T) *SqliteStorage {
 			created_at INTEGER NOT NULL,
 			updated_at INTEGER NOT NULL,
 			deleted_at INTEGER,
-			client_version INTEGER
+			version INTEGER
 		);
 		
 		CREATE TABLE IF NOT EXISTS cards (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			server_id INTEGER,
-			card_number_data BLOB NOT NULL,
-			card_holder_data BLOB NOT NULL,
-			expiry_date_data BLOB NOT NULL,
-			cvc_data BLOB NOT NULL,
-			metadata BLOB,
+			version INTEGER,
+			data BLOB NOT NULL,
 			checksum TEXT,
 			created_at INTEGER NOT NULL,
 			updated_at INTEGER NOT NULL,
@@ -60,24 +57,26 @@ func setupTestStorageWithUnlock(t *testing.T) *SqliteStorage {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			server_id INTEGER,
 			title BLOB NOT NULL,
-			text BLOB NOT NULL,
+			data BLOB NOT NULL,
 			checksum TEXT,
 			created_at INTEGER NOT NULL,
 			updated_at INTEGER NOT NULL,
-			deleted_at INTEGER
+			deleted_at INTEGER,
+			version INTEGER
 		);
 		
 		CREATE TABLE IF NOT EXISTS binary_data (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			server_id INTEGER,
-			data BLOB NOT NULL,
 			name BLOB NOT NULL,
+			data BLOB NOT NULL,
 			metadata BLOB,
 			size INTEGER,
 			checksum TEXT,
 			created_at INTEGER NOT NULL,
 			updated_at INTEGER NOT NULL,
-			deleted_at INTEGER
+			deleted_at INTEGER,
+			version INTEGER
 		);
 	`)
 	require.NoError(t, err)

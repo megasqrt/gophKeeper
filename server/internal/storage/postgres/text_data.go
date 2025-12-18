@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"gophKeeper/server/internal/domain/model"
 	"fmt"
+	"gophKeeper/server/internal/domain/model"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -31,15 +31,15 @@ func (r *TextDataRepository) Create(ctx context.Context, data *model.TextData) (
 	var id int64
 	err := r.db.GetContext(ctx, &id, query, data.UserID, data.Title, data.Text, data.Checksum, data.CreatedAt, data.UpdatedAt, data.Version)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert password: %w", err)
+		return 0, fmt.Errorf("failed to insert text data: %w", err)
 	}
-	return id, err
+	return id, nil
 }
 
 // GetByID извлекает текстовую заметку по ее ID.
-func (r *TextDataRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.TextData, error) {
+func (r *TextDataRepository) GetByID(ctx context.Context, id int64) (*model.TextData, error) {
 	var data model.TextData
-	query := `SELECT id, user_id, title, text, checksum, created_at, updated_at, deleted_at FROM text_data WHERE id = $1 AND deleted_at IS NULL`
+	query := `SELECT id, user_id, title, text, checksum, created_at, updated_at, deleted_at, version FROM text_data WHERE id = $1 AND deleted_at IS NULL`
 	err := r.db.GetContext(ctx, &data, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -53,7 +53,7 @@ func (r *TextDataRepository) GetByID(ctx context.Context, id uuid.UUID) (*model.
 // GetByUserID извлекает все текстовые заметки для указанного пользователя.
 func (r *TextDataRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TextData, error) {
 	var data []*model.TextData
-	query := `SELECT id, user_id, title, text, checksum, created_at, updated_at, deleted_at FROM text_data WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
+	query := `SELECT id, user_id, title, text, checksum, created_at, updated_at, deleted_at, version FROM text_data WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
 	err := r.db.SelectContext(ctx, &data, query, userID)
 	return data, err
 }
@@ -80,7 +80,7 @@ func (r *TextDataRepository) Update(ctx context.Context, data *model.TextData) e
 }
 
 // Delete помечает текстовую заметку как удаленную (soft delete).
-func (r *TextDataRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
+func (r *TextDataRepository) Delete(ctx context.Context, id int64, userID uuid.UUID) error {
 	query := `UPDATE text_data SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)
 	return err

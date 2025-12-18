@@ -141,7 +141,6 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 		pbCards[i] = card.ToProto()
 	}
 
-	// Предполагаем, что существует CardsSyncRequest и метод CardsSync по аналогии с Notes
 	req := pb.CardsSyncRequest_builder{Cards: pbCards}.Build()
 	resp, err := c.Card.CardsSync(ctx, req)
 	if err != nil {
@@ -157,14 +156,6 @@ func (c *Client) SyncCards(ctx context.Context, localCards []model.Card) ([]mode
 
 // SyncPasswords вызывает RPC для синхронизации паролей.
 func (c *Client) SyncPasswords(ctx context.Context, localPasswords []model.Password) ([]model.Password, error) {
-	// Проверяем метаданные в контексте для диагностики
-	if md, ok := metadata.FromOutgoingContext(ctx); ok {
-		authHeaders := md.Get("authorization")
-		deviceIDHeaders := md.Get("x-device-id")
-		// Логирование для диагностики (можно убрать после отладки)
-		_ = authHeaders
-		_ = deviceIDHeaders
-	}
 
 	// Конвертируем наши модели в DTO для gRPC
 	pbPasswords := make([]*pb.PasswordItem, len(localPasswords))

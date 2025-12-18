@@ -37,7 +37,7 @@ func setupTestDB(t *testing.T) (*SqliteStorage, string) {
 			created_at INTEGER NOT NULL,
 			updated_at INTEGER NOT NULL,
 			deleted_at INTEGER,
-			client_version INTEGER
+			version INTEGER
 		);
 	`)
 	require.NoError(t, err)

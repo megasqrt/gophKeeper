@@ -105,14 +105,21 @@ func (s *SqliteStorage) SaveCard(cardData *models.Card) error {
 		serverID = sql.NullString{Valid: true, String: fmt.Sprintf("%d", cardData.ServerID)}
 	}
 
-	_, err = tx.Exec(`
+	result, err := tx.Exec(`
 		INSERT INTO cards 
 		(server_id, data, checksum, created_at, updated_at, deleted_at, version) 
-		VALUES (?, ?, ?, ?, ?, ?, 0)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		serverID, encryptedData, cardData.Checksum, createTime, cardData.ChangeTime, deletedAt, cardData.Version)
 	if err != nil {
 		return fmt.Errorf("could not save card: %w", err)
 	}
+
+	// Получаем ID вставленной записи
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("could not get last insert id: %w", err)
+	}
+	cardData.LocalID = id
 
 	return tx.Commit()
 }
@@ -188,7 +195,7 @@ func (s *SqliteStorage) GetCards() ([]models.Card, error) {
 		var checksum string
 		var createTime, updateTime int64
 		var deletedAt sql.NullInt64
-        var version int32
+		var version int32
 		if err := rows.Scan(&id, &serverID, &encryptedData, &checksum, &createTime, &updateTime, &deletedAt, &version); err != nil {
 			s.log.Error().Err(err).Msg("Failed to scan card")
 			continue
@@ -211,17 +218,17 @@ func (s *SqliteStorage) GetCards() ([]models.Card, error) {
 
 		// Собираем модель из метаданных (колонки) и данных (JSON)
 		c := models.Card{
-			LocalID:     id,
-			ServerID:    parsedServerID,
-			Number:      data.Number,
-			Holder:      data.Holder,
-			Expiry:      data.Expiry,
-			CVV:         data.CVV,
-			Metadata:    data.Metadata,
-			Checksum:    checksum,
-			ChangeTime:  updateTime,
-			Deleted:     deletedAt.Valid,
-			Version:     version,	
+			LocalID:    id,
+			ServerID:   parsedServerID,
+			Number:     data.Number,
+			Holder:     data.Holder,
+			Expiry:     data.Expiry,
+			CVV:        data.CVV,
+			Metadata:   data.Metadata,
+			Checksum:   checksum,
+			ChangeTime: updateTime,
+			Deleted:    deletedAt.Valid,
+			Version:    version,
 		}
 
 		cards = append(cards, c)

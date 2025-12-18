@@ -3,8 +3,9 @@ package postgres
 import (
 	"context"
 	"errors"
-	"gophKeeper/server/internal/domain/model"
 	"fmt"
+	"gophKeeper/server/internal/domain/model"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
@@ -20,19 +21,19 @@ func NewFileRepository(db *sqlx.DB) *FileRepository {
 }
 
 // Create создает новый файл в базе данных.
-// Note: поле data оставляем NULL, так как мы храним только метаданные на сервере
+// Примечание: поле data оставляем NULL, так как мы храним только метаданные на сервере
 func (r *FileRepository) Create(ctx context.Context, file *model.File) (int64, error) {
 	query := `
-		INSERT INTO binary_data ( user_id, name, metadata, size, checksum, data, created_at, updated_at, version)
-		VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO binary_data (user_id, name, metadata, size, checksum, data, created_at, updated_at, version)
+		VALUES ($1, $2, $3, $4, $5, NULL, $6, $7, $8)
 		RETURNING id
 	`
 	var id int64
 	err := r.db.GetContext(ctx, &id, query, file.UserID, file.Name, file.Metadata, file.Size, file.Checksum, file.CreatedAt, file.UpdatedAt, file.Version)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert password: %w", err)
+		return 0, fmt.Errorf("failed to insert file: %w", err)
 	}
-	return id, err
+	return id, nil
 }
 
 // Update обновляет существующий файл.
@@ -59,13 +60,13 @@ func (r *FileRepository) Update(ctx context.Context, file *model.File) error {
 // GetByUserID извлекает все файлы для указанного пользователя.
 func (r *FileRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.File, error) {
 	var files []*model.File
-	query := `SELECT id, user_id, name, metadata, size, checksum, created_at, updated_at, deleted_at FROM binary_data WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
+	query := `SELECT id, user_id, name, metadata, size, checksum, created_at, updated_at, deleted_at, version FROM binary_data WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
 	err := r.db.SelectContext(ctx, &files, query, userID)
 	return files, err
 }
 
 // Delete помечает файл как удаленный (soft delete).
-func (r *FileRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
+func (r *FileRepository) Delete(ctx context.Context, id int64, userID uuid.UUID) error {
 	query := `UPDATE binary_data SET deleted_at = CAST(EXTRACT(EPOCH FROM NOW()) AS BIGINT) WHERE id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, id, userID)
 	return err

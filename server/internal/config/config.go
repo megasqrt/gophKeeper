@@ -67,7 +67,6 @@ func NewConfig() Config {
 	if viper.ConfigFileUsed() != "" {
 		if err := viper.ReadInConfig(); err != nil {
 			// Логируем ошибку, но не падаем, т.к. конфиг не обязателен
-			//logger.NewZerologLogger()Warn().Error(err).Msg("Error reading config file")
 			log.Printf("Error reading config file: %s", err)
 		}
 	}

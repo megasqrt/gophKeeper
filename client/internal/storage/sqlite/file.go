@@ -2,12 +2,11 @@ package sqlite
 
 import (
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"fmt"
 	model "gophKeeper/pkg/grpchelper"
-	"database/sql"
 	"time"
-
 )
 
 // calculateFileChecksum вычисляет checksum для файла
@@ -19,13 +18,12 @@ func calculateFileChecksum(name string, size int64, metadata string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-
 func (s *SqliteStorage) GetFiles() ([]model.FileData, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	rows, err := s.db.Query(`
-		SELECT id, server_id, name, data, size, checksum, created_at, updated_at, deleted_at, version 
+		SELECT id, server_id, name, data, metadata, size, checksum, created_at, updated_at, deleted_at, version 
 		FROM binary_data 
 		WHERE deleted_at IS NULL`)
 	if err != nil {
@@ -36,12 +34,13 @@ func (s *SqliteStorage) GetFiles() ([]model.FileData, error) {
 	var files []model.FileData
 	for rows.Next() {
 		var f model.FileData
-		var encryptedName, encryptedMetadata []byte
+		var encryptedName, encryptedData, encryptedMetadata []byte
 		var deletedAt sql.NullInt64
 		var createdAt int64
+		var version int32
 
-		if err := rows.Scan(&f.LocalID, &encryptedName, &encryptedMetadata, &f.Size,
-			&f.Checksum, &createdAt, &f.ChangeTime, &deletedAt); err != nil {
+		if err := rows.Scan(&f.LocalID, &f.ServerID, &encryptedName, &encryptedData, &encryptedMetadata, &f.Size,
+			&f.Checksum, &createdAt, &f.ChangeTime, &deletedAt, &version); err != nil {
 			s.log.Error().Err(err).Msg("Failed to scan file")
 			continue
 		}
@@ -51,7 +50,7 @@ func (s *SqliteStorage) GetFiles() ([]model.FileData, error) {
 			s.log.Error().Err(err).Msg("Failed to decrypt file name")
 			continue
 		}
-		if len(encryptedMetadata) > 0 {
+		if encryptedMetadata != nil && len(encryptedMetadata) > 0 {
 			f.Metadata, err = s.decryptString(encryptedMetadata)
 			if err != nil {
 				s.log.Error().Err(err).Msg("Failed to decrypt metadata")
@@ -59,6 +58,7 @@ func (s *SqliteStorage) GetFiles() ([]model.FileData, error) {
 			}
 		}
 		f.Deleted = deletedAt.Valid
+		f.Version = version
 
 		files = append(files, f)
 	}
@@ -101,16 +101,23 @@ func (s *SqliteStorage) SaveFile(data *model.FileData, content []byte) error {
 		return fmt.Errorf("could not encrypt file content: %w", err)
 	}
 
-	_, err = tx.Exec(`
+	result, err := tx.Exec(`
 		INSERT INTO binary_data 
-		(server_id, name, data, size, checksum, created_at, updated_at, deleted_at, version) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		data.ServerID, encryptedName, encryptedContent,
+		(server_id, name, data, metadata, size, checksum, created_at, updated_at, deleted_at, version) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		data.ServerID, encryptedName, encryptedContent, []byte{},
 		data.Size, data.Checksum, now, now,
 		sql.NullInt64{Valid: data.Deleted, Int64: now}, data.Version)
 	if err != nil {
 		return err
 	}
+
+	// Получаем ID вставленной записи
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("could not get last insert id: %w", err)
+	}
+	data.LocalID = id
 
 	return tx.Commit()
 }
@@ -136,13 +143,35 @@ func (s *SqliteStorage) SaveFileMetadata(data *model.FileData) error {
 		}
 	}
 
-	_, err = s.db.Exec(`
-		UPDATE binary_data 
-		SET name = ?, metadata = ?, size = ?, checksum = ?, updated_at = ?, server_id = ?,
-		version = ?
-		WHERE id = ?`,
-		encryptedName, encryptedMetadata, data.Size, data.Checksum, now, data.ServerID, data.Version,  data.LocalID)
-	return err
+	// Если есть LocalID, обновляем существующую запись
+	if data.LocalID != 0 {
+		_, err = s.db.Exec(`
+			UPDATE binary_data 
+			SET name = ?, metadata = ?, size = ?, checksum = ?, updated_at = ?, server_id = ?, version = ?
+			WHERE id = ?`,
+			encryptedName, encryptedMetadata, data.Size, data.Checksum, now, data.ServerID, data.Version, data.LocalID)
+		return err
+	}
+
+	// Иначе вставляем новую запись
+	result, err := s.db.Exec(`
+		INSERT INTO binary_data 
+		(server_id, name, data, metadata, size, checksum, created_at, updated_at, deleted_at, version) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		data.ServerID, encryptedName, []byte{}, encryptedMetadata, data.Size, data.Checksum, now, now,
+		sql.NullInt64{Valid: data.Deleted, Int64: now}, data.Version)
+	if err != nil {
+		return err
+	}
+
+	// Получаем ID вставленной записи
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("could not get last insert id: %w", err)
+	}
+	data.LocalID = id
+
+	return nil
 }
 
 func (s *SqliteStorage) DeleteFileByID(id int64) error {

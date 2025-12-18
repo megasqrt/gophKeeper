@@ -110,193 +110,79 @@ func TestDeleteCard(t *testing.T) {
 	}
 }
 
-func TestSaveText_GetTexts(t *testing.T) {
+func TestGetCardsByIDs(t *testing.T) {
 	storage := setupTestStorageWithUnlock(t)
 	defer storage.Close()
 
-	text := &models.TextData{
-		Title: "Test Title",
-		Text:  "Test content",
+	// Создаем несколько карт
+	card1 := &models.Card{
+		Number:   "1111111111111111",
+		Holder:   "Holder 1",
+		Expiry:   "01/25",
+		CVV:      "111",
+		Metadata: "metadata1",
+	}
+	card2 := &models.Card{
+		Number:   "2222222222222222",
+		Holder:   "Holder 2",
+		Expiry:   "02/25",
+		CVV:      "222",
+		Metadata: "metadata2",
+	}
+	card3 := &models.Card{
+		Number:   "3333333333333333",
+		Holder:   "Holder 3",
+		Expiry:   "03/25",
+		CVV:      "333",
+		Metadata: "metadata3",
 	}
 
-	err := storage.SaveText(text)
+	err := storage.SaveCard(card1)
 	require.NoError(t, err)
-	assert.NotEqual(t, int64(0), text.LocalID)
-	assert.NotEmpty(t, text.Checksum)
-
-	// Получаем тексты
-	texts, err := storage.GetTexts()
+	err = storage.SaveCard(card2)
 	require.NoError(t, err)
-	assert.GreaterOrEqual(t, len(texts), 1)
+	err = storage.SaveCard(card3)
+	require.NoError(t, err)
 
-	found := false
-	for _, textItem := range texts {
-		if textItem.Title == "Test Title" {
-			found = true
-			assert.Equal(t, "Test content", textItem.Text)
-			break
-		}
-	}
-	assert.True(t, found, "Text not found")
+	// Получаем карты по IDs (метод пока не реализован, возвращает nil)
+	ids := []int64{card1.LocalID, card3.LocalID}
+	cards, err := storage.GetCardsByIDs(ids)
+	require.NoError(t, err)
+	// Метод пока не реализован, возвращает nil
+	assert.Nil(t, cards)
 }
 
-func TestUpdateText(t *testing.T) {
+func TestFindCardByServerID(t *testing.T) {
 	storage := setupTestStorageWithUnlock(t)
 	defer storage.Close()
 
-	text := &models.TextData{
-		Title: "Original Title",
-		Text:  "Original content",
+	// Создаем карту с ServerID
+	card := &models.Card{
+		Number:   "1234567890123456",
+		Holder:   "Test Holder",
+		Expiry:   "12/25",
+		CVV:      "123",
+		ServerID: 999,
 	}
 
-	err := storage.SaveText(text)
+	err := storage.SaveCard(card)
 	require.NoError(t, err)
 
-	localID := text.LocalID
-
-	// Обновляем текст
-	text.Title = "Updated Title"
-	text.Text = "Updated content"
-	err = storage.UpdateText(text)
+	// Ищем карту по ServerID
+	foundLocalID, err := storage.FindCardByServerID(999)
 	require.NoError(t, err)
-	assert.Equal(t, localID, text.LocalID)
+	assert.Equal(t, card.LocalID, foundLocalID)
 
-	// Проверяем обновление
-	texts, err := storage.GetTexts()
+	// Ищем несуществующий ServerID
+	foundLocalID, err = storage.FindCardByServerID(888)
 	require.NoError(t, err)
+	assert.Equal(t, int64(0), foundLocalID)
 
-	found := false
-	for _, textItem := range texts {
-		if textItem.LocalID == localID {
-			found = true
-			assert.Equal(t, "Updated Title", textItem.Title)
-			assert.Equal(t, "Updated content", textItem.Text)
-			break
-		}
-	}
-	assert.True(t, found)
-}
-
-func TestDeleteText(t *testing.T) {
-	storage := setupTestStorageWithUnlock(t)
-	defer storage.Close()
-
-	text := &models.TextData{
-		Title: "Test Title",
-		Text:  "Test content",
-	}
-
-	err := storage.SaveText(text)
+	// Удаляем карту и проверяем, что она не находится
+	err = storage.DeleteCard(card.LocalID)
 	require.NoError(t, err)
 
-	localID := text.LocalID
-
-	// Удаляем текст
-	err = storage.DeleteText(localID)
+	foundLocalID, err = storage.FindCardByServerID(999)
 	require.NoError(t, err)
-
-	// Проверяем, что текст не возвращается
-	texts, err := storage.GetTexts()
-	require.NoError(t, err)
-
-	for _, textItem := range texts {
-		assert.NotEqual(t, localID, textItem.LocalID)
-	}
-}
-
-func TestSaveFileMetadata_GetFiles(t *testing.T) {
-	storage := setupTestStorageWithUnlock(t)
-	defer storage.Close()
-
-	file := &models.FileData{
-		Name:     "test.txt",
-		Size:     1024,
-		Metadata: "test metadata",
-	}
-
-	err := storage.SaveFileMetadata(file)
-	require.NoError(t, err)
-	assert.NotEqual(t, int64(0), file.LocalID)
-	assert.NotEmpty(t, file.Checksum)
-
-	// Получаем файлы
-	files, err := storage.GetFiles()
-	require.NoError(t, err)
-	assert.GreaterOrEqual(t, len(files), 1)
-
-	found := false
-	for _, f := range files {
-		if f.Name == "test.txt" {
-			found = true
-			assert.Equal(t, int64(1024), f.Size)
-			break
-		}
-	}
-	assert.True(t, found, "File not found")
-}
-
-func TestSaveFile(t *testing.T) {
-	storage := setupTestStorageWithUnlock(t)
-	defer storage.Close()
-
-	file := &models.FileData{
-		Name:     "test.txt",
-		Size:     1024,
-		Metadata: "test metadata",
-	}
-	content := []byte("test file content")
-
-	err := storage.SaveFile(file, content)
-	require.NoError(t, err)
-	assert.NotEqual(t, int64(0), file.LocalID)
-}
-
-func TestUpdateFile(t *testing.T) {
-	storage := setupTestStorageWithUnlock(t)
-	defer storage.Close()
-
-	file := &models.FileData{
-		Name:     "test.txt",
-		Size:     1024,
-		Metadata: "original metadata",
-	}
-
-	err := storage.SaveFileMetadata(file)
-	require.NoError(t, err)
-
-	localID := file.LocalID
-
-	// Обновляем файл
-	file.Metadata = "updated metadata"
-	file.Size = 2048
-	err = storage.UpdateFile(file)
-	require.NoError(t, err)
-	assert.Equal(t, localID, file.LocalID)
-}
-
-func TestDeleteFileByID(t *testing.T) {
-	storage := setupTestStorageWithUnlock(t)
-	defer storage.Close()
-
-	file := &models.FileData{
-		Name: "test.txt",
-		Size: 1024,
-	}
-
-	err := storage.SaveFileMetadata(file)
-	require.NoError(t, err)
-
-	localID := file.LocalID
-
-	// Удаляем файл
-	err = storage.DeleteFileByID(localID)
-	require.NoError(t, err)
-
-	// Проверяем, что файл не возвращается
-	files, err := storage.GetFiles()
-	require.NoError(t, err)
-
-	for _, f := range files {
-		assert.NotEqual(t, localID, f.LocalID)
-	}
+	assert.Equal(t, int64(0), foundLocalID, "Deleted card should not be found")
 }

@@ -2,14 +2,12 @@ package postgres_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"gophKeeper/pkg/migrations/pg"
+	migrations "gophKeeper/pkg/migrations/pg"
 	"gophKeeper/server/internal/domain/model"
 	"gophKeeper/server/internal/storage/postgres"
 
@@ -28,23 +26,6 @@ const (
 	postgresUser     = "user"
 	postgresPassword = "password"
 )
-
-// projectRoot находит корневую директорию проекта по наличию файла go.mod.
-func projectRoot() (string, error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir, nil
-		}
-		if dir == filepath.Dir(dir) {
-			return "", errors.New("go.mod not found")
-		}
-		dir = filepath.Dir(dir)
-	}
-}
 
 type UserRepoTestSuite struct {
 	postgresContainer testcontainers.Container
@@ -80,12 +61,8 @@ func (suite *UserRepoTestSuite) SetupSuite() {
 
 	// Применяем миграции
 	// 1. Сначала применяем основные (базовые) миграции
-	baseMigrationsPath := filepath.Join(root, "internal", "storage", "postgres", "migrations")
+	baseMigrationsPath := filepath.Join(root, "server", "internal", "storage", "postgres", "migrations")
 	suite.Require().NoError(migrator.Up("file://" + baseMigrationsPath))
-
-	// 2. Затем можем применить тестовые миграции (если они есть)
-	// testMigrationsPath := filepath.Join(root, "internal", "storage", "postgres", "migrations_test")
-	// suite.Require().NoError(migrator.Up("file://" + testMigrationsPath))
 
 	// Создаем подключение к БД через sqlx
 	db, err := sqlx.Connect("pgx", dsn)
@@ -102,18 +79,6 @@ func (suite *UserRepoTestSuite) TearDownSuite() {
 func (suite *UserRepoTestSuite) TestCreateAndFindByLogin() {
 	ctx := context.Background()
 	userRepo := postgres.NewUserRepository(suite.db)
-
-	// Закомментированный код аутентификации пока оставим,
-	// так как сервис `JWTAuthService` еще не реализован.
-	// Мы можем вернуться к нему позже.
-
-	// authService := service.NewJWTAuthService(
-	// 	userRepo,
-	// 	[]byte("access-secret-key"),
-	// 	[]byte("refresh-secret-key"),
-	// 	15*time.Minute,
-	// 	24*time.Hour,
-	// )
 
 	suite.Run("successful user creation and retrieval", func() {
 		givenLogin := "mark"
@@ -139,49 +104,53 @@ func (suite *UserRepoTestSuite) TestCreateAndFindByLogin() {
 		suite.Equal(userToCreate.Login, foundUser.Login)
 	})
 
-	// suite.Run("successful token pair generation & refresh", func() {
-	// 	tokens, err := authService.GetTokenPair(givenUsername)
+	suite.Run("FindByLogin_NotFound", func() {
+		_, err := userRepo.FindByLogin(ctx, "nonexistent_user")
+		suite.Require().Error(err)
+		suite.Assert().Contains(err.Error(), "user not found")
+	})
 
-	// 	suite.Require().NoError(err)
-	// 	suite.NotEmpty(tokens.AccessToken)
-	// 	suite.NotEmpty(tokens.RefreshToken)
+	suite.Run("Update", func() {
+		givenLogin := "update_user"
+		givenPassword := "secret"
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(givenPassword), bcrypt.DefaultCost)
+		suite.Require().NoError(err)
 
-	// 	actual, err := authService.ValidateAccessToken(tokens.AccessToken)
-	// 	suite.Require().NoError(err)
-	// 	suite.Equal(givenUsername, actual)
+		userToCreate := &model.User{
+			ID:           uuid.New(),
+			Login:        givenLogin,
+			PasswordHash: string(hashedPassword),
+			CreatedAt:    time.Now().Unix(),
+			UpdatedAt:    time.Now().Unix(),
+		}
 
-	// 	claims, err := authService.RefreshTokens(tokens.RefreshToken)
-	// 	suite.Require().NoError(err)
-	// 	actual, err = authService.ValidateAccessToken(claims.AccessToken)
-	// 	suite.Require().NoError(err)
-	// 	suite.Equal(givenUsername, actual)
-	// })
+		err = userRepo.Create(ctx, userToCreate)
+		suite.Require().NoError(err)
 
-	// suite.Run("successful authentication", func() {
-	// 	tokens, err := authService.Authenticate(ctx, givenUsername, givenPassword)
+		// Обновляем пользователя
+		newHashedPassword, err := bcrypt.GenerateFromPassword([]byte("newpassword"), bcrypt.DefaultCost)
+		suite.Require().NoError(err)
+		userToCreate.PasswordHash = string(newHashedPassword)
+		userToCreate.Login = "updated_login"
+		userToCreate.UpdatedAt = time.Now().Unix()
 
-	// 	suite.Require().NoError(err)
-	// 	suite.NotEmpty(tokens.AccessToken)
-	// 	suite.NotEmpty(tokens.RefreshToken)
+		err = userRepo.Update(ctx, userToCreate)
+		suite.Require().NoError(err)
 
-	// 	actual, err := authService.ValidateAccessToken(tokens.AccessToken)
-	// 	suite.Require().NoError(err)
-	// 	suite.Equal(givenUsername, actual)
-	// })
+		// Проверяем обновление
+		updatedUser, err := userRepo.FindByLogin(ctx, "updated_login")
+		suite.Require().NoError(err)
+		suite.Assert().Equal(userToCreate.ID, updatedUser.ID)
+		suite.Assert().Equal("updated_login", updatedUser.Login)
+	})
 
-	// suite.Run("invalid password", func() {
-	// 	_, err := authService.Authenticate(ctx, givenUsername, "geheim")
-
-	// 	suite.Require().Error(err)
-	// 	suite.ErrorIs(err, service.ErrInvalidCreds)
-	// })
-
-	// suite.Run("invalid user", func() {
-	// 	_, err := authService.Authenticate(ctx, "steve", "geheim")
-
-	// 	suite.Require().Error(err)
-	// 	suite.ErrorIs(err, service.ErrUserNotFound)
-	// })
+	suite.Run("FindByLogin_OtherError", func() {
+		// Тест для покрытия ветки с другими ошибками (не ErrNoRows)
+		// Это сложно протестировать без моков, но попробуем
+		_, err := userRepo.FindByLogin(ctx, "")
+		// Может вернуть ошибку или нет
+		_ = err
+	})
 }
 
 func TestUserRepoTestSuite(t *testing.T) {

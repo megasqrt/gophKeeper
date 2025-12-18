@@ -2,12 +2,11 @@ package sqlite
 
 import (
 	"crypto/sha256"
-	"encoding/hex"
-	model "gophKeeper/pkg/grpchelper"
-	"fmt"
-	"time"
 	"database/sql"
-
+	"encoding/hex"
+	"fmt"
+	model "gophKeeper/pkg/grpchelper"
+	"time"
 )
 
 // calculateTextChecksum вычисляет checksum для текста
@@ -36,13 +35,36 @@ func (s *SqliteStorage) SaveText(textData *model.TextData) error {
 		return fmt.Errorf("could not encrypt text: %w", err)
 	}
 
-	_, err = s.db.Exec(`
-		INSERT OR REPLACE INTO note 
+	// Если есть LocalID, обновляем существующую запись
+	if textData.LocalID != 0 {
+		_, err = s.db.Exec(`
+			UPDATE note 
+			SET server_id = ?, title = ?, data = ?, checksum = ?, updated_at = ?, deleted_at = ?, version = ?
+			WHERE id = ?`,
+			textData.ServerID, encryptedTitle, encryptedText, textData.Checksum,
+			now, sql.NullInt64{Valid: textData.Deleted, Int64: now}, textData.Version, textData.LocalID)
+		return err
+	}
+
+	// Иначе вставляем новую запись
+	result, err := s.db.Exec(`
+		INSERT INTO note 
 		(server_id, title, data, checksum, created_at, updated_at, deleted_at, version) 
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		textData.ServerID, encryptedTitle, encryptedText, textData.Checksum,
 		now, now, sql.NullInt64{Valid: textData.Deleted, Int64: now}, textData.Version)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Получаем ID вставленной записи
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("could not get last insert id: %w", err)
+	}
+	textData.LocalID = id
+
+	return nil
 }
 
 func (s *SqliteStorage) UpdateText(textData *model.TextData) error {
@@ -76,7 +98,7 @@ func (s *SqliteStorage) GetTexts() ([]model.TextData, error) {
 			&encryptedText,
 			&t.Checksum,
 			&createdAt,
-			&t.ChangeTime, 
+			&t.ChangeTime,
 			&deletedAt,
 			&t.Version); err != nil {
 			s.log.Error().Err(err).Msg("Failed to scan text")

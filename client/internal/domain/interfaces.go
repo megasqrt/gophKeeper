@@ -22,8 +22,6 @@ type LocalStorage interface {
 	LocalRegister(user, password string) error
 	SaveUserCredentials(login, token, deviceID string, encryptedMasterKey []byte) error
 	GetUserCredentials() (login, token, deviceID string, encryptedMasterKey []byte, err error)
-	//InitializeEncryptor(password string) error                                           // Инициализирует Encryptor из сохраненного мастер-ключа (password может быть пустым, тогда будет получен из хранилища)
-	//InitializeEncryptorWithData(password, login string, encryptedMasterKey []byte) error // Инициализирует Encryptor с уже полученными данными (избегает повторного вызова GetUserCredentials)
 
 	SaveCard(cardData *models.Card) error
 	UpdateCard(cardData *models.Card) error
@@ -37,7 +35,6 @@ type LocalStorage interface {
 
 	SavePass(passData *models.Password) error
 	UpdatePass(passData *models.Password) error
-	//UpdatePasswords(passData *[]models.Password) error
 	GetPasswords() ([]models.Password, error)
 	FindPasswordByServerID(serverID int64) (int64, error)
 	DeletePass(id int64) error

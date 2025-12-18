@@ -59,7 +59,7 @@ func (r *PasswordRepository) Update(ctx context.Context, pass *model.Password) e
 // GetByUserID извлекает все пароли для указанного пользователя.
 func (r *PasswordRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Password, error) {
 	var passwords []*model.Password
-	query := `SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at, version FROM login_passwords WHERE user_id = $1 ORDER BY updated_at DESC`
+	query := `SELECT id, user_id, login_data as login, password_data as password, metadata as description, checksum, created_at, updated_at, deleted_at, version FROM login_passwords WHERE user_id = $1 AND deleted_at IS NULL ORDER BY updated_at DESC`
 	err := r.db.SelectContext(ctx, &passwords, query, userID)
 	return passwords, err
 }

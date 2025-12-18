@@ -76,6 +76,9 @@ func (suite *PasswordRepoTestSuite) TestCreate() {
 	passRepo := postgres.NewPasswordRepository(suite.db)
 
 	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
 	pass := &model.Password{
 		UserID:      userID,
 		Login:       "testlogin",
@@ -97,6 +100,8 @@ func (suite *PasswordRepoTestSuite) TestGetByUserID() {
 	passRepo := postgres.NewPasswordRepository(suite.db)
 
 	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
 
 	// Создаем несколько паролей
 	pass1 := &model.Password{
@@ -154,6 +159,9 @@ func (suite *PasswordRepoTestSuite) TestUpdate() {
 	passRepo := postgres.NewPasswordRepository(suite.db)
 
 	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
 	pass := &model.Password{
 		UserID:      userID,
 		Login:       "originallogin",
@@ -191,7 +199,7 @@ func (suite *PasswordRepoTestSuite) TestUpdate() {
 			suite.Assert().Equal("updatedlogin", p.Login)
 			suite.Assert().Equal("updatedpassword", p.Password)
 			suite.Assert().Equal("updated description", p.Description)
-			suite.Assert().Equal(int64(2), p.Version)
+			suite.Assert().Equal(int32(2), p.Version)
 			break
 		}
 	}
@@ -224,6 +232,9 @@ func (suite *PasswordRepoTestSuite) TestDelete() {
 	passRepo := postgres.NewPasswordRepository(suite.db)
 
 	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
 	pass := &model.Password{
 		UserID:      userID,
 		Login:       "testlogin",
@@ -270,6 +281,9 @@ func (suite *PasswordRepoTestSuite) TestFindByChecksum() {
 	passRepo := postgres.NewPasswordRepository(suite.db)
 
 	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
 	checksum := "uniquechecksum123"
 
 	pass := &model.Password{
@@ -304,13 +318,15 @@ func (suite *PasswordRepoTestSuite) TestFindByChecksum_NotFound() {
 	suite.Require().Error(err)
 }
 
-func (suite *PasswordRepoTestSuite) TestGetUserDeviceLastSinc() {
+func (suite *PasswordRepoTestSuite) TestGetDataDeviceLastSinc() {
 	ctx := context.Background()
 	passRepo := postgres.NewPasswordRepository(suite.db)
 	deviceRepo := postgres.NewDeviceRepository(suite.db)
 
 	userID := uuid.New()
 	deviceID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
 
 	// Создаем устройство
 	device := &model.Device{
@@ -320,7 +336,7 @@ func (suite *PasswordRepoTestSuite) TestGetUserDeviceLastSinc() {
 		CreatedAt:  time.Now().Unix(),
 		UpdatedAt:  time.Now().Unix(),
 	}
-	err := deviceRepo.Create(ctx, device)
+	err = deviceRepo.Create(ctx, device)
 	suite.Require().NoError(err)
 
 	// Создаем пароль
@@ -339,7 +355,7 @@ func (suite *PasswordRepoTestSuite) TestGetUserDeviceLastSinc() {
 	suite.Require().NoError(err)
 
 	// Получаем пароли с последней синхронизации
-	passwords, err := passRepo.GetUserDeviceLastSinc(ctx, userID, deviceID)
+	passwords, err := passRepo.GetDataDeviceLastSinc(ctx, userID, deviceID)
 	suite.Require().NoError(err)
 	suite.Assert().GreaterOrEqual(len(passwords), 1)
 
@@ -351,6 +367,118 @@ func (suite *PasswordRepoTestSuite) TestGetUserDeviceLastSinc() {
 		}
 	}
 	suite.Assert().True(found, "Password not found in sync result")
+}
+
+func (suite *PasswordRepoTestSuite) TestGetByUserID_Empty() {
+	ctx := context.Background()
+	passRepo := postgres.NewPasswordRepository(suite.db)
+
+	userID := uuid.New()
+
+	passwords, err := passRepo.GetByUserID(ctx, userID)
+	suite.Require().NoError(err)
+	suite.Assert().Empty(passwords)
+}
+
+func (suite *PasswordRepoTestSuite) TestUpdate_WrongUserID() {
+	ctx := context.Background()
+	passRepo := postgres.NewPasswordRepository(suite.db)
+
+	userID1 := uuid.New()
+	userID2 := uuid.New()
+	err := createTestUser(suite.db, userID1)
+	suite.Require().NoError(err)
+	err = createTestUser(suite.db, userID2)
+	suite.Require().NoError(err)
+
+	pass := &model.Password{
+		UserID:      userID1,
+		Login:       "testlogin",
+		Password:    "testpassword",
+		Description: "test description",
+		Checksum:    "testchecksum",
+		CreatedAt:   time.Now().Unix(),
+		UpdatedAt:   time.Now().Unix(),
+		Version:     1,
+	}
+
+	id, err := passRepo.Create(ctx, pass)
+	suite.Require().NoError(err)
+
+	// Пытаемся обновить с неправильным userID
+	pass.ID = id
+	pass.UserID = userID2
+	pass.Login = "updatedlogin"
+	pass.UpdatedAt = time.Now().Unix()
+
+	err = passRepo.Update(ctx, pass)
+	suite.Require().Error(err)
+	suite.Assert().Contains(err.Error(), "no rows were updated")
+}
+
+func (suite *PasswordRepoTestSuite) TestGetByUserID_WithDeleted() {
+	ctx := context.Background()
+	passRepo := postgres.NewPasswordRepository(suite.db)
+
+	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
+	// Создаем пароль
+	pass := &model.Password{
+		UserID:      userID,
+		Login:       "testlogin",
+		Password:    "testpassword",
+		Description: "test description",
+		Checksum:    "testchecksum",
+		CreatedAt:   time.Now().Unix(),
+		UpdatedAt:   time.Now().Unix(),
+		Version:     1,
+	}
+
+	id, err := passRepo.Create(ctx, pass)
+	suite.Require().NoError(err)
+
+	// Удаляем пароль
+	err = passRepo.Delete(ctx, id, userID)
+	suite.Require().NoError(err)
+
+	// Проверяем, что удаленный пароль не возвращается
+	passwords, err := passRepo.GetByUserID(ctx, userID)
+	suite.Require().NoError(err)
+	suite.Assert().Empty(passwords, "Deleted password should not be returned")
+}
+
+func (suite *PasswordRepoTestSuite) TestFindByChecksum_WithDeleted() {
+	ctx := context.Background()
+	passRepo := postgres.NewPasswordRepository(suite.db)
+
+	userID := uuid.New()
+	err := createTestUser(suite.db, userID)
+	suite.Require().NoError(err)
+
+	checksum := "deletedchecksum"
+	pass := &model.Password{
+		UserID:      userID,
+		Login:       "testlogin",
+		Password:    "testpassword",
+		Description: "test description",
+		Checksum:    checksum,
+		CreatedAt:   time.Now().Unix(),
+		UpdatedAt:   time.Now().Unix(),
+		Version:     1,
+	}
+
+	id, err := passRepo.Create(ctx, pass)
+	suite.Require().NoError(err)
+
+	// Удаляем пароль
+	err = passRepo.Delete(ctx, id, userID)
+	suite.Require().NoError(err)
+
+	// Пытаемся найти удаленный пароль по checksum
+	_, err = passRepo.FindByChecksum(ctx, userID, checksum)
+	suite.Require().Error(err, "Deleted password should not be found by checksum")
 }
 
 func TestPasswordRepoTestSuite(t *testing.T) {
