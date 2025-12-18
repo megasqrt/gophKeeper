@@ -26,7 +26,7 @@ func NewСonsoleLogger() zerolog.Logger {
 		Level(zerolog.InfoLevel)
 }
 
-func NewFileLoger(logPath string) *zerolog.Logger {
+func NewFileLogger(logPath string) *zerolog.Logger {
 	// Настройка формата времени
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 

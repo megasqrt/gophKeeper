@@ -30,7 +30,7 @@ type App struct {
 
 // findMigrationsPath ищет путь к миграциям, проверяя несколько вариантов
 func findMigrationsPath() (string, error) {
-	// Возможные пути относительно разных точек запуска
+	// Возможные пути относительно разных точек запуска для приложения, тестов и контейнеров
 	possiblePaths := []string{
 		"client/internal/storage/sqlite/migrations",
 		"../internal/storage/sqlite/migrations",
@@ -88,7 +88,7 @@ func NewApp(ctx context.Context) (*App, error) {
 		return nil, fmt.Errorf("failed to initialize config: %w", err)
 	}
 
-	log := logger.NewFileLoger(cfg.LogPath)
+	log := logger.NewFileLogger(cfg.LogPath)
 	log.Info().Msg("Client application initializing")
 	log.Info().Str("log_path", cfg.LogPath).Msg("Logging to file")
 

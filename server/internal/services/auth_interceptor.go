@@ -2,12 +2,10 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	model "gophKeeper/pkg/grpchelper"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc"
@@ -17,7 +15,7 @@ import (
 )
 
 // AuthInterceptor проверяет JWT токен и добавляет userID в контекст.
-func AuthInterceptor(log zerolog.Logger, jwtSecret []byte) grpc.UnaryServerInterceptor {
+func AuthInterceptor(log zerolog.Logger, jwtService *JWTService) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
@@ -50,64 +48,16 @@ func AuthInterceptor(log zerolog.Logger, jwtSecret []byte) grpc.UnaryServerInter
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		token, parseErr := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, status.Errorf(codes.Unauthenticated, "unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtSecret, nil
-		})
-
-		if parseErr != nil {
-			log.Warn().Err(parseErr).Msg("Failed to parse JWT token")
+		claims, err := jwtService.ValidateToken(tokenString)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to validate JWT token")
 			return nil, status.Error(codes.Unauthenticated, "invalid token")
 		}
 
-		if !token.Valid {
-			log.Warn().Msg("Invalid token")
-			return nil, status.Error(codes.Unauthenticated, "invalid token")
-		}
-
-		// Извлекаем claims
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			log.Warn().Msg("Failed to extract claims")
-			return nil, status.Error(codes.Unauthenticated, "invalid token claims")
-		}
-
-		userIDValue, exists := claims["user_id"]
-		if !exists {
-			log.Warn().Interface("claims", claims).Msg("No user_id in token claims")
-			return nil, status.Error(codes.Unauthenticated, "invalid token: missing user_id")
-		}
-
-		userIDStr, ok := userIDValue.(string)
-		if !ok {
-			// Если не строка, пробуем преобразовать через fmt
-			userIDStr = fmt.Sprintf("%v", userIDValue)
-			log.Debug().Str("user_id_raw", userIDStr).Msg("Converted user_id to string")
-		}
-
-		userID, parseUserIDErr := uuid.Parse(userIDStr)
-		if parseUserIDErr != nil {
-			log.Warn().Err(parseUserIDErr).Str("user_id_str", userIDStr).Interface("claims", claims).Msg("Failed to parse user_id from token")
-			return nil, status.Error(codes.Unauthenticated, "invalid token: failed to parse user_id")
-		}
-
-		deviceIDValue, exists := claims["device_id"]
-		if !exists {
-			log.Warn().Interface("claims", claims).Msg("No device_id in token claims")
-			return nil, status.Error(codes.Unauthenticated, "invalid token: missing device_id")
-		}
-		deviceIDStr, ok := deviceIDValue.(string)
-		if !ok {
-			deviceIDStr = fmt.Sprintf("%v", deviceIDValue)
-			log.Debug().Str("device_id_raw", deviceIDStr).Msg("Converted device_id to string")
-		}
-
-		// Парсим deviceID в UUID
-		deviceID, parseDeviceIDErr := uuid.Parse(deviceIDStr)
+		userID := claims.UserID
+		deviceID, parseDeviceIDErr := uuid.Parse(claims.DeviceID)
 		if parseDeviceIDErr != nil {
-			log.Warn().Err(parseDeviceIDErr).Str("device_id_str", deviceIDStr).Interface("claims", claims).Msg("Failed to parse device_id from token")
+			log.Warn().Err(parseDeviceIDErr).Str("device_id_str", claims.DeviceID).Msg("Failed to parse device_id from token")
 			return nil, status.Error(codes.Unauthenticated, "invalid token: failed to parse device_id")
 		}
 

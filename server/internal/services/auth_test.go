@@ -90,7 +90,8 @@ func TestRegister_Success(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "testuser"
@@ -135,7 +136,8 @@ func TestRegister_UserAlreadyExists_ValidPassword(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "existinguser"
@@ -189,7 +191,8 @@ func TestRegister_UserAlreadyExists_InvalidPassword(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "existinguser"
@@ -221,7 +224,8 @@ func TestLogin_Success(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "testuser"
@@ -274,7 +278,8 @@ func TestLogin_UserNotFound(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "nonexistent"
@@ -303,7 +308,8 @@ func TestLogin_InvalidPassword(t *testing.T) {
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+	service := NewService(log, mockUserRepo, mockDeviceRepo, jwtService, cfg)
 	ctx := context.Background()
 
 	login := "testuser"
@@ -339,19 +345,22 @@ func TestLogin_InvalidPassword(t *testing.T) {
 }
 
 func TestGenerateJWT(t *testing.T) {
-	log := zerolog.Nop()
-	mockUserRepo := new(MockUserRepository)
-	mockDeviceRepo := new(MockDeviceRepository)
 	cfg := config.Config{
 		HashKey: "test-secret-key",
 	}
 
-	service := NewService(log, mockUserRepo, mockDeviceRepo, cfg)
+	jwtService := NewJWTService([]byte(cfg.HashKey))
 
 	userID := uuid.New()
 	deviceID := uuid.New().String()
 
-	token, err := service.generateJWT(userID, deviceID)
+	token, err := jwtService.GenerateToken(userID, deviceID)
 	require.NoError(t, err)
 	assert.NotEmpty(t, token)
+
+	// Проверяем, что токен можно валидировать
+	claims, err := jwtService.ValidateToken(token)
+	require.NoError(t, err)
+	assert.Equal(t, userID, claims.UserID)
+	assert.Equal(t, deviceID, claims.DeviceID)
 }

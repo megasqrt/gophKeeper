@@ -8,9 +8,9 @@ import (
 type OpType string
 
 const (
-    Create  OpType = "create"
-    Update  OpType = "update"
-    Delete  OpType = "delete"
+    OpCreate  OpType = "create"
+    OpUpdate  OpType = "update"
+    OpDelete  OpType = "delete"
     //Restore OpType = "restore"
 )
 

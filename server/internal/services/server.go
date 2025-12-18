@@ -37,8 +37,11 @@ func New(
 		return nil, err
 	}
 
+	// Создаем JWT сервис
+	jwtService := NewJWTService([]byte(cfg.HashKey))
+
 	// Создаем interceptor для аутентификации
-	authInterceptor := AuthInterceptor(log, []byte(cfg.HashKey))
+	authInterceptor := AuthInterceptor(log, jwtService)
 
 	s := grpc.NewServer(
 		grpc.Creds(creds),

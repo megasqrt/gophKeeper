@@ -15,8 +15,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Database определяет интерфейс для работы с базой данных.
+type Database interface {
+	Close() error
+}
+
 type App struct {
-	DB     *sqlx.DB
+	DB     Database
 	Server *services.Server
 	Logger *zerolog.Logger
 }
@@ -26,9 +31,7 @@ func (a *App) Stop() {
 	a.DB.Close()
 }
 
-func NewApp(ctx context.Context) *App {
-
-	cfg := config.NewConfig()
+func NewApp(ctx context.Context, cfg config.Config) *App {
 	log := logger.NewСonsoleLogger()
 
 	helper.BuildInfoPrint()
@@ -55,7 +58,8 @@ func NewApp(ctx context.Context) *App {
 	passRepo := postgres.NewPasswordRepository(db)
 	fileRepo := postgres.NewFileRepository(db)
 
-	authService := services.NewService(log, userRepo, deviceRepo, cfg)
+	jwtService := services.NewJWTService([]byte(cfg.HashKey))
+	authService := services.NewService(log, userRepo, deviceRepo, jwtService, cfg)
 	noteService := services.NewNoteService(log, noteRepo)
 	cardService := services.NewCardService(log, cardRepo)
 	passService := services.NewPasswordService(log, passRepo, deviceRepo)

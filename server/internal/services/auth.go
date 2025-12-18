@@ -9,7 +9,6 @@ import (
 	"gophKeeper/server/internal/domain/repository"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rs/zerolog"
@@ -19,31 +18,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Claims определяет структуру данных, которые будут храниться в JWT.
-type Claims struct {
-	jwt.RegisteredClaims
-	UserID   uuid.UUID `json:"user_id"`
-	DeviceID string    `json:"device_id"`
-}
-
 // Service реализует gRPC сервис KeeperService.
 type Service struct {
 	pb.AuthServiceServer
 	userRepo         repository.UserRepository
 	deviceRepo       repository.DeviceRepository
 	masterKeyService *MasterKeyService
+	jwtService       *JWTService
 	log              zerolog.Logger
-	jwtSecret        []byte
 }
 
 // NewService создает новый экземпляр сервиса аутентификации.
-func NewService(log zerolog.Logger, userRepo repository.UserRepository, deviceRepo repository.DeviceRepository, cfg config.Config) *Service {
+func NewService(log zerolog.Logger, userRepo repository.UserRepository, deviceRepo repository.DeviceRepository, jwtService *JWTService, cfg config.Config) *Service {
 	return &Service{
 		userRepo:         userRepo,
 		deviceRepo:       deviceRepo,
 		masterKeyService: NewMasterKeyService(),
+		jwtService:       jwtService,
 		log:              log,
-		jwtSecret:        []byte(cfg.HashKey),
 	}
 }
 
@@ -118,7 +110,7 @@ func (s *Service) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Re
 	s.log.Info().Str("device_id", device.ID.String()).Msg("Device registered for user")
 
 	// Генерируем JWT токен
-	token, err := s.generateJWT(user.ID, device.ID.String())
+	token, err := s.jwtService.GenerateToken(user.ID, device.ID.String())
 	if err != nil {
 		s.log.Error().Err(err).Msg("Failed to generate JWT")
 		return nil, err
@@ -211,7 +203,7 @@ func (s *Service) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 	}
 
 	// Генерируем JWT токен
-	token, err := s.generateJWT(user.ID, device.ID.String())
+	token, err := s.jwtService.GenerateToken(user.ID, device.ID.String())
 	if err != nil {
 		s.log.Error().Err(err).Msg("Failed to generate JWT during login")
 		return nil, err
@@ -224,17 +216,4 @@ func (s *Service) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginRes
 		EncryptedMasterKey: user.EncryptedMasterKey,
 		DeviceId:           func(s string) *string { return &s }(device.ID.String()),
 	}.Build(), nil
-}
-
-func (s *Service) generateJWT(userID uuid.UUID, deviceID string) (string, error) {
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-		},
-		UserID:   userID,
-		DeviceID: deviceID,
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(s.jwtSecret)
 }
